@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions name="${serviceName}"
+ targetNamespace="${namespace}/${serviceName}.wsdl"
+ xmlns="http://schemas.xmlsoap.org/wsdl/"
+ xmlns:tns="${namespace}/${serviceName}.wsdl"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+>
+<wsdl:types><xsd:element name="Empty"><xsd:complexType><xsd:sequence></xsd:sequence></xsd:complexType></xsd:element>
+<xsd:element name="GetAccumulator"><xsd:complexType><xsd:sequence><xsd:element name="memberId" type="xsd:string"/><xsd:element name="accumulatorId" type="xsd:string"/><xsd:element name="planYear" type="xsd:int"/></xsd:sequence></xsd:complexType></xsd:element>
+<xsd:element name="AddClaim"><xsd:complexType><xsd:sequence><xsd:element name="claim" type="Claim"/><xsd:element name="StateHash" type="xsd:string"/></xsd:sequence></xsd:complexType></xsd:element>
+<xsd:element name="Accumulator"><xsd:complexType><xsd:sequence><xsd:element name="memberId" type="xsd:string"/><xsd:element name="accumulatorId" type="xsd:string"/><xsd:element name="valueCents" type="xsd:int"/><xsd:element name="planYear" type="xsd:int"/><xsd:element name="stateHash" type="xsd:string"/></xsd:sequence></xsd:complexType></xsd:element>
+<xsd:element name="ChannelIdsEntry"><xsd:complexType><xsd:sequence><xsd:element name="key" type="xsd:int"/><xsd:element name="value" type="xsd:string"/></xsd:sequence></xsd:complexType></xsd:element>
+<xsd:element name="Member"><xsd:complexType><xsd:sequence><xsd:element name="Id" type="xsd:string"/><xsd:element name="channelIds" type="ChannelIdsEntry" minOccurs="0" maxOccurs="unbounded"/></xsd:sequence></xsd:complexType></xsd:element>
+<xsd:element name="Claim"><xsd:complexType><xsd:sequence><xsd:element name="accumulatorId" type="xsd:string"/><xsd:element name="sourceSystem" type="xsd:string"/><xsd:element name="sourceClaimId" type="xsd:string"/><xsd:element name="dateOfService" type="xsd:long"/><xsd:element name="amountCents" type="xsd:int"/><xsd:element name="memberId" type="xsd:string"/><xsd:element name="planSponsor" type="xsd:string"/><xsd:element name="planYear" type="xsd:int"/></xsd:sequence></xsd:complexType></xsd:element>
+</wsdl:types><wsdl:message name="Empty">
+<wsdl:part name="param" type="tns:Empty"/>
+</wsdl:message>
+<wsdl:message name="GetAccumulator">
+<wsdl:part name="param" type="tns:GetAccumulator"/>
+</wsdl:message>
+<wsdl:message name="AddClaim">
+<wsdl:part name="param" type="tns:AddClaim"/>
+</wsdl:message>
+<wsdl:message name="Accumulator">
+<wsdl:part name="param" type="tns:Accumulator"/>
+</wsdl:message>
+<wsdl:message name="Member">
+<wsdl:part name="param" type="tns:Member"/>
+</wsdl:message>
+<wsdl:portType name="Accumulator">
+<wsdl:operation name="AddClaim">
+<wsdl:input message="tns:AddClaim"/> 
+<wsdl:output message="tns:Empty"/> 
+</wsdl:operation>
+<wsdl:operation name="GetAccumulator">
+<wsdl:input message="tns:GetAccumulator"/> 
+<wsdl:output message="tns:Accumulator"/> 
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:portType name="InsuredRegistry">
+<wsdl:operation name="AddMember">
+<wsdl:input message="tns:Member"/> 
+<wsdl:output message="tns:Empty"/> 
+</wsdl:operation>
+</wsdl:portType>
+</wsdl:definitions>

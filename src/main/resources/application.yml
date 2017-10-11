@@ -1,0 +1,4 @@
+descriptorFileName: data/proto/services.desc
+connectorClass: XmlCallFabricConnector
+fabricConfigFile: network-local/fabric-devnet.yaml
+xmlCallJmsDestination: blockchain-xmlcall

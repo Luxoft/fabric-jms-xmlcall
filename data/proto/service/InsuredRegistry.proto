@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "com.luxoft.uhg.fabric.services";
+import "xmlcall.proto";
+import "google/protobuf/empty.proto";
+import "messages/InsuredRegistry.proto";
+
+service InsuredRegistry {
+  rpc AddMember (main.Member) returns (google.protobuf.Empty) {option(xmlcall.exec_type) = INVOKE; }
+}

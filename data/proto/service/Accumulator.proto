@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "com.luxoft.uhg.fabric.services";
+import "xmlcall.proto";
+import "google/protobuf/empty.proto";
+import "messages/Accumulator.proto";
+
+service Accumulator {
+  rpc AddClaim (main.AddClaim) returns (google.protobuf.Empty) {option(xmlcall.exec_type) = INVOKE; }
+  rpc GetAccumulator(main.GetAccumulator) returns (main.Accumulator) {option(xmlcall.exec_type) = QUERY; }
+}
