@@ -18,3 +18,13 @@ enum ExecType
 extend google.protobuf.MethodOptions {
   ExecType exec_type = 51234;
 }
+
+message Fault
+{
+
+}
+
+message Address
+{
+    string id = 1;
+}

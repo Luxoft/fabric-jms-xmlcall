@@ -57,4 +57,48 @@ public class ProtoLoader
     {
         return serviceDescriptors;
     }
+
+    public Descriptors.Descriptor getType(String name)
+    {
+        final boolean anchored = name.startsWith(".");
+        final int index = name.lastIndexOf('.');
+        String reqPackage;
+        String reqName;
+
+        if (index != -1) {
+            reqPackage = name.substring(anchored ? 1 : 0, index);
+            reqName = name.substring(index + 1);
+        }
+        else {
+            reqPackage = "";
+            reqName = name;
+        }
+
+        for (Descriptors.FileDescriptor fileDescriptor : fileDescriptors.values()) {
+
+            /* check package prefix first */
+            if (!reqPackage.isEmpty()) {
+                final String filePackage = fileDescriptor.getPackage();
+
+                if (anchored) {
+                    if (!filePackage.equals(reqPackage))
+                        continue;
+                }
+
+                else {
+                    if (!filePackage.endsWith(reqPackage))
+                        continue;
+
+                    if (filePackage.length() != reqPackage.length() && filePackage.charAt(filePackage.length() - reqPackage.length() - 1) != '.')
+                        continue;
+                }
+            }
+
+            final Descriptors.Descriptor messageType = fileDescriptor.findMessageTypeByName(reqName);
+            if (messageType != null)
+                return messageType;
+        }
+
+        throw new RuntimeException("type " + name + " not found");
+    }
 }
