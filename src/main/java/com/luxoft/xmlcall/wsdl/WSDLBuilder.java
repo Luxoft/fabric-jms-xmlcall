@@ -8,11 +8,6 @@ import java.util.*;
 
 public class WSDLBuilder
 {
-    public enum SOAPStyle
-    {
-        DOCUMENT, RPC
-    };
-
     private static final String xmlHeader =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 
@@ -40,11 +35,12 @@ public class WSDLBuilder
     private final String serviceName;
     private final Descriptors.Descriptor faultType;
     private final Map<String, Descriptors.Descriptor> extraInput;
-    private final SOAPStyle soapStyle;
+    private final Map<String, Descriptors.Descriptor> extraOutput;
 
     private final List<Descriptors.ServiceDescriptor> serviceDescriptors;
     private final Set<Descriptors.Descriptor> messageTypes = new HashSet<>();
     private final Set<Descriptors.Descriptor> inputTypes = new HashSet<>();
+    private final Set<Descriptors.Descriptor> outputTypes = new HashSet<>();
     private final Set<Descriptors.Descriptor> regularTypes = new HashSet<>();
 
     private class Builder
@@ -93,14 +89,14 @@ public class WSDLBuilder
                        String serviceName,
                        Descriptors.Descriptor faultType,
                        Map<String,Descriptors.Descriptor> extraInput,
-                       SOAPStyle soapStyle)
+                       Map<String,Descriptors.Descriptor> extraOutput)
     {
         this.namespace = targetNamespace;
         this.serviceName = serviceName;
         this.serviceDescriptors = serviceDescriptors;
         this.faultType = faultType;
         this.extraInput = extraInput;
-        this.soapStyle = soapStyle;
+        this.extraOutput = extraOutput;
 
         markTypesRecursively(faultType, regularTypes);
         messageTypes.add(faultType);
@@ -120,7 +116,9 @@ public class WSDLBuilder
 
                 messageTypes.add(inputType);
                 messageTypes.add(outputType);
+
                 inputTypes.add(inputType);
+                outputTypes.add(outputType);
             }
         }
 
@@ -194,11 +192,6 @@ public class WSDLBuilder
 
         final List<Descriptors.FieldDescriptor> fields = type.getFields();
 
-        if (soapStyle == SOAPStyle.DOCUMENT || type == faultType) {
-            if (messageTypes.contains(type))
-                builder.append("<${xs}element name=\"${typeName}\" type=\"${tns}${typeName}\"/>\n");
-        }
-
         if (fields.isEmpty()) {
             builder.append("<${xs}complexType name=\"${typeName}\"/>");
         }
@@ -232,6 +225,47 @@ public class WSDLBuilder
         return builder.toString();
     }
 
+    private String buildXSDMessageElement(Descriptors.Descriptor type, Map<String, Descriptors.Descriptor> extraFields, String elementName)
+    {
+        Builder builder = new Builder();
+        builder.set("elementName", elementName);
+        builder.set("typeName", type.getName());
+
+        if (extraFields == null || extraFields.isEmpty())
+            builder.append("<${xs}element name=\"${elementName}\" type=\"${tns}${typeName}\"/>\n");
+        else {
+            builder.append("<${xs}element name=\"${elementName}\">\n");
+            builder.append("<${xs}complexType>\n");
+            builder.append("<${xs}all>\n");
+            builder.append("<${xs}element name=\"param\" type=\"${tns}${typeName}\"/>\n");
+
+            for (Map.Entry<String, Descriptors.Descriptor> e : extraFields.entrySet()) {
+                builder.set("paramName", e.getKey());
+                builder.set("paramType", e.getValue().getName());
+                builder.append("<${xs}element name=\"${paramName}\" type=\"${tns}${paramType}\"/>\n");
+            }
+            builder.append("</${xs}all>\n");
+            builder.append("</${xs}complexType>\n");
+            builder.append("</${xs}element>\n");
+        }
+        return builder.toString();
+    }
+
+    private String buildXSDMessageElements()
+    {
+        Builder builder = new Builder();
+
+        for (Descriptors.ServiceDescriptor serviceDescriptor : serviceDescriptors) {
+            for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
+                builder.appendLiteral(buildXSDMessageElement(methodDescriptor.getInputType(), extraInput, methodDescriptor.getName() + "Input"));
+                builder.appendLiteral(buildXSDMessageElement(methodDescriptor.getOutputType(), extraOutput, methodDescriptor.getName() + "Output"));
+            }
+        }
+
+        builder.appendLiteral(buildXSDMessageElement(faultType, null, "Fault"));
+        return builder.toString();
+    }
+
     private String buildXSDTypes(Set<Descriptors.Descriptor> types)
     {
         Builder builder = new Builder();
@@ -247,54 +281,60 @@ public class WSDLBuilder
     private String buildTypesSection()
     {
         Builder builder = new Builder();
-        final String s = buildXmlSchema(); // buildXSDTypes(types);
-        if (!s.isEmpty()) {
-            builder.append("<${wsdl}types>\n" + s + "</${wsdl}types>\n");
-            return builder.toString();
-        }
-
-        return "";
+        builder.append("<${wsdl}types>\n");
+        builder.appendLiteral(buildXmlSchema());
+        builder.append("</${wsdl}types>\n");
+        return builder.toString();
     }
 
     private String buildMessagesSection()
     {
         Builder builder = new Builder();
 
-        for (Descriptors.Descriptor descriptor : messageTypes) {
-            builder.set("messageName", descriptor.getName());
-            builder.append("<${wsdl}message name=\"${messageName}\">");
-
-            if (true) { // single part
-                builder.set("paramType", descriptor.getName());
+        for (Descriptors.ServiceDescriptor serviceDescriptor : serviceDescriptors) {
+            for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
+                // input message
+                builder.set("messageName", methodDescriptor.getName() + "Input");
+                builder.set("paramType", methodDescriptor.getName() + "Input");
                 builder.set("paramName", "param");
-                if (soapStyle == SOAPStyle.DOCUMENT || descriptor == faultType)
-                    builder.append("<${wsdl}part name=\"${paramName}\" element=\"${tns}${paramType}\"/>");
-                else {
-                    builder.append("<${wsdl}part name=\"${paramName}\" type=\"${tns}${paramType}\"/>");
-                    if (inputTypes.contains(descriptor) && extraInput != null) {
-                        for (Map.Entry<String, Descriptors.Descriptor> e : extraInput.entrySet()) {
-                            final String name = e.getKey();
-                            final Descriptors.Descriptor value = e.getValue();
-                            builder.set("extraName", name);
-                            builder.set("extraType", value.getName());
-                            builder.append("<${wsdl}part name=\"${extraName}\" type=\"${tns}${extraType}\"/>");
-                        }
-                    }
-                }
-            }
 
-            else { // multipart
-                for (Descriptors.FieldDescriptor fieldDescriptor : descriptor.getFields()) {
-                    builder.set("fieldName", fieldDescriptor.getName());
-                    builder.set("fieldType", getXSDType(fieldDescriptor));
-                    if (soapStyle == SOAPStyle.DOCUMENT)
-                        builder.append("<${wsdl}part name=\"${fieldName}\" element=\"${fieldType}\"/>");
-                    else
-                        builder.append("<${wsdl}part name=\"${fieldName}\" type=\"${fieldType}\"/>");
-                }
+                builder.append("<${wsdl}message name=\"${messageName}\">");
+                builder.append("<${wsdl}part name=\"${paramName}\" element=\"${tns}${paramType}\"/>");
+                builder.append("</${wsdl}message>\n");
+
+                // output message
+                builder.set("messageName", methodDescriptor.getName() + "Output");
+                builder.set("paramType", methodDescriptor.getName() + "Output");
+                builder.set("paramName", "param");
+
+                builder.append("<${wsdl}message name=\"${messageName}\">");
+                builder.append("<${wsdl}part name=\"${paramName}\" element=\"${tns}${paramType}\"/>");
+                builder.append("</${wsdl}message>\n");
             }
-            builder.append("</${wsdl}message>\n");
         }
+
+        // fault message
+        builder.set("messageName", faultType.getName());
+        builder.set("paramType", faultType.getName());
+        builder.set("paramName", "param");
+
+        builder.append("<${wsdl}message name=\"${messageName}\">");
+        builder.append("<${wsdl}part name=\"${paramName}\" element=\"${tns}${paramType}\"/>");
+        builder.append("</${wsdl}message>\n");
+
+
+//        for (Descriptors.Descriptor descriptor : messageTypes) {
+//            final boolean isInput = inputTypes.contains(descriptor);
+//            final boolean isOutput = outputTypes.contains(descriptor);
+//
+//            builder.set("messageName", descriptor.getName());
+//            builder.set("paramType", descriptor.getName());
+//            builder.set("paramName", "param");
+//
+//            builder.append("<${wsdl}message name=\"${messageName}\">");
+//            builder.append("<${wsdl}part name=\"${paramName}\" element=\"${tns}${paramType}\"/>");
+//            builder.append("</${wsdl}message>\n");
+//        }
 
         return builder.toString();
     }
@@ -361,27 +401,17 @@ public class WSDLBuilder
 
                 case QUERY:
                 case INVOKE:
-                    builder.set("inputType", methodDescriptor.getInputType().getName());
-                    builder.set("outputType", methodDescriptor.getOutputType().getName());
+                    builder.set("inputType", methodDescriptor.getName() + "Input");
+                    builder.set("outputType", methodDescriptor.getName() + "Output");
                     builder.set("faultType", faultType.getName());
 
-                    if (soapStyle == SOAPStyle.DOCUMENT) {
-                        builder.append("<${wsdl}input message=\"${tns}${inputType}\"/>");
-                        builder.append("<${wsdl}output message=\"${tns}${outputType}\"/>");
-                        builder.append("<${wsdl}fault name=\"fault\" message=\"${tns}${faultType}\"/>");
-                    }
-                    else {
-                        builder.append("<${wsdl}input name=\"in\" message=\"${tns}${inputType}\"/>");
-                        builder.append("<${wsdl}output name=\"out\" message=\"${tns}${outputType}\"/>");
-                        builder.append("<${wsdl}fault name=\"fault\" message=\"${tns}${faultType}\"/>");
-                    }
+                    builder.append("<${wsdl}input message=\"${tns}${inputType}\"/>");
+                    builder.append("<${wsdl}output message=\"${tns}${outputType}\"/>");
+                    builder.append("<${wsdl}fault name=\"fault\" message=\"${tns}${faultType}\"/>");
                     break;
                 case EVENT:
-                    builder.set("outputType", methodDescriptor.getOutputType().getName());
-                    if (soapStyle == SOAPStyle.DOCUMENT)
-                        builder.append("<${wsdl}output message=\"${tns}${outputType}\"/>");
-                    else
-                        builder.append("<${wsdl}output name=\"out\" message=\"${tns}${outputType}\"/>");
+                    builder.set("outputType", methodDescriptor.getName());
+                    builder.append("<${wsdl}output message=\"${tns}${outputType}\"/>");
                     break;
             }
             builder.append("</${wsdl}operation>\n");
@@ -407,10 +437,7 @@ public class WSDLBuilder
             builder.set("soapAddress", soapAddress);
 
             builder.append("<${wsdl}binding name=\"${bindingName}\" type=\"${tns}${portType}\">\n");
-            if (soapStyle == SOAPStyle.DOCUMENT)
-                builder.append("<${soap}binding style=\"document\" transport=\"${soapTransport}\"/>\n");
-            else
-                builder.append("<${soap}binding style=\"rpc\" transport=\"${soapTransport}\"/>\n");
+            builder.append("<${soap}binding style=\"document\" transport=\"${soapTransport}\"/>\n");
 
             for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
                 final XmlCall.ExecType execType = methodDescriptor.getOptions().getExtension(XmlCall.execType);
@@ -426,23 +453,11 @@ public class WSDLBuilder
                     case QUERY:
                     case INVOKE:
                         builder.append("<${wsdl}input>");
-                        if (soapStyle == SOAPStyle.DOCUMENT)
-                            builder.append("<${soap}body use=\"literal\"/>");
-                        else {
-                            builder.append("<${soap}body parts=\"param\" use=\"literal\" namespace=\"${targetNamespace}\"/>");
-                            for (Map.Entry<String, Descriptors.Descriptor> entry : extraInput.entrySet()) {
-                                builder.set("paramName", entry.getKey());
-                                builder.set("paramType", entry.getValue().getName());
-                                builder.append("<${soap}body parts=\"${paramName}\" use=\"literal\" namespace=\"${targetNamespace}\"/>");
-                            }
-                        }
+                        builder.append("<${soap}body use=\"literal\"/>");
                         builder.append("</${wsdl}input>");
 
                         builder.append("<${wsdl}output>");
-                        if (soapStyle == SOAPStyle.DOCUMENT)
-                            builder.append("<${soap}body use=\"literal\"/>");
-                        else
-                            builder.append("<${soap}body parts=\"param\" use=\"literal\" namespace=\"${targetNamespace}\"/>");
+                        builder.append("<${soap}body use=\"literal\"/>");
                         builder.append("</${wsdl}output>");
 
                         builder.append("<${wsdl}fault name=\"fault\">");
@@ -451,10 +466,7 @@ public class WSDLBuilder
                         break;
                     case EVENT:
                         builder.append("<${wsdl}output>");
-                        if (soapStyle == SOAPStyle.DOCUMENT)
-                            builder.append("<${soap}body use=\"literal\"/>");
-                        else
-                            builder.append("<${soap}body name=\"out\" use=\"literal\"/>");
+                        builder.append("<${soap}body use=\"literal\"/>");
                         builder.append("</${wsdl}output>");
                         break;
                 }
@@ -480,7 +492,6 @@ public class WSDLBuilder
     public String buildXmlSchema()
     {
         Builder builder = new Builder();
-        final String s = buildXSDTypes(this.regularTypes);
 
         final String header = "<${xs}schema\n" +
                 " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
@@ -491,7 +502,8 @@ public class WSDLBuilder
         final String footer = "</${xs}schema>\n";
 
         return builder.append(header)
-                .appendLiteral(s)
+                .appendLiteral(buildXSDTypes(this.regularTypes))
+                .appendLiteral(buildXSDMessageElements())
                 .append(footer)
                 .toString();
     }

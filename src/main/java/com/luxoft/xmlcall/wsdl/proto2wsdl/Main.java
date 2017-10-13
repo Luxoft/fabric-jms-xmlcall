@@ -41,7 +41,7 @@ public class Main
         }
 
 
-        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(), targetNamespace, serviceName, faultType, extraInput, WSDLBuilder.SOAPStyle.RPC);
+        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(), targetNamespace, serviceName, faultType, extraInput, null);
 
         final String s = generator.apply(wsdlBuilder);
         Files.write(Paths.get(outputFile), s.getBytes(StandardCharsets.UTF_8));
