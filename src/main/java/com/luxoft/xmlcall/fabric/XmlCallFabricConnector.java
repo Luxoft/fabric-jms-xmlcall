@@ -22,8 +22,16 @@ public class XmlCallFabricConnector implements XmlCallBlockchainConnector
     }
 
     @Override
-    public CompletableFuture<byte[]> exec(ExecType execType, String channel, String chaincode, String chaincodeId, String method, byte[][] args) throws Exception {
-        if (method == null)
+    public CompletableFuture<Result> exec(ExecType execType,
+                                          String channel,
+                                          String chaincodeId,
+                                          String chaincodeName,
+                                          String methodName,
+                                          byte[][] args) throws Exception {
+        if (chaincodeName == null)
+            throw new IllegalArgumentException("chaincode is null");
+
+        if (methodName == null)
             throw new IllegalArgumentException("method is null");
 
         if (chaincodeId == null)
@@ -34,13 +42,21 @@ public class XmlCallFabricConnector implements XmlCallBlockchainConnector
 
         switch (execType) {
             case QUERY:
-                return fabricConnector.query(method, chaincodeId, channel, args);
+                return fabricConnector.query(methodName, chaincodeId, channel, args)
+                        .thenApply(bytes -> {
+                            return new Result("", bytes);
+                        });
+
             case INVOKE:
-                return fabricConnector.invoke(method, chaincodeId, channel, args)
+                return fabricConnector.invoke(methodName, chaincodeId, channel, args)
                         .thenApply(transactionEvent -> {
+                            byte [] data;
+
                             if (transactionEvent.getTransactionActionInfoCount() == 0)
-                                return new byte[0];
-                            return transactionEvent.getTransactionActionInfo(0).getProposalResponsePayload();
+                                data = new byte[0];
+                            else
+                                data = transactionEvent.getTransactionActionInfo(0).getProposalResponsePayload();
+                            return new Result(transactionEvent.getTransactionID(), data);
                         });
         }
         throw new InternalError("Unhandled execType: " + execType.name());

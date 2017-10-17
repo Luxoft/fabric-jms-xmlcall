@@ -9,10 +9,21 @@ public interface XmlCallBlockchainConnector
         QUERY, INVOKE
     }
 
-    CompletableFuture<byte[]> exec(ExecType execType,
+    class Result
+    {
+        final String txid;
+        final byte[] data;
+
+        public Result(String txid, byte[] data) {
+            this.txid = txid;
+            this.data = data;
+        }
+    }
+
+    CompletableFuture<Result> exec(ExecType execType,
                                    String channel,
-                                   String chaincode,
                                    String chaincodeId,
-                                   String method,
+                                   String chaincodeName,
+                                   String methodName,
                                    byte[][] args) throws Exception;
 }

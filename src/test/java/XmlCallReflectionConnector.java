@@ -3,6 +3,7 @@ import com.luxoft.xmlcall.handler.XmlCallBlockchainConnector;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class XmlCallReflectionConnector implements XmlCallBlockchainConnector
@@ -15,10 +16,10 @@ public class XmlCallReflectionConnector implements XmlCallBlockchainConnector
     }
 
     @Override
-    public CompletableFuture<byte[]> exec(ExecType execType,
-                                          String channelName,
-                                          String chaincodeName,
+    public CompletableFuture<Result> exec(ExecType execType,
+                                          String channel,
                                           String chaincodeId,
+                                          String chaincodeName,
                                           String methodName,
                                           byte[][] args) {
         return CompletableFuture.supplyAsync(() -> {
@@ -33,7 +34,9 @@ public class XmlCallReflectionConnector implements XmlCallBlockchainConnector
                 });
 
                 Method method = obj.getClass().getMethod(methodName, byte[][].class);
-                return (byte[])method.invoke(obj, (Object)args);
+                final byte[] bytes = (byte[])method.invoke(obj, (Object)args);
+
+                return new Result(UUID.randomUUID().toString(), bytes);
 
             } catch (Exception e) {
                 throw new RuntimeException("Failed", e);

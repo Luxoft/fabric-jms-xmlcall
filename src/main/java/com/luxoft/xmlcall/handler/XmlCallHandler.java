@@ -1,8 +1,10 @@
 package com.luxoft.xmlcall.handler;
 import com.google.protobuf.*;
+import com.googlecode.protobuf.format.ProtobufFormatter;
 import com.googlecode.protobuf.format.XmlFormat;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.ProtoLoader;
+import com.luxoft.xmlcall.shared.Strings;
 import org.dom4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +29,13 @@ public class XmlCallHandler
 
     class RpcMethod
     {
+        final Descriptors.ServiceDescriptor serviceDescriptor;
         final Descriptors.MethodDescriptor methodDescriptor;
         final OperationType operationType;
 
         RpcMethod(Descriptors.MethodDescriptor methodDescriptor)
         {
+            this.serviceDescriptor = methodDescriptor.getService();
             this.methodDescriptor = methodDescriptor;
 
             final DescriptorProtos.MethodOptions options = methodDescriptor.getOptions();
@@ -79,68 +83,94 @@ public class XmlCallHandler
         }
     }
 
+    private static final String RequestSuffix = Strings.RequestSuffix;
+    private static final String ResponceSuffix = Strings.ResponceSuffix;
+
     private HashSet<String> services = new HashSet<>();
     private HashMap<String, RpcMethod> functions = new HashMap<>();
     private HashMap<String, RpcMethod> events = new HashMap<>();
+    private final Descriptors.Descriptor chaincodeRequestType;
+    private final Descriptors.Descriptor chaincodeResponceType;
+    private final Descriptors.Descriptor faultType;
 
     private final ExtensionRegistry xmlExtensionRegistry;
 
-    enum SericeType
+    enum ServiceType
     {
         METHOD, EVENT
     }
 
-    private static String getFullName(String serviceName, String methodName)
+    private RpcMethod findServiceMethod(ServiceType serviceType, String methodName)
     {
-        return serviceName + ":" + methodName;
-    }
-
-    private RpcMethod findServiceMethod(SericeType sericeType, String serviceName, String methodName)
-    {
-        final HashMap<String, RpcMethod> ops = sericeType == SericeType.METHOD
+        final HashMap<String, RpcMethod> ops = serviceType == ServiceType.METHOD
                 ? this.functions
                 : this.events;
 
-        final String fullName = getFullName(serviceName, methodName);
-        return ops.computeIfAbsent(fullName, s -> {
-            throw new RuntimeException(format("Unable to find %s.%s", serviceName, methodName));
+        return ops.computeIfAbsent(methodName, s -> {
+            throw new RuntimeException(format("Unable to find %s", methodName));
         });
     }
 
-    public String makeSuccess(String channel, String chaincodeName, String methodName, String chaincodeInstance, String xmlResult) throws DocumentException {
+    private String makeSuccess(XmlFormat xmlFormat,
+                               XmlCall.ChaincodeRequest chaincodeRequest,
+                               RpcMethod rpcMethod,
+                               XmlCallBlockchainConnector.Result result) throws DocumentException, InvalidProtocolBufferException {
+
+        final DynamicMessage outputMessage = DynamicMessage.parseFrom(rpcMethod.getOutputType(), result.data);
+        final XmlCall.ChaincodeResult chaincodeResult = XmlCall.ChaincodeResult.newBuilder()
+                .setTxid(result.txid)
+                .build();
+
+        final Element outputMessageElement = DocumentHelper.parseText(xmlFormat.printToString(outputMessage)).getRootElement().createCopy();
+        final Element chaincodeResultElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeResult)).getRootElement().createCopy();
+        final Element chaincodeRequestElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeRequest)).getRootElement().createCopy();
+
         final Document replyDoc = DocumentHelper.createDocument();
-        final Element root = replyDoc.addElement("reply");
-        root
-                .addAttribute("channel", channel)
-                .addAttribute("chaincode", chaincodeName)
-                .addAttribute("method", methodName)
-                .addAttribute("id", chaincodeInstance)
-                .addAttribute("outcome", "SUCCESS")
-                .add(cleanupElement(DocumentHelper.parseText(xmlResult).getRootElement()));
+        final Element rootElement = replyDoc.addElement(rpcMethod.methodDescriptor.getFullName() + ResponceSuffix);
+        rootElement.add(chaincodeResultElement);
+        rootElement.add(chaincodeRequestElement);
+        rootElement.add(outputMessageElement);
 
         return replyDoc.asXML();
     }
 
     public static String makeError(String message) {
-        return makeError(null, null, null, null, message);
+        return makeErrorXML(message);
     }
 
-    public static String makeError(String channel, String chaincodeName, String methodName, String chaincodeInstance, String message) {
-        final Document replyDoc = DocumentHelper.createDocument();
-        final Element root = replyDoc.addElement("reply");
-        if (channel != null)
-            root.addAttribute("channel", channel);
+    public static String makeErrorXML(String message) {
 
-        if (chaincodeName != null)
-            root.addAttribute("chaincode", chaincodeName);
-        if (methodName != null)
-            root.addAttribute("method", methodName);
-        if (chaincodeInstance != null)
-            root.addAttribute("id", chaincodeInstance);
+        final XmlCall.ChaincodeFault chaincodeFault = XmlCall.ChaincodeFault.newBuilder()
+                .setMessage(message)
+                .build();
 
-        root.addAttribute("outcome", "ERROR")
-                .addText(message);
-        return replyDoc.asXML();
+        return new XmlFormat().printToString(chaincodeFault);
+    }
+
+    private XmlCall.ChaincodeRequest
+    getRequest(XmlFormat xmlFormat, String xmlString) throws ProtobufFormatter.ParseException {
+        final XmlCall.ChaincodeRequest.Builder builder = XmlCall.ChaincodeRequest.newBuilder();
+
+        xmlFormat.merge(xmlString, xmlExtensionRegistry, builder);
+        return builder.build();
+    }
+
+    private Message
+    getInputMessage(XmlFormat xmlFormat, RpcMethod rpcMethod, String xmlString) throws ProtobufFormatter.ParseException {
+        final Descriptors.Descriptor inputType = rpcMethod.getInputType();
+        final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
+
+        xmlFormat.merge(xmlString, xmlExtensionRegistry, messageBuilder);
+        return messageBuilder.build();
+    }
+
+    private String getMethodName(Element rootElement)
+    {
+        String request = rootElement.getName();
+        if (!request.endsWith(RequestSuffix))
+            throw new RuntimeException("name should end with " + RequestSuffix);
+
+        return request.substring(0, request.length() - RequestSuffix.length());
     }
 
     public CompletableFuture<String> processXmlMessage(String message, @Nonnull  XmlCallBlockchainConnector blockchain) throws Exception {
@@ -152,45 +182,38 @@ public class XmlCallHandler
         logger.info("Request: {}", requestDoc.asXML());
 
         final Element rootElement = requestDoc.getRootElement();
-        final String chaincodeName = rootElement.getName();
+        final String methodName = getMethodName(rootElement);
 
-        if (!services.contains(chaincodeName))
-            throw new RuntimeException(format("Service %s is unknown", chaincodeName));
-        final String chaincodeInstance = rootElement.attributeValue("id");
-        final String channelName = rootElement.attributeValue("channel");
+        logger.trace("Lookup method {}", methodName);
+        RpcMethod rpcMethod = findServiceMethod(ServiceType.METHOD, methodName);
 
-        if (rootElement.elements().size() != 1)
-            throw new RuntimeException("Too many elements in query");
+        final String chaincodeRequestString = rootElement.element(chaincodeRequestType.getName()).asXML();
+        final String inputParamsString = rootElement.element(rpcMethod.getInputType().getName()).asXML();
 
-        final Element element = rootElement.elements().get(0);
-        final String xmlInput = element.asXML();
-        final String methodName = element.getName();
+        final XmlCall.ChaincodeRequest chaincodeId = getRequest(xmlFormat, chaincodeRequestString);
+        final Message inputMessage = getInputMessage(xmlFormat, rpcMethod, inputParamsString);
 
-        logger.trace("Lookup method {}.{}", chaincodeName, methodName);
-        RpcMethod rpcMethod = findServiceMethod(SericeType.METHOD, chaincodeName, methodName);
-        final Descriptors.Descriptor inputType = rpcMethod.getInputType();
-
-        final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
-
-        logger.trace("Parse input params {}", xmlInput);
-        xmlFormat.merge(xmlInput, xmlExtensionRegistry, messageBuilder);
-
-        final DynamicMessage inputMessage = messageBuilder.build();
         final byte[] inputMessageBytes = inputMessage.toByteArray();
         final byte[][] args = {inputMessageBytes};
 
-        final CompletableFuture<byte[]> exec = blockchain.exec(rpcMethod.getExecType(),
-                channelName, chaincodeName, chaincodeInstance, methodName, args);
+        final CompletableFuture<XmlCallBlockchainConnector.Result> exec
+                = blockchain.exec(
+                rpcMethod.getExecType(),
+                chaincodeId.getChannel(),
+                chaincodeId.getChaincodeId(),
+                rpcMethod.serviceDescriptor.getName(),
+                rpcMethod.methodDescriptor.getName(),
+                args);
 
-        return exec.thenApply(bytes -> {
+        return exec.thenApply(result -> {
             try {
-                final DynamicMessage outputMessage = DynamicMessage.parseFrom(rpcMethod.getOutputType(), bytes);
-                final String outputString = xmlFormat.printToString(outputMessage);
-                final String text = makeSuccess(channelName, chaincodeName, methodName, chaincodeInstance, outputString);
+//                final String outputString = xmlFormat.printToString(outputMessage);
+
+                final String text = makeSuccess(xmlFormat, chaincodeId, rpcMethod, result);
                 logger.info("result: {}", text);
                 return text;
             } catch (Exception e) {
-                throw new XmlCallException("Unable to parse result", makeError(channelName, chaincodeName, methodName, chaincodeInstance, e.getMessage()), e);
+                throw new XmlCallException("Unable to parse result", makeErrorXML(e.getMessage()), e);
             }
         });
     }
@@ -223,12 +246,16 @@ public class XmlCallHandler
         final ProtoLoader protoLoader = new ProtoLoader(fileName);
 
         this.xmlExtensionRegistry = protoLoader.getExtensionRegistry();
+        this.chaincodeRequestType = protoLoader.getType("xmlcall.ChaincodeRequest");
+        this.chaincodeResponceType = protoLoader.getType("xmlcall.ChaincodeResult");
+        this.faultType = protoLoader.getType("xmlcall.ChaincodeFault");
+
         for (Descriptors.ServiceDescriptor serviceDescriptor : protoLoader.getServices()) {
             this.services.add(serviceDescriptor.getName());
 
             for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
                 final RpcMethod rpcMethod = new RpcMethod(methodDescriptor);
-                final String fullName = getFullName(serviceDescriptor.getName(), methodDescriptor.getName());
+                final String fullName = methodDescriptor.getFullName();
                 switch (rpcMethod.operationType) {
                 case QUERY:
                 case INVOKE:

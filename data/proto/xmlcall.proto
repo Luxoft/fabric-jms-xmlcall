@@ -32,4 +32,5 @@ message ChaincodeResult
 message ChaincodeRequest
 {
     string chaincodeId = 1;
+    string channel = 2;
 }

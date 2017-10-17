@@ -2,18 +2,17 @@ package com.luxoft.xmlcall.wsdl.proto2wsdl;
 
 import com.google.protobuf.Descriptors;
 import com.luxoft.xmlcall.shared.ProtoLoader;
-import com.luxoft.xmlcall.util.Decode;
 import com.luxoft.xmlcall.wsdl.WSDLBuilder;
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Main
@@ -25,52 +24,58 @@ public class Main
 
     private static final String targetNamespacePrefix = "http://www.luxoft.com/";
 
-    private static Map<String,Descriptors.Descriptor>
-    buildTypeMap(ProtoLoader pb, Map<String,String> args)
+    private static Set<Descriptors.Descriptor>
+    buildTypeMap(ProtoLoader pb, Set<String> args)
     {
-        Map<String,Descriptors.Descriptor> result = new HashMap<>();
+        Set<Descriptors.Descriptor> result = new HashSet<>();
 
-        for (Map.Entry<String, String> e : args.entrySet()) {
-            result.put(e.getKey(), pb.getType(e.getValue()));
+        for (String e : args) {
+            result.add(pb.getType(e));
         }
         return result;
     }
 
-    private static void builder(Function<WSDLBuilder, String> generator,
+    private static void builder(BuildType buildType,
                                 String inputFile,
                                 String outputFile,
                                 String serviceName,
                                 String targetNamespace,
                                 String faultTypeName,
-                                Map<String,String> extraInput_,
-                                Map<String,String> extraOutput_)
+                                String soapAddress,
+                                String soapTransport,
+                                Set<String> extraInput_,
+                                Set<String> extraOutput_)
             throws Exception {
 
         final ProtoLoader protoLoader = new ProtoLoader(inputFile);
         final Descriptors.Descriptor faultType = protoLoader.getType(faultTypeName);
-        final Map<String,Descriptors.Descriptor> extraInput = buildTypeMap(protoLoader, extraInput_);
-        final Map<String,Descriptors.Descriptor> extraOutput = buildTypeMap(protoLoader, extraOutput_);
+        final Set<Descriptors.Descriptor> extraInput = buildTypeMap(protoLoader, extraInput_);
+        final Set<Descriptors.Descriptor> extraOutput = buildTypeMap(protoLoader, extraOutput_);
 
         final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(), targetNamespace, serviceName, faultType, extraInput, extraOutput);
 
-        final String s = generator.apply(wsdlBuilder);
-        Files.write(Paths.get(outputFile), s.getBytes(StandardCharsets.UTF_8));
+        switch (buildType) {
+            case XmlSchema:
+                wsdlBuilder.buildXmlSchema((typeName, s) -> {
+                    try {
+                        Files.write(Paths.get(outputFile, typeName + ".xsd"), s.getBytes(StandardCharsets.UTF_8));
+                    } catch (IOException e) {
+                        throw new RuntimeException("Unable to write file", e);
+                    }
+                });
+                break;
+
+            case WSDL:
+                final String s = wsdlBuilder.buildWSDL(soapAddress, soapTransport);
+                Files.write(Paths.get(outputFile), s.getBytes(StandardCharsets.UTF_8));
+                break;
+        }
     }
 
     private static void updateArg(AtomicReference<String> arg, Supplier<String> evalDefault)
     {
         if (arg.get() == null)
             arg.set(evalDefault.get());
-    }
-
-    private static Consumer<String> updateMap(Map<String, String> map)
-    {
-        return s -> {
-            int p = s.indexOf(":");
-            if (p < 0)
-                throw new RuntimeException("':' missed in 's'");
-            map.put(s.substring(0, p), s.substring(p+1));
-        };
     }
 
     public static void main(String[] args) throws Exception {
@@ -83,8 +88,8 @@ public class Main
         final AtomicReference<String> soapAddress = new AtomicReference<>(null);
         final AtomicReference<String> soapTransport = new AtomicReference<>(null);
 
-        final Map<String, String> extraInput = new HashMap<>();
-        final Map<String, String> extraOutput = new HashMap<>();
+        final Set<String> extraInput = new HashSet<>();
+        final Set<String> extraOutput = new HashSet<>();
 
         boolean argsSection = true;
         Consumer<String> nextArg = null;
@@ -113,10 +118,10 @@ public class Main
                         nextArg = faultType::set;
                         break;
                     case "-extraInput":
-                        nextArg = updateMap(extraInput);
+                        nextArg = extraInput::add;
                         break;
                     case "-extraOutput":
-                        nextArg = updateMap(extraOutput);
+                        nextArg = extraOutput::add;
                         break;
                     case "-soap-endpoint":
                         nextArg = soapAddress::set;
@@ -148,40 +153,39 @@ public class Main
 
         updateArg(inputFile, () -> "data/proto/services.desc");
         updateArg(outputFile, () -> {
-            final String ext = new Decode<BuildType, String>(BT)
-                    .when(BuildType.XmlSchema, ".xsd")
-                    .when(BuildType.WSDL, ".wsdl")
-                    .orThrow(() -> new InternalError("Unsupported case " + BT.name()));
+            switch (BT) {
+                case XmlSchema:
+                    return FilenameUtils.getPath(inputFile.get());
+                case WSDL:
+                    final String path = FilenameUtils.getPath(inputFile.get());
+                    final String baseName = FilenameUtils.getBaseName(inputFile.get());
+                    return Paths.get(path, baseName + ".wsdl").toString();
 
-            final String path = FilenameUtils.getPath(inputFile.get());
-            final String baseName = FilenameUtils.getBaseName(inputFile.get());
-            return Paths.get(path, baseName + ext).toString();
+                default:
+                    throw new InternalError("Unsupported case " + BT.name());
+            }
         });
 
         updateArg(soapAddress, () -> "http://localhost/${serviceName}/${portName}");
         updateArg(soapTransport, () -> WSDLBuilder.soapHttpTransport);
 
-        final Function<WSDLBuilder, String> generator =
-                new Decode<BuildType, Function<WSDLBuilder, String>>(buildType)
-                    .when(BuildType.XmlSchema, WSDLBuilder::buildXmlSchema)
-                    .when(BuildType.WSDL, wsdlBuilder -> wsdlBuilder.buildWSDL(soapAddress.get(), soapTransport.get()))
-                    .orThrow(() -> new InternalError("Unsupported case " + BT.name()));
-
         updateArg(serviceName, () -> FilenameUtils.getBaseName(inputFile.get()));
         updateArg(namespaceName, () -> targetNamespacePrefix + FilenameUtils.getName(outputFile.get()));
         updateArg(faultType, () -> "xmlcall.ChaincodeFault");
         if (extraInput.isEmpty())
-            updateMap(extraInput).accept("chaincode:xmlcall.ChaincodeRequest");
+            extraInput.add("xmlcall.ChaincodeRequest");
 
         if (extraOutput.isEmpty())
-            updateMap(extraOutput).accept("chaincode:xmlcall.ChaincodeResult");
+            extraOutput.add("xmlcall.ChaincodeResult");
 
-        builder(generator,
+        builder(buildType,
                 inputFile.get(),
                 outputFile.get(),
                 serviceName.get(),
                 namespaceName.get(),
                 faultType.get(),
+                soapAddress.get(),
+                soapTransport.get(),
                 extraInput,
                 extraOutput);
     }

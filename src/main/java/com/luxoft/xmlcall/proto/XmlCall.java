@@ -1150,6 +1150,16 @@ public final class XmlCall {
      */
     com.google.protobuf.ByteString
         getChaincodeIdBytes();
+
+    /**
+     * <code>optional string channel = 2;</code>
+     */
+    java.lang.String getChannel();
+    /**
+     * <code>optional string channel = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getChannelBytes();
   }
   /**
    * Protobuf type {@code xmlcall.ChaincodeRequest}
@@ -1164,6 +1174,7 @@ public final class XmlCall {
     }
     private ChaincodeRequest() {
       chaincodeId_ = "";
+      channel_ = "";
     }
 
     @java.lang.Override
@@ -1195,6 +1206,12 @@ public final class XmlCall {
               java.lang.String s = input.readStringRequireUtf8();
 
               chaincodeId_ = s;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              channel_ = s;
               break;
             }
           }
@@ -1254,6 +1271,40 @@ public final class XmlCall {
       }
     }
 
+    public static final int CHANNEL_FIELD_NUMBER = 2;
+    private volatile java.lang.Object channel_;
+    /**
+     * <code>optional string channel = 2;</code>
+     */
+    public java.lang.String getChannel() {
+      java.lang.Object ref = channel_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        channel_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string channel = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getChannelBytes() {
+      java.lang.Object ref = channel_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        channel_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1269,6 +1320,9 @@ public final class XmlCall {
       if (!getChaincodeIdBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, chaincodeId_);
       }
+      if (!getChannelBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, channel_);
+      }
     }
 
     public int getSerializedSize() {
@@ -1278,6 +1332,9 @@ public final class XmlCall {
       size = 0;
       if (!getChaincodeIdBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, chaincodeId_);
+      }
+      if (!getChannelBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, channel_);
       }
       memoizedSize = size;
       return size;
@@ -1297,6 +1354,8 @@ public final class XmlCall {
       boolean result = true;
       result = result && getChaincodeId()
           .equals(other.getChaincodeId());
+      result = result && getChannel()
+          .equals(other.getChannel());
       return result;
     }
 
@@ -1309,6 +1368,8 @@ public final class XmlCall {
       hash = (19 * hash) + getDescriptorForType().hashCode();
       hash = (37 * hash) + CHAINCODEID_FIELD_NUMBER;
       hash = (53 * hash) + getChaincodeId().hashCode();
+      hash = (37 * hash) + CHANNEL_FIELD_NUMBER;
+      hash = (53 * hash) + getChannel().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1429,6 +1490,8 @@ public final class XmlCall {
         super.clear();
         chaincodeId_ = "";
 
+        channel_ = "";
+
         return this;
       }
 
@@ -1452,6 +1515,7 @@ public final class XmlCall {
       public com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest buildPartial() {
         com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest result = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest(this);
         result.chaincodeId_ = chaincodeId_;
+        result.channel_ = channel_;
         onBuilt();
         return result;
       }
@@ -1495,6 +1559,10 @@ public final class XmlCall {
         if (other == com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.getDefaultInstance()) return this;
         if (!other.getChaincodeId().isEmpty()) {
           chaincodeId_ = other.chaincodeId_;
+          onChanged();
+        }
+        if (!other.getChannel().isEmpty()) {
+          channel_ = other.channel_;
           onChanged();
         }
         onChanged();
@@ -1591,6 +1659,75 @@ public final class XmlCall {
         onChanged();
         return this;
       }
+
+      private java.lang.Object channel_ = "";
+      /**
+       * <code>optional string channel = 2;</code>
+       */
+      public java.lang.String getChannel() {
+        java.lang.Object ref = channel_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          channel_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string channel = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getChannelBytes() {
+        java.lang.Object ref = channel_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          channel_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string channel = 2;</code>
+       */
+      public Builder setChannel(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        channel_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string channel = 2;</code>
+       */
+      public Builder clearChannel() {
+        
+        channel_ = getDefaultInstance().getChannel();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string channel = 2;</code>
+       */
+      public Builder setChannelBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        channel_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -1678,13 +1815,13 @@ public final class XmlCall {
       "\n\rxmlcall.proto\022\007xmlcall\032 google/protobu" +
       "f/descriptor.proto\032\033google/protobuf/empt" +
       "y.proto\"!\n\016ChaincodeFault\022\017\n\007message\030\001 \001" +
-      "(\t\"\037\n\017ChaincodeResult\022\014\n\004txid\030\001 \001(\t\"\'\n\020C" +
-      "haincodeRequest\022\023\n\013chaincodeId\030\001 \001(\t*9\n\010" +
-      "ExecType\022\013\n\007UNKNOWN\020\000\022\t\n\005QUERY\020\001\022\n\n\006INVO" +
-      "KE\020\002\022\t\n\005EVENT\020\003:F\n\texec_type\022\036.google.pr" +
-      "otobuf.MethodOptions\030\242\220\003 \001(\0162\021.xmlcall.E" +
-      "xecTypeB#\n\030com.luxoft.xmlcall.protoB\007Xml" +
-      "Callb\006proto3"
+      "(\t\"\037\n\017ChaincodeResult\022\014\n\004txid\030\001 \001(\t\"8\n\020C" +
+      "haincodeRequest\022\023\n\013chaincodeId\030\001 \001(\t\022\017\n\007" +
+      "channel\030\002 \001(\t*9\n\010ExecType\022\013\n\007UNKNOWN\020\000\022\t" +
+      "\n\005QUERY\020\001\022\n\n\006INVOKE\020\002\022\t\n\005EVENT\020\003:F\n\texec" +
+      "_type\022\036.google.protobuf.MethodOptions\030\242\220" +
+      "\003 \001(\0162\021.xmlcall.ExecTypeB#\n\030com.luxoft.x" +
+      "mlcall.protoB\007XmlCallb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1717,7 +1854,7 @@ public final class XmlCall {
     internal_static_xmlcall_ChaincodeRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_xmlcall_ChaincodeRequest_descriptor,
-        new java.lang.String[] { "ChaincodeId", });
+        new java.lang.String[] { "ChaincodeId", "Channel", });
     execType.internalInit(descriptor.getExtensions().get(0));
     com.google.protobuf.DescriptorProtos.getDescriptor();
     com.google.protobuf.EmptyProto.getDescriptor();
