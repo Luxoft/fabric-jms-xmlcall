@@ -19,12 +19,17 @@ extend google.protobuf.MethodOptions {
   ExecType exec_type = 51234;
 }
 
-message Fault
+message ChaincodeFault
 {
-
+    string message = 1;
 }
 
-message Address
+message ChaincodeResult
 {
-    string id = 1;
+    string txid = 1;
+}
+
+message ChaincodeRequest
+{
+    string chaincodeId = 1;
 }

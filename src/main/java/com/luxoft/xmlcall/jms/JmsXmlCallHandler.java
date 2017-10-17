@@ -68,7 +68,7 @@ public class JmsXmlCallHandler
         {
         }
 
-        throw new RuntimeException("Unable to fonc suitable constructor in " + connectorClass);
+        throw new RuntimeException("Unable to find suitable constructor in " + connectorClass);
     }
 
     void exceptionHandler(TextMessage request, MessageHeaders headers, Throwable t) {

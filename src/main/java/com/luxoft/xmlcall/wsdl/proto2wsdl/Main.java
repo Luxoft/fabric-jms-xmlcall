@@ -10,7 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -22,26 +24,34 @@ public class Main
     }
 
     private static final String targetNamespacePrefix = "http://www.luxoft.com/";
+
+    private static Map<String,Descriptors.Descriptor>
+    buildTypeMap(ProtoLoader pb, Map<String,String> args)
+    {
+        Map<String,Descriptors.Descriptor> result = new HashMap<>();
+
+        for (Map.Entry<String, String> e : args.entrySet()) {
+            result.put(e.getKey(), pb.getType(e.getValue()));
+        }
+        return result;
+    }
+
     private static void builder(Function<WSDLBuilder, String> generator,
                                 String inputFile,
                                 String outputFile,
                                 String serviceName,
                                 String targetNamespace,
                                 String faultTypeName,
-                                String targetTypeName
-                                ) throws Exception {
+                                Map<String,String> extraInput_,
+                                Map<String,String> extraOutput_)
+            throws Exception {
 
         final ProtoLoader protoLoader = new ProtoLoader(inputFile);
         final Descriptors.Descriptor faultType = protoLoader.getType(faultTypeName);
-        final HashMap<String,Descriptors.Descriptor> extraInput = new HashMap<>();
+        final Map<String,Descriptors.Descriptor> extraInput = buildTypeMap(protoLoader, extraInput_);
+        final Map<String,Descriptors.Descriptor> extraOutput = buildTypeMap(protoLoader, extraOutput_);
 
-        if (targetTypeName != null) {
-            final String[] strings = targetTypeName.split("[:]");
-            extraInput.put(strings[0], protoLoader.getType(strings[1]));
-        }
-
-
-        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(), targetNamespace, serviceName, faultType, extraInput, null);
+        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(), targetNamespace, serviceName, faultType, extraInput, extraOutput);
 
         final String s = generator.apply(wsdlBuilder);
         Files.write(Paths.get(outputFile), s.getBytes(StandardCharsets.UTF_8));
@@ -53,6 +63,16 @@ public class Main
             arg.set(evalDefault.get());
     }
 
+    private static Consumer<String> updateMap(Map<String, String> map)
+    {
+        return s -> {
+            int p = s.indexOf(":");
+            if (p < 0)
+                throw new RuntimeException("':' missed in 's'");
+            map.put(s.substring(0, p), s.substring(p+1));
+        };
+    }
+
     public static void main(String[] args) throws Exception {
         BuildType buildType = null;
         final AtomicReference<String> inputFile = new AtomicReference<>(null);
@@ -60,39 +80,56 @@ public class Main
         final AtomicReference<String> serviceName = new AtomicReference<>(null);
         final AtomicReference<String> namespaceName = new AtomicReference<>(null);
         final AtomicReference<String> faultType = new AtomicReference<>(null);
-        final AtomicReference<String> targetType = new AtomicReference<>(null);
         final AtomicReference<String> soapAddress = new AtomicReference<>(null);
         final AtomicReference<String> soapTransport = new AtomicReference<>(null);
 
+        final Map<String, String> extraInput = new HashMap<>();
+        final Map<String, String> extraOutput = new HashMap<>();
+
         boolean argsSection = true;
-        AtomicReference<String> nextArg = null;
+        Consumer<String> nextArg = null;
+
         for (String arg : args) {
             if (nextArg != null) {
-                nextArg.set(arg);
+                nextArg.accept(arg);
                 nextArg = null;
                 continue;
             }
             if (argsSection && arg.startsWith("-")) {
-                if ("-schema".equals(arg))
-                    buildType = BuildType.XmlSchema;
-                else if ("-wsdl".equals(arg))
-                    buildType = BuildType.WSDL;
-                else if ("-name".equals(arg))
-                    nextArg = serviceName;
-                else if ("-ns".equals(arg))
-                    nextArg = namespaceName;
-                else if ("-faultType".equals(arg))
-                    nextArg = faultType;
-                else if ("-targetType".equals(arg))
-                    nextArg = targetType;
-                else if ("-soap-endpoint".equals(arg))
-                    nextArg = soapAddress;
-                else if ("-soap-transport-schema".equals(arg))
-                    nextArg = soapTransport;
-                else if ("--".equals(arg))
-                    argsSection = false;
-                else
-                    throw new RuntimeException("Unsupported argument " + arg);
+                switch (arg) {
+                    case "-schema":
+                        buildType = BuildType.XmlSchema;
+                        break;
+                    case "-wsdl":
+                        buildType = BuildType.WSDL;
+                        break;
+                    case "-name":
+                        nextArg = serviceName::set;
+                        break;
+                    case "-ns":
+                        nextArg = namespaceName::set;
+                        break;
+                    case "-faultType":
+                        nextArg = faultType::set;
+                        break;
+                    case "-extraInput":
+                        nextArg = updateMap(extraInput);
+                        break;
+                    case "-extraOutput":
+                        nextArg = updateMap(extraOutput);
+                        break;
+                    case "-soap-endpoint":
+                        nextArg = soapAddress::set;
+                        break;
+                    case "-soap-transport-schema":
+                        nextArg = soapTransport::set;
+                        break;
+                    case "--":
+                        argsSection = false;
+                        break;
+                    default:
+                        throw new RuntimeException("Unsupported argument " + arg);
+                }
             }
             else {
                 if (inputFile.get() == null)
@@ -132,8 +169,12 @@ public class Main
 
         updateArg(serviceName, () -> FilenameUtils.getBaseName(inputFile.get()));
         updateArg(namespaceName, () -> targetNamespacePrefix + FilenameUtils.getName(outputFile.get()));
-        updateArg(faultType, () -> "xmlcall.Fault");
-        updateArg(targetType, () -> "address:xmlcall.Address");
+        updateArg(faultType, () -> "xmlcall.ChaincodeFault");
+        if (extraInput.isEmpty())
+            updateMap(extraInput).accept("chaincode:xmlcall.ChaincodeRequest");
+
+        if (extraOutput.isEmpty())
+            updateMap(extraOutput).accept("chaincode:xmlcall.ChaincodeResult");
 
         builder(generator,
                 inputFile.get(),
@@ -141,6 +182,7 @@ public class Main
                 serviceName.get(),
                 namespaceName.get(),
                 faultType.get(),
-                targetType.get());
+                extraInput,
+                extraOutput);
     }
 }

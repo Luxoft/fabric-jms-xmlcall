@@ -131,398 +131,33 @@ public final class XmlCall {
     // @@protoc_insertion_point(enum_scope:xmlcall.ExecType)
   }
 
-  public interface FaultOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:xmlcall.Fault)
-      com.google.protobuf.MessageOrBuilder {
-  }
-  /**
-   * Protobuf type {@code xmlcall.Fault}
-   */
-  public  static final class Fault extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:xmlcall.Fault)
-      FaultOrBuilder {
-    // Use Fault.newBuilder() to construct.
-    private Fault(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private Fault() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
-    private Fault(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!input.skipField(tag)) {
-                done = true;
-              }
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Fault_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Fault_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.luxoft.xmlcall.proto.XmlCall.Fault.class, com.luxoft.xmlcall.proto.XmlCall.Fault.Builder.class);
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof com.luxoft.xmlcall.proto.XmlCall.Fault)) {
-        return super.equals(obj);
-      }
-      com.luxoft.xmlcall.proto.XmlCall.Fault other = (com.luxoft.xmlcall.proto.XmlCall.Fault) obj;
-
-      boolean result = true;
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(com.luxoft.xmlcall.proto.XmlCall.Fault prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code xmlcall.Fault}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:xmlcall.Fault)
-        com.luxoft.xmlcall.proto.XmlCall.FaultOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Fault_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Fault_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.luxoft.xmlcall.proto.XmlCall.Fault.class, com.luxoft.xmlcall.proto.XmlCall.Fault.Builder.class);
-      }
-
-      // Construct using com.luxoft.xmlcall.proto.XmlCall.Fault.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Fault_descriptor;
-      }
-
-      public com.luxoft.xmlcall.proto.XmlCall.Fault getDefaultInstanceForType() {
-        return com.luxoft.xmlcall.proto.XmlCall.Fault.getDefaultInstance();
-      }
-
-      public com.luxoft.xmlcall.proto.XmlCall.Fault build() {
-        com.luxoft.xmlcall.proto.XmlCall.Fault result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public com.luxoft.xmlcall.proto.XmlCall.Fault buildPartial() {
-        com.luxoft.xmlcall.proto.XmlCall.Fault result = new com.luxoft.xmlcall.proto.XmlCall.Fault(this);
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.luxoft.xmlcall.proto.XmlCall.Fault) {
-          return mergeFrom((com.luxoft.xmlcall.proto.XmlCall.Fault)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.luxoft.xmlcall.proto.XmlCall.Fault other) {
-        if (other == com.luxoft.xmlcall.proto.XmlCall.Fault.getDefaultInstance()) return this;
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.luxoft.xmlcall.proto.XmlCall.Fault parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.luxoft.xmlcall.proto.XmlCall.Fault) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:xmlcall.Fault)
-    }
-
-    // @@protoc_insertion_point(class_scope:xmlcall.Fault)
-    private static final com.luxoft.xmlcall.proto.XmlCall.Fault DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new com.luxoft.xmlcall.proto.XmlCall.Fault();
-    }
-
-    public static com.luxoft.xmlcall.proto.XmlCall.Fault getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<Fault>
-        PARSER = new com.google.protobuf.AbstractParser<Fault>() {
-      public Fault parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Fault(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<Fault> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Fault> getParserForType() {
-      return PARSER;
-    }
-
-    public com.luxoft.xmlcall.proto.XmlCall.Fault getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface AddressOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:xmlcall.Address)
+  public interface ChaincodeFaultOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:xmlcall.ChaincodeFault)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string id = 1;</code>
+     * <code>optional string message = 1;</code>
      */
-    java.lang.String getId();
+    java.lang.String getMessage();
     /**
-     * <code>optional string id = 1;</code>
+     * <code>optional string message = 1;</code>
      */
     com.google.protobuf.ByteString
-        getIdBytes();
+        getMessageBytes();
   }
   /**
-   * Protobuf type {@code xmlcall.Address}
+   * Protobuf type {@code xmlcall.ChaincodeFault}
    */
-  public  static final class Address extends
+  public  static final class ChaincodeFault extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:xmlcall.Address)
-      AddressOrBuilder {
-    // Use Address.newBuilder() to construct.
-    private Address(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:xmlcall.ChaincodeFault)
+      ChaincodeFaultOrBuilder {
+    // Use ChaincodeFault.newBuilder() to construct.
+    private ChaincodeFault(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private Address() {
-      id_ = "";
+    private ChaincodeFault() {
+      message_ = "";
     }
 
     @java.lang.Override
@@ -530,7 +165,7 @@ public final class XmlCall {
     getUnknownFields() {
       return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
-    private Address(
+    private ChaincodeFault(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -553,7 +188,7 @@ public final class XmlCall {
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = s;
+              message_ = s;
               break;
             }
           }
@@ -569,44 +204,44 @@ public final class XmlCall {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Address_descriptor;
+      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeFault_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Address_fieldAccessorTable
+      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeFault_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.luxoft.xmlcall.proto.XmlCall.Address.class, com.luxoft.xmlcall.proto.XmlCall.Address.Builder.class);
+              com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.class, com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private volatile java.lang.Object id_;
+    public static final int MESSAGE_FIELD_NUMBER = 1;
+    private volatile java.lang.Object message_;
     /**
-     * <code>optional string id = 1;</code>
+     * <code>optional string message = 1;</code>
      */
-    public java.lang.String getId() {
-      java.lang.Object ref = id_;
+    public java.lang.String getMessage() {
+      java.lang.Object ref = message_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        id_ = s;
+        message_ = s;
         return s;
       }
     }
     /**
-     * <code>optional string id = 1;</code>
+     * <code>optional string message = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getIdBytes() {
-      java.lang.Object ref = id_;
+        getMessageBytes() {
+      java.lang.Object ref = message_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        id_ = b;
+        message_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -625,8 +260,8 @@ public final class XmlCall {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (!getIdBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, id_);
+      if (!getMessageBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, message_);
       }
     }
 
@@ -635,8 +270,8 @@ public final class XmlCall {
       if (size != -1) return size;
 
       size = 0;
-      if (!getIdBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, id_);
+      if (!getMessageBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, message_);
       }
       memoizedSize = size;
       return size;
@@ -648,14 +283,14 @@ public final class XmlCall {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof com.luxoft.xmlcall.proto.XmlCall.Address)) {
+      if (!(obj instanceof com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault)) {
         return super.equals(obj);
       }
-      com.luxoft.xmlcall.proto.XmlCall.Address other = (com.luxoft.xmlcall.proto.XmlCall.Address) obj;
+      com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault other = (com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault) obj;
 
       boolean result = true;
-      result = result && getId()
-          .equals(other.getId());
+      result = result && getMessage()
+          .equals(other.getMessage());
       return result;
     }
 
@@ -666,65 +301,65 @@ public final class XmlCall {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId().hashCode();
+      hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
+      hash = (53 * hash) + getMessage().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
 
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(byte[] data)
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(java.io.InputStream input)
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseDelimitedFrom(java.io.InputStream input)
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseDelimitedFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static com.luxoft.xmlcall.proto.XmlCall.Address parseFrom(
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -736,7 +371,7 @@ public final class XmlCall {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(com.luxoft.xmlcall.proto.XmlCall.Address prototype) {
+    public static Builder newBuilder(com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -751,25 +386,25 @@ public final class XmlCall {
       return builder;
     }
     /**
-     * Protobuf type {@code xmlcall.Address}
+     * Protobuf type {@code xmlcall.ChaincodeFault}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:xmlcall.Address)
-        com.luxoft.xmlcall.proto.XmlCall.AddressOrBuilder {
+        // @@protoc_insertion_point(builder_implements:xmlcall.ChaincodeFault)
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeFaultOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Address_descriptor;
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeFault_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Address_fieldAccessorTable
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeFault_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.luxoft.xmlcall.proto.XmlCall.Address.class, com.luxoft.xmlcall.proto.XmlCall.Address.Builder.class);
+                com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.class, com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.Builder.class);
       }
 
-      // Construct using com.luxoft.xmlcall.proto.XmlCall.Address.newBuilder()
+      // Construct using com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -786,31 +421,31 @@ public final class XmlCall {
       }
       public Builder clear() {
         super.clear();
-        id_ = "";
+        message_ = "";
 
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_Address_descriptor;
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeFault_descriptor;
       }
 
-      public com.luxoft.xmlcall.proto.XmlCall.Address getDefaultInstanceForType() {
-        return com.luxoft.xmlcall.proto.XmlCall.Address.getDefaultInstance();
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault getDefaultInstanceForType() {
+        return com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.getDefaultInstance();
       }
 
-      public com.luxoft.xmlcall.proto.XmlCall.Address build() {
-        com.luxoft.xmlcall.proto.XmlCall.Address result = buildPartial();
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault build() {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public com.luxoft.xmlcall.proto.XmlCall.Address buildPartial() {
-        com.luxoft.xmlcall.proto.XmlCall.Address result = new com.luxoft.xmlcall.proto.XmlCall.Address(this);
-        result.id_ = id_;
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault buildPartial() {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault result = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault(this);
+        result.message_ = message_;
         onBuilt();
         return result;
       }
@@ -842,18 +477,18 @@ public final class XmlCall {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.luxoft.xmlcall.proto.XmlCall.Address) {
-          return mergeFrom((com.luxoft.xmlcall.proto.XmlCall.Address)other);
+        if (other instanceof com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault) {
+          return mergeFrom((com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.luxoft.xmlcall.proto.XmlCall.Address other) {
-        if (other == com.luxoft.xmlcall.proto.XmlCall.Address.getDefaultInstance()) return this;
-        if (!other.getId().isEmpty()) {
-          id_ = other.id_;
+      public Builder mergeFrom(com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault other) {
+        if (other == com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault.getDefaultInstance()) return this;
+        if (!other.getMessage().isEmpty()) {
+          message_ = other.message_;
           onChanged();
         }
         onChanged();
@@ -868,11 +503,11 @@ public final class XmlCall {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.luxoft.xmlcall.proto.XmlCall.Address parsedMessage = null;
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.luxoft.xmlcall.proto.XmlCall.Address) e.getUnfinishedMessage();
+          parsedMessage = (com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -882,71 +517,71 @@ public final class XmlCall {
         return this;
       }
 
-      private java.lang.Object id_ = "";
+      private java.lang.Object message_ = "";
       /**
-       * <code>optional string id = 1;</code>
+       * <code>optional string message = 1;</code>
        */
-      public java.lang.String getId() {
-        java.lang.Object ref = id_;
+      public java.lang.String getMessage() {
+        java.lang.Object ref = message_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          id_ = s;
+          message_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>optional string id = 1;</code>
+       * <code>optional string message = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getIdBytes() {
-        java.lang.Object ref = id_;
+          getMessageBytes() {
+        java.lang.Object ref = message_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          id_ = b;
+          message_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string id = 1;</code>
+       * <code>optional string message = 1;</code>
        */
-      public Builder setId(
+      public Builder setMessage(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   
-        id_ = value;
+        message_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string id = 1;</code>
+       * <code>optional string message = 1;</code>
        */
-      public Builder clearId() {
+      public Builder clearMessage() {
         
-        id_ = getDefaultInstance().getId();
+        message_ = getDefaultInstance().getMessage();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string id = 1;</code>
+       * <code>optional string message = 1;</code>
        */
-      public Builder setIdBytes(
+      public Builder setMessageBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
         
-        id_ = value;
+        message_ = value;
         onChanged();
         return this;
       }
@@ -961,39 +596,1045 @@ public final class XmlCall {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:xmlcall.Address)
+      // @@protoc_insertion_point(builder_scope:xmlcall.ChaincodeFault)
     }
 
-    // @@protoc_insertion_point(class_scope:xmlcall.Address)
-    private static final com.luxoft.xmlcall.proto.XmlCall.Address DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:xmlcall.ChaincodeFault)
+    private static final com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new com.luxoft.xmlcall.proto.XmlCall.Address();
+      DEFAULT_INSTANCE = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault();
     }
 
-    public static com.luxoft.xmlcall.proto.XmlCall.Address getDefaultInstance() {
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<Address>
-        PARSER = new com.google.protobuf.AbstractParser<Address>() {
-      public Address parsePartialFrom(
+    private static final com.google.protobuf.Parser<ChaincodeFault>
+        PARSER = new com.google.protobuf.AbstractParser<ChaincodeFault>() {
+      public ChaincodeFault parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Address(input, extensionRegistry);
+          return new ChaincodeFault(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<Address> parser() {
+    public static com.google.protobuf.Parser<ChaincodeFault> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<Address> getParserForType() {
+    public com.google.protobuf.Parser<ChaincodeFault> getParserForType() {
       return PARSER;
     }
 
-    public com.luxoft.xmlcall.proto.XmlCall.Address getDefaultInstanceForType() {
+    public com.luxoft.xmlcall.proto.XmlCall.ChaincodeFault getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface ChaincodeResultOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:xmlcall.ChaincodeResult)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string txid = 1;</code>
+     */
+    java.lang.String getTxid();
+    /**
+     * <code>optional string txid = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getTxidBytes();
+  }
+  /**
+   * Protobuf type {@code xmlcall.ChaincodeResult}
+   */
+  public  static final class ChaincodeResult extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:xmlcall.ChaincodeResult)
+      ChaincodeResultOrBuilder {
+    // Use ChaincodeResult.newBuilder() to construct.
+    private ChaincodeResult(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ChaincodeResult() {
+      txid_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private ChaincodeResult(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              txid_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeResult_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeResult_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.class, com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.Builder.class);
+    }
+
+    public static final int TXID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object txid_;
+    /**
+     * <code>optional string txid = 1;</code>
+     */
+    public java.lang.String getTxid() {
+      java.lang.Object ref = txid_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        txid_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string txid = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTxidBytes() {
+      java.lang.Object ref = txid_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        txid_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getTxidBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, txid_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getTxidBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, txid_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult)) {
+        return super.equals(obj);
+      }
+      com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult other = (com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult) obj;
+
+      boolean result = true;
+      result = result && getTxid()
+          .equals(other.getTxid());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + TXID_FIELD_NUMBER;
+      hash = (53 * hash) + getTxid().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code xmlcall.ChaincodeResult}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:xmlcall.ChaincodeResult)
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeResultOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeResult_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeResult_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.class, com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.Builder.class);
+      }
+
+      // Construct using com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        txid_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeResult_descriptor;
+      }
+
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult getDefaultInstanceForType() {
+        return com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.getDefaultInstance();
+      }
+
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult build() {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult buildPartial() {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult result = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult(this);
+        result.txid_ = txid_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult) {
+          return mergeFrom((com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult other) {
+        if (other == com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult.getDefaultInstance()) return this;
+        if (!other.getTxid().isEmpty()) {
+          txid_ = other.txid_;
+          onChanged();
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object txid_ = "";
+      /**
+       * <code>optional string txid = 1;</code>
+       */
+      public java.lang.String getTxid() {
+        java.lang.Object ref = txid_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          txid_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string txid = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTxidBytes() {
+        java.lang.Object ref = txid_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          txid_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string txid = 1;</code>
+       */
+      public Builder setTxid(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        txid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string txid = 1;</code>
+       */
+      public Builder clearTxid() {
+        
+        txid_ = getDefaultInstance().getTxid();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string txid = 1;</code>
+       */
+      public Builder setTxidBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        txid_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:xmlcall.ChaincodeResult)
+    }
+
+    // @@protoc_insertion_point(class_scope:xmlcall.ChaincodeResult)
+    private static final com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult();
+    }
+
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ChaincodeResult>
+        PARSER = new com.google.protobuf.AbstractParser<ChaincodeResult>() {
+      public ChaincodeResult parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new ChaincodeResult(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ChaincodeResult> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ChaincodeResult> getParserForType() {
+      return PARSER;
+    }
+
+    public com.luxoft.xmlcall.proto.XmlCall.ChaincodeResult getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface ChaincodeRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:xmlcall.ChaincodeRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string chaincodeId = 1;</code>
+     */
+    java.lang.String getChaincodeId();
+    /**
+     * <code>optional string chaincodeId = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getChaincodeIdBytes();
+  }
+  /**
+   * Protobuf type {@code xmlcall.ChaincodeRequest}
+   */
+  public  static final class ChaincodeRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:xmlcall.ChaincodeRequest)
+      ChaincodeRequestOrBuilder {
+    // Use ChaincodeRequest.newBuilder() to construct.
+    private ChaincodeRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ChaincodeRequest() {
+      chaincodeId_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private ChaincodeRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              chaincodeId_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeRequest_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.class, com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.Builder.class);
+    }
+
+    public static final int CHAINCODEID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object chaincodeId_;
+    /**
+     * <code>optional string chaincodeId = 1;</code>
+     */
+    public java.lang.String getChaincodeId() {
+      java.lang.Object ref = chaincodeId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        chaincodeId_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string chaincodeId = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getChaincodeIdBytes() {
+      java.lang.Object ref = chaincodeId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        chaincodeId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getChaincodeIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, chaincodeId_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getChaincodeIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, chaincodeId_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest)) {
+        return super.equals(obj);
+      }
+      com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest other = (com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest) obj;
+
+      boolean result = true;
+      result = result && getChaincodeId()
+          .equals(other.getChaincodeId());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + CHAINCODEID_FIELD_NUMBER;
+      hash = (53 * hash) + getChaincodeId().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code xmlcall.ChaincodeRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:xmlcall.ChaincodeRequest)
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeRequest_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.class, com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.Builder.class);
+      }
+
+      // Construct using com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        chaincodeId_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.luxoft.xmlcall.proto.XmlCall.internal_static_xmlcall_ChaincodeRequest_descriptor;
+      }
+
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest getDefaultInstanceForType() {
+        return com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.getDefaultInstance();
+      }
+
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest build() {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest buildPartial() {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest result = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest(this);
+        result.chaincodeId_ = chaincodeId_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest) {
+          return mergeFrom((com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest other) {
+        if (other == com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest.getDefaultInstance()) return this;
+        if (!other.getChaincodeId().isEmpty()) {
+          chaincodeId_ = other.chaincodeId_;
+          onChanged();
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object chaincodeId_ = "";
+      /**
+       * <code>optional string chaincodeId = 1;</code>
+       */
+      public java.lang.String getChaincodeId() {
+        java.lang.Object ref = chaincodeId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          chaincodeId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string chaincodeId = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getChaincodeIdBytes() {
+        java.lang.Object ref = chaincodeId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          chaincodeId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string chaincodeId = 1;</code>
+       */
+      public Builder setChaincodeId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        chaincodeId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string chaincodeId = 1;</code>
+       */
+      public Builder clearChaincodeId() {
+        
+        chaincodeId_ = getDefaultInstance().getChaincodeId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string chaincodeId = 1;</code>
+       */
+      public Builder setChaincodeIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        chaincodeId_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:xmlcall.ChaincodeRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:xmlcall.ChaincodeRequest)
+    private static final com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest();
+    }
+
+    public static com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ChaincodeRequest>
+        PARSER = new com.google.protobuf.AbstractParser<ChaincodeRequest>() {
+      public ChaincodeRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new ChaincodeRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ChaincodeRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ChaincodeRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public com.luxoft.xmlcall.proto.XmlCall.ChaincodeRequest getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1011,15 +1652,20 @@ public final class XmlCall {
         com.luxoft.xmlcall.proto.XmlCall.ExecType.class,
         null);
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_xmlcall_Fault_descriptor;
+    internal_static_xmlcall_ChaincodeFault_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_xmlcall_Fault_fieldAccessorTable;
+      internal_static_xmlcall_ChaincodeFault_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_xmlcall_Address_descriptor;
+    internal_static_xmlcall_ChaincodeResult_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_xmlcall_Address_fieldAccessorTable;
+      internal_static_xmlcall_ChaincodeResult_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_xmlcall_ChaincodeRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_xmlcall_ChaincodeRequest_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1031,12 +1677,14 @@ public final class XmlCall {
     java.lang.String[] descriptorData = {
       "\n\rxmlcall.proto\022\007xmlcall\032 google/protobu" +
       "f/descriptor.proto\032\033google/protobuf/empt" +
-      "y.proto\"\007\n\005Fault\"\025\n\007Address\022\n\n\002id\030\001 \001(\t*" +
-      "9\n\010ExecType\022\013\n\007UNKNOWN\020\000\022\t\n\005QUERY\020\001\022\n\n\006I" +
-      "NVOKE\020\002\022\t\n\005EVENT\020\003:F\n\texec_type\022\036.google" +
-      ".protobuf.MethodOptions\030\242\220\003 \001(\0162\021.xmlcal" +
-      "l.ExecTypeB#\n\030com.luxoft.xmlcall.protoB\007" +
-      "XmlCallb\006proto3"
+      "y.proto\"!\n\016ChaincodeFault\022\017\n\007message\030\001 \001" +
+      "(\t\"\037\n\017ChaincodeResult\022\014\n\004txid\030\001 \001(\t\"\'\n\020C" +
+      "haincodeRequest\022\023\n\013chaincodeId\030\001 \001(\t*9\n\010" +
+      "ExecType\022\013\n\007UNKNOWN\020\000\022\t\n\005QUERY\020\001\022\n\n\006INVO" +
+      "KE\020\002\022\t\n\005EVENT\020\003:F\n\texec_type\022\036.google.pr" +
+      "otobuf.MethodOptions\030\242\220\003 \001(\0162\021.xmlcall.E" +
+      "xecTypeB#\n\030com.luxoft.xmlcall.protoB\007Xml" +
+      "Callb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1052,18 +1700,24 @@ public final class XmlCall {
           com.google.protobuf.DescriptorProtos.getDescriptor(),
           com.google.protobuf.EmptyProto.getDescriptor(),
         }, assigner);
-    internal_static_xmlcall_Fault_descriptor =
+    internal_static_xmlcall_ChaincodeFault_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_xmlcall_Fault_fieldAccessorTable = new
+    internal_static_xmlcall_ChaincodeFault_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_xmlcall_Fault_descriptor,
-        new java.lang.String[] { });
-    internal_static_xmlcall_Address_descriptor =
+        internal_static_xmlcall_ChaincodeFault_descriptor,
+        new java.lang.String[] { "Message", });
+    internal_static_xmlcall_ChaincodeResult_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_xmlcall_Address_fieldAccessorTable = new
+    internal_static_xmlcall_ChaincodeResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_xmlcall_Address_descriptor,
-        new java.lang.String[] { "Id", });
+        internal_static_xmlcall_ChaincodeResult_descriptor,
+        new java.lang.String[] { "Txid", });
+    internal_static_xmlcall_ChaincodeRequest_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_xmlcall_ChaincodeRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_xmlcall_ChaincodeRequest_descriptor,
+        new java.lang.String[] { "ChaincodeId", });
     execType.internalInit(descriptor.getExtensions().get(0));
     com.google.protobuf.DescriptorProtos.getDescriptor();
     com.google.protobuf.EmptyProto.getDescriptor();
