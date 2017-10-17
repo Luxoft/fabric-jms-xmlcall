@@ -31,7 +31,7 @@ public class WSDLBuilder
     public static final String soapJmsTransport = "http://www.w3.org/2010/soapjms/";
 
     private static final String RequestSuffix = Strings.RequestSuffix;
-    private static final String ResponseSuffix = Strings.ResponceSuffix;
+    private static final String ResponseSuffix = Strings.ResponseSuffix;
 
     private final String xs = "xs:";
     private final String wsdl = "wsdl:";
@@ -39,6 +39,8 @@ public class WSDLBuilder
     private final String namespace;
     private final String serviceName;
     private final Descriptors.Descriptor faultType;
+    private final Set<Descriptors.FieldDescriptor> inputAttributes;
+    private final Set<Descriptors.FieldDescriptor> outputAttributes;
     private final Set<Descriptors.Descriptor> extraInput;
     private final Set<Descriptors.Descriptor> extraOutput;
     private final boolean useMethodSpecificMessages;
@@ -94,6 +96,8 @@ public class WSDLBuilder
                        String targetNamespace,
                        String serviceName,
                        Descriptors.Descriptor faultType,
+                       Set<Descriptors.FieldDescriptor> inputAttributes,
+                       Set<Descriptors.FieldDescriptor> outputAttributes,
                        Set<Descriptors.Descriptor> extraInput,
                        Set<Descriptors.Descriptor> extraOutput)
     {
@@ -103,6 +107,8 @@ public class WSDLBuilder
         this.faultType = faultType;
         this.extraInput = extraInput;
         this.extraOutput = extraOutput;
+        this.inputAttributes = inputAttributes;
+        this.outputAttributes = outputAttributes;
         this.useMethodSpecificMessages = (extraInput != null && !extraInput.isEmpty())
                 || (extraOutput != null && !extraOutput.isEmpty());
 
@@ -235,6 +241,23 @@ public class WSDLBuilder
                     builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\"/>");
             }
             builder.append("</${xs}all>");
+            if (messageTypes.contains(type)) {
+                if (inputTypes.contains(type)) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : inputAttributes) {
+                        builder.set("attrName", fieldDescriptor.getName());
+                        builder.set("attrType", getXSDType(fieldDescriptor));
+                        builder.append("<xs:attribute name=\"in.${attrName}\" type=\"${attrType}\"/>");
+                    }
+                }
+
+                if (outputTypes.contains(type)) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : outputAttributes) {
+                        builder.set("attrName", fieldDescriptor.getName());
+                        builder.set("attrType", getXSDType(fieldDescriptor));
+                        builder.append("<xs:attribute name=\"out.${attrName}\" type=\"${attrType}\"/>");
+                    }
+                }
+            }
             builder.append("</${xs}complexType>");
         }
         return builder.toString();
@@ -399,8 +422,6 @@ public class WSDLBuilder
     {
         Builder builder = new Builder()
                 .set("serviceName", serviceDescriptor.getName());
-
-        serviceDescriptor.getMethods();
 
         builder.append("<${wsdl}portType name=\"${serviceName}\">\n");
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {

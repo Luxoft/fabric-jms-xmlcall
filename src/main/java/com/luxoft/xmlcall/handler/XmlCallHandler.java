@@ -84,7 +84,8 @@ public class XmlCallHandler
     }
 
     private static final String RequestSuffix = Strings.RequestSuffix;
-    private static final String ResponceSuffix = Strings.ResponceSuffix;
+    private static final String ResponseSuffix = Strings.ResponseSuffix;
+    private static final boolean useMethodSpecificMessages = false;
 
     private HashSet<String> services = new HashSet<>();
     private HashMap<String, RpcMethod> functions = new HashMap<>();
@@ -121,17 +122,27 @@ public class XmlCallHandler
                 .setTxid(result.txid)
                 .build();
 
-        final Element outputMessageElement = DocumentHelper.parseText(xmlFormat.printToString(outputMessage)).getRootElement().createCopy();
-        final Element chaincodeResultElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeResult)).getRootElement().createCopy();
-        final Element chaincodeRequestElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeRequest)).getRootElement().createCopy();
+        if (useMethodSpecificMessages) {
+            final Element outputMessageElement = DocumentHelper.parseText(xmlFormat.printToString(outputMessage)).getRootElement().createCopy();
+            final Element chaincodeResultElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeResult)).getRootElement().createCopy();
+            final Element chaincodeRequestElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeRequest)).getRootElement().createCopy();
 
-        final Document replyDoc = DocumentHelper.createDocument();
-        final Element rootElement = replyDoc.addElement(rpcMethod.methodDescriptor.getFullName() + ResponceSuffix);
-        rootElement.add(chaincodeResultElement);
-        rootElement.add(chaincodeRequestElement);
-        rootElement.add(outputMessageElement);
+            final Document replyDoc = DocumentHelper.createDocument();
+            final Element rootElement = replyDoc.addElement(rpcMethod.methodDescriptor.getFullName() + ResponseSuffix);
+            rootElement.add(chaincodeResultElement);
+            rootElement.add(chaincodeRequestElement);
+            rootElement.add(outputMessageElement);
+            return replyDoc.asXML();
+        }
 
-        return replyDoc.asXML();
+        else {
+            final Document document = DocumentHelper.parseText(xmlFormat.printToString(outputMessage));
+            final Element rootElement = document.getRootElement();
+
+            rootElement.setName(rpcMethod.methodDescriptor.getFullName());
+            Strings.pasteAttributes(rootElement, chaincodeResult, Strings.Dir.OUT);
+            return document.asXML();
+        }
     }
 
     public static String makeError(String message) {
@@ -167,10 +178,14 @@ public class XmlCallHandler
     private String getMethodName(Element rootElement)
     {
         String request = rootElement.getName();
-        if (!request.endsWith(RequestSuffix))
-            throw new RuntimeException("name should end with " + RequestSuffix);
+        if (useMethodSpecificMessages) {
+            if (!request.endsWith(RequestSuffix))
+                throw new RuntimeException("name should end with " + RequestSuffix);
 
-        return request.substring(0, request.length() - RequestSuffix.length());
+            return request.substring(0, request.length() - RequestSuffix.length());
+        }
+        else
+            return request;
     }
 
     public CompletableFuture<String> processXmlMessage(String message, @Nonnull  XmlCallBlockchainConnector blockchain) throws Exception {
@@ -187,11 +202,29 @@ public class XmlCallHandler
         logger.trace("Lookup method {}", methodName);
         RpcMethod rpcMethod = findServiceMethod(ServiceType.METHOD, methodName);
 
-        final String chaincodeRequestString = rootElement.element(chaincodeRequestType.getName()).asXML();
-        final String inputParamsString = rootElement.element(rpcMethod.getInputType().getName()).asXML();
+        final XmlCall.ChaincodeRequest.Builder chaincodeRequestBuilder = XmlCall.ChaincodeRequest.newBuilder();
+        final Descriptors.Descriptor inputType = rpcMethod.getInputType();
+        final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
 
-        final XmlCall.ChaincodeRequest chaincodeId = getRequest(xmlFormat, chaincodeRequestString);
-        final Message inputMessage = getInputMessage(xmlFormat, rpcMethod, inputParamsString);
+        if (useMethodSpecificMessages) {
+            final String chaincodeRequestString = rootElement.element(chaincodeRequestType.getName()).asXML();
+            final String inputParamsString = rootElement.element(rpcMethod.getInputType().getName()).asXML();
+
+            xmlFormat.merge(chaincodeRequestString, xmlExtensionRegistry, chaincodeRequestBuilder);
+            xmlFormat.merge(inputParamsString, xmlExtensionRegistry, messageBuilder);
+        }
+
+        else {
+            Strings.loadAttributes(chaincodeRequestBuilder, rootElement, Strings.Dir.IN);
+
+            Strings.cleanAttributes(rootElement);
+            rootElement.setName(rpcMethod.getInputType().getName());
+            final String s = Strings.asXML(rootElement);
+            xmlFormat.merge(s, xmlExtensionRegistry, messageBuilder);
+        }
+
+        final XmlCall.ChaincodeRequest chaincodeId = chaincodeRequestBuilder.build();
+        final Message inputMessage = messageBuilder.build();
 
         final byte[] inputMessageBytes = inputMessage.toByteArray();
         final byte[][] args = {inputMessageBytes};

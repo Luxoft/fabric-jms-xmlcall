@@ -35,12 +35,27 @@ public class Main
         return result;
     }
 
+    private static Set<Descriptors.FieldDescriptor>
+    buildFieldMap(ProtoLoader pb, Set<String> args)
+    {
+        Set<Descriptors.FieldDescriptor> result = new HashSet<>();
+
+        for (String e : args) {
+            final Descriptors.Descriptor type = pb.getType(e);
+            result.addAll(type.getFields());
+        }
+        return result;
+    }
+
+
     private static void builder(BuildType buildType,
                                 String inputFile,
                                 String outputFile,
                                 String serviceName,
                                 String targetNamespace,
                                 String faultTypeName,
+                                Set<String> inputAttributes_,
+                                Set<String> outputAttributes_,
                                 String soapAddress,
                                 String soapTransport,
                                 Set<String> extraInput_,
@@ -51,8 +66,13 @@ public class Main
         final Descriptors.Descriptor faultType = protoLoader.getType(faultTypeName);
         final Set<Descriptors.Descriptor> extraInput = buildTypeMap(protoLoader, extraInput_);
         final Set<Descriptors.Descriptor> extraOutput = buildTypeMap(protoLoader, extraOutput_);
+        final Set<Descriptors.FieldDescriptor> inputAttributes = buildFieldMap(protoLoader, inputAttributes_);
+        final Set<Descriptors.FieldDescriptor> outputAttributes = buildFieldMap(protoLoader, outputAttributes_);
 
-        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(), targetNamespace, serviceName, faultType, extraInput, extraOutput);
+        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader.getServices(),
+                targetNamespace, serviceName, faultType,
+                inputAttributes, outputAttributes,
+                extraInput, extraOutput);
 
         switch (buildType) {
             case XmlSchema:
@@ -90,6 +110,8 @@ public class Main
 
         final Set<String> extraInput = new HashSet<>();
         final Set<String> extraOutput = new HashSet<>();
+        final Set<String> inputAttributes = new HashSet<>();
+        final Set<String> outputAttributes = new HashSet<>();
 
         boolean argsSection = true;
         Consumer<String> nextArg = null;
@@ -116,6 +138,12 @@ public class Main
                         break;
                     case "-faultType":
                         nextArg = faultType::set;
+                        break;
+                    case "-inputAttrib":
+                        nextArg = inputAttributes::add;
+                        break;
+                    case "-outputAttrib":
+                        nextArg = outputAttributes::add;
                         break;
                     case "-extraInput":
                         nextArg = extraInput::add;
@@ -172,11 +200,17 @@ public class Main
         updateArg(serviceName, () -> FilenameUtils.getBaseName(inputFile.get()));
         updateArg(namespaceName, () -> targetNamespacePrefix + FilenameUtils.getName(outputFile.get()));
         updateArg(faultType, () -> "xmlcall.ChaincodeFault");
-        if (extraInput.isEmpty())
-            extraInput.add("xmlcall.ChaincodeRequest");
+        if (inputAttributes.isEmpty())
+            inputAttributes.add("xmlcall.ChaincodeRequest");
 
-        if (extraOutput.isEmpty())
-            extraOutput.add("xmlcall.ChaincodeResult");
+        if (outputAttributes.isEmpty())
+            outputAttributes.add("xmlcall.ChaincodeResult");
+
+//        if (extraInput.isEmpty())
+//            extraInput.add("xmlcall.ChaincodeRequest");
+//
+//        if (extraOutput.isEmpty())
+//            extraOutput.add("xmlcall.ChaincodeResult");
 
         builder(buildType,
                 inputFile.get(),
@@ -184,6 +218,8 @@ public class Main
                 serviceName.get(),
                 namespaceName.get(),
                 faultType.get(),
+                inputAttributes,
+                outputAttributes,
                 soapAddress.get(),
                 soapTransport.get(),
                 extraInput,

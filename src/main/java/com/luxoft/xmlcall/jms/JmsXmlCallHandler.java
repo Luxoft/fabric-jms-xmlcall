@@ -117,6 +117,7 @@ public class JmsXmlCallHandler
                         return message;
                     });
             }).exceptionally(throwable -> {
+                throwable.printStackTrace();
                 exceptionHandler(request, headers, throwable);
                 return null;
             });
