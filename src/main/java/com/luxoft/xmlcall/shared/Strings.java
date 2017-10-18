@@ -22,7 +22,7 @@ public class Strings
         IN, OUT
     }
 
-    private static String getPrefix(Dir dir)
+    public static String getDirPrefix(Dir dir)
     {
         switch (dir) {
             case IN:
@@ -36,7 +36,7 @@ public class Strings
 
     public static void loadAttributes(Message.Builder builder, Element node, Dir dir)
     {
-        final String prefix = getPrefix(dir);
+        final String prefix = getDirPrefix(dir);
         for (Descriptors.FieldDescriptor fieldDescriptor : builder.getDescriptorForType().getFields()) {
             final String value = node.attributeValue(prefix + fieldDescriptor.getName());
 
@@ -47,7 +47,7 @@ public class Strings
 
     public static void pasteAttributes(Element node, Message message, Dir dir)
     {
-        final String prefix = getPrefix(dir);
+        final String prefix = getDirPrefix(dir);
         for (Descriptors.FieldDescriptor fieldDescriptor : message.getDescriptorForType().getFields()) {
             node.addAttribute(prefix + fieldDescriptor.getName(), message.getField(fieldDescriptor).toString());
         }

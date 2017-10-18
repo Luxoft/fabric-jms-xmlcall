@@ -246,7 +246,8 @@ public class WSDLBuilder
                     for (Descriptors.FieldDescriptor fieldDescriptor : inputAttributes) {
                         builder.set("attrName", fieldDescriptor.getName());
                         builder.set("attrType", getXSDType(fieldDescriptor));
-                        builder.append("<xs:attribute name=\"in.${attrName}\" type=\"${attrType}\"/>");
+                        builder.set("attrDir", Strings.getDirPrefix(Strings.Dir.IN));
+                        builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
                     }
                 }
 
@@ -254,7 +255,8 @@ public class WSDLBuilder
                     for (Descriptors.FieldDescriptor fieldDescriptor : outputAttributes) {
                         builder.set("attrName", fieldDescriptor.getName());
                         builder.set("attrType", getXSDType(fieldDescriptor));
-                        builder.append("<xs:attribute name=\"out.${attrName}\" type=\"${attrType}\"/>");
+                        builder.set("attrDir", Strings.getDirPrefix(Strings.Dir.OUT));
+                        builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
                     }
                 }
             }

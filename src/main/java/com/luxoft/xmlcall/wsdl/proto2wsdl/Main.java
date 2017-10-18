@@ -8,6 +8,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,6 +46,15 @@ public class Main
             result.addAll(type.getFields());
         }
         return result;
+    }
+
+
+    static boolean isDirectory(String path) {
+        if (path == null)
+            return false;
+
+        final Path p = Paths.get(path);
+        return Files.exists(p) && Files.isDirectory(p);
     }
 
 
@@ -157,6 +167,9 @@ public class Main
                     case "-soap-transport-schema":
                         nextArg = soapTransport::set;
                         break;
+                    case "-output":
+                        nextArg = outputFile::set;
+                        break;
                     case "--":
                         argsSection = false;
                         break;
@@ -167,8 +180,6 @@ public class Main
             else {
                 if (inputFile.get() == null)
                     inputFile.set(arg);
-                else if (outputFile.get() == null)
-                    outputFile.set(arg);
                 else
                     throw new RuntimeException("Unsupported positional argument " + arg);
             }
@@ -179,11 +190,12 @@ public class Main
 
         final BuildType BT = buildType;
 
-        updateArg(inputFile, () -> "data/proto/services.desc");
+//        updateArg(inputFile, () -> "data/proto/services.desc");
         updateArg(outputFile, () -> {
             switch (BT) {
                 case XmlSchema:
                     return FilenameUtils.getPath(inputFile.get());
+
                 case WSDL:
                     final String path = FilenameUtils.getPath(inputFile.get());
                     final String baseName = FilenameUtils.getBaseName(inputFile.get());
@@ -193,6 +205,11 @@ public class Main
                     throw new InternalError("Unsupported case " + BT.name());
             }
         });
+
+        if (BT == BuildType.WSDL && isDirectory(outputFile.get())) {
+            final String baseName = FilenameUtils.getBaseName(inputFile.get());
+            outputFile.set(Paths.get(outputFile.get(), baseName + ".wsdl").toString());
+        }
 
         updateArg(soapAddress, () -> "http://localhost/${serviceName}/${portName}");
         updateArg(soapTransport, () -> WSDLBuilder.soapHttpTransport);
@@ -211,6 +228,10 @@ public class Main
 //
 //        if (extraOutput.isEmpty())
 //            extraOutput.add("xmlcall.ChaincodeResult");
+
+        if (inputFile.get() == null) {
+            throw new IllegalArgumentException("input file is not specified");
+        }
 
         builder(buildType,
                 inputFile.get(),
