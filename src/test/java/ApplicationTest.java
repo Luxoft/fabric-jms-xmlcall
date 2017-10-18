@@ -8,8 +8,6 @@ import com.luxoft.xmlcall.jms.Application;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.XmlHelper;
 import org.dom4j.*;
-import org.iso_relax.verifier.VerifierConfigurationException;
-import org.jdom2.JDOMException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +19,14 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.xml.sax.*;
 
 import javax.jms.*;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 
@@ -59,42 +56,19 @@ public class ApplicationTest
         return container;
     }
 
-    private static final boolean useMethodSpecificMessages = false;
-    private static final String RequestSuffix = XmlHelper.RequestSuffix;
-    private static final String ResponseSuffix = XmlHelper.ResponseSuffix;
-
     private String makeCallXML(Descriptors.MethodDescriptor methodDescriptor,
                             XmlCall.ChaincodeRequest chaincodeRequest,
                             com.google.protobuf.Message message) throws DocumentException {
         final XmlFormat xmlFormat = new XmlFormat();
 
-        if (useMethodSpecificMessages) {
-            final String req = xmlFormat.printToString(chaincodeRequest);
-            final String data = xmlFormat.printToString(message);
+        final Document document = DocumentHelper.parseText(xmlFormat.printToString(message));
+        final Element rootElement = document.getRootElement();
 
-            final Document document = DocumentHelper.createDocument();
-            final Element rootElement = document.addElement(methodDescriptor.getFullName() + RequestSuffix);
-
-            // strip top-level element
-            final Element reqElement = DocumentHelper.parseText(req).getRootElement().createCopy();
-            final Element dataElement = DocumentHelper.parseText(data).getRootElement().createCopy();
-
-            rootElement.add(reqElement);
-            rootElement.add(dataElement);
-
-            return rootElement.asXML();
-        }
-
-        else {
-            final Document document = DocumentHelper.parseText(xmlFormat.printToString(message));
-            final Element rootElement = document.getRootElement();
-
-            XmlHelper.pasteAttributes(rootElement, chaincodeRequest, XmlHelper.Dir.IN);
-            rootElement.setName(methodDescriptor.getFullName());
-            rootElement.addAttribute("xmlns",
-                    "http://www.luxoft.com/xsd/" + methodDescriptor.getFullName());
-            return XmlHelper.asXML(rootElement);
-        }
+        XmlHelper.pasteAttributes(rootElement, chaincodeRequest, XmlHelper.Dir.IN);
+        rootElement.setName(methodDescriptor.getFullName());
+        rootElement.addAttribute("xmlns",
+                "http://www.luxoft.com/xsd/" + methodDescriptor.getFullName());
+        return XmlHelper.asXML(rootElement);
     }
 
 
@@ -128,29 +102,13 @@ public class ApplicationTest
         final Method newBuilder = klass.getMethod("newBuilder");
         final com.google.protobuf.Message.Builder resultBuilder = (com.google.protobuf.Message.Builder) newBuilder.invoke(null);
 
-        if (useMethodSpecificMessages) {
-            assert rootElement.getName().endsWith(ResponseSuffix);
+        XmlHelper.loadAttributes(chaincodeResultBuilder, rootElement, XmlHelper.Dir.OUT);
+        XmlHelper.cleanAttributes(rootElement);
+        rootElement.setName(resultBuilder.getDescriptorForType().getName());
+        final String s = XmlHelper.asXML(rootElement);
+        xmlFormat.merge(s, emptyRegistry, resultBuilder);
 
-            final Element chaincodeResultElement = rootElement.element(chaincodeResultBuilder.getDescriptorForType().getName());
-            final Element resultElement = rootElement.element(resultBuilder.getDescriptorForType().getName());
-
-            xmlFormat.merge(XmlHelper.asXML(chaincodeResultElement), emptyRegistry, chaincodeResultBuilder);
-
-            // XmlFormat cannot parse self-closed tags :(
-            final String resultXML = XmlHelper.asXML(resultElement);
-            // final String resultXML = resultElement.asXML();
-            xmlFormat.merge(resultXML, emptyRegistry, resultBuilder);
-        }
-
-        else {
-            XmlHelper.loadAttributes(chaincodeResultBuilder, rootElement, XmlHelper.Dir.OUT);
-            XmlHelper.cleanAttributes(rootElement);
-            rootElement.setName(resultBuilder.getDescriptorForType().getName());
-            final String s = XmlHelper.asXML(rootElement);
-            xmlFormat.merge(s, emptyRegistry, resultBuilder);
-        }
-
-        @SuppressWarnings("unchecked") T data = (T)resultBuilder.build();
+        @SuppressWarnings("unchecked") final T data = (T)resultBuilder.build();
         return new Result<>(chaincodeResultBuilder.build(), data);
     }
 
@@ -193,13 +151,9 @@ public class ApplicationTest
 
             case 1: { // synchronous reply
                 final MessageConverter messageConverter = jmsTemplate.getMessageConverter();
-                final TextMessage message = (TextMessage) jmsTemplate.sendAndReceive(ENDPOINT, session -> {
-                    final Message sendMessage = messageConverter.toMessage(xmlText, session);
-                    return sendMessage;
-                });
-
-                final String s = (String) jmsTemplate.getMessageConverter().fromMessage(message);
-                return s;
+                final TextMessage message = (TextMessage) jmsTemplate.sendAndReceive(ENDPOINT,
+                        session -> messageConverter.toMessage(xmlText, session));
+                return (String) jmsTemplate.getMessageConverter().fromMessage(message);
             }
         }
 
@@ -211,9 +165,14 @@ public class ApplicationTest
                   XmlCall.ChaincodeRequest chaincodeRequest,
                   com.google.protobuf.Message message,
                   Class<T> klass) throws Exception {
+
+        final String xsdPath = "data/proto/xsd/";
+        final Function<String, String> xsdFactory = XmlHelper.fileXSDFactory(xsdPath);
+
         final String req = makeCallXML(methodDescriptor, chaincodeRequest, message);
-        XmlHelper.xmlValidate(req, XmlHelper.fileXSDFactory("data/proto/xsd/"));
+        XmlHelper.xmlValidate(req, xsdFactory);
         final String reply = sendRequestXML(req);
+        XmlHelper.xmlValidate(reply, xsdFactory);
         return parseResponseXML(reply, klass);
     }
 
@@ -288,7 +247,8 @@ public class ApplicationTest
 //    }
 
     @Test
-    public void xmlHandling() throws ParserConfigurationException, IOException, SAXException, JDOMException, DocumentException, VerifierConfigurationException {
+    public void xmlHandling() throws Exception
+    {
 
         final String xmlText = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<main.GetAccumulator " +

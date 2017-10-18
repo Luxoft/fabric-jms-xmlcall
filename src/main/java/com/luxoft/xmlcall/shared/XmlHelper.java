@@ -22,9 +22,6 @@ import java.util.ListIterator;
 import java.util.function.Function;
 
 public class XmlHelper {
-    public static final String RequestSuffix = ".Request";
-    public static final String ResponseSuffix = ".Response";
-
     public enum Dir {
         IN, OUT
     }

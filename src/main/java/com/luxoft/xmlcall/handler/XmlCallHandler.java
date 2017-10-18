@@ -10,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -83,10 +81,6 @@ public class XmlCallHandler
         }
     }
 
-    private static final String RequestSuffix = XmlHelper.RequestSuffix;
-    private static final String ResponseSuffix = XmlHelper.ResponseSuffix;
-    private static final boolean useMethodSpecificMessages = false;
-
     private HashSet<String> services = new HashSet<>();
     private HashMap<String, RpcMethod> functions = new HashMap<>();
     private HashMap<String, RpcMethod> events = new HashMap<>();
@@ -122,27 +116,13 @@ public class XmlCallHandler
                 .setTxid(result.txid)
                 .build();
 
-        if (useMethodSpecificMessages) {
-            final Element outputMessageElement = DocumentHelper.parseText(xmlFormat.printToString(outputMessage)).getRootElement().createCopy();
-            final Element chaincodeResultElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeResult)).getRootElement().createCopy();
-            final Element chaincodeRequestElement = DocumentHelper.parseText(xmlFormat.printToString(chaincodeRequest)).getRootElement().createCopy();
+        final Document document = DocumentHelper.parseText(xmlFormat.printToString(outputMessage));
+        final Element rootElement = document.getRootElement();
 
-            final Document replyDoc = DocumentHelper.createDocument();
-            final Element rootElement = replyDoc.addElement(rpcMethod.methodDescriptor.getFullName() + ResponseSuffix);
-            rootElement.add(chaincodeResultElement);
-            rootElement.add(chaincodeRequestElement);
-            rootElement.add(outputMessageElement);
-            return replyDoc.asXML();
-        }
-
-        else {
-            final Document document = DocumentHelper.parseText(xmlFormat.printToString(outputMessage));
-            final Element rootElement = document.getRootElement();
-
-            rootElement.setName(rpcMethod.methodDescriptor.getFullName());
-            XmlHelper.pasteAttributes(rootElement, chaincodeResult, XmlHelper.Dir.OUT);
-            return document.asXML();
-        }
+        rootElement.setName(rpcMethod.getOutputType().getFullName());
+        // rootElement.setName(rpcMethod.methodDescriptor.getFullName());
+        XmlHelper.pasteAttributes(rootElement, chaincodeResult, XmlHelper.Dir.OUT);
+        return document.asXML();
     }
 
     public static String makeError(String message) {
@@ -155,7 +135,18 @@ public class XmlCallHandler
                 .setMessage(message)
                 .build();
 
-        return new XmlFormat().printToString(chaincodeFault);
+        final String xmlText = new XmlFormat().printToString(chaincodeFault);
+        Document document;
+        try {
+            document = DocumentHelper.parseText(xmlText);
+            final Element rootElement = document.getRootElement();
+            rootElement.setName(chaincodeFault.getDescriptorForType().getFullName());
+        } catch (DocumentException e) {
+            e.printStackTrace();
+            document = DocumentHelper.createDocument();
+            document.addElement(chaincodeFault.getDescriptorForType().getFullName());
+        }
+        return document.asXML();
     }
 
     private XmlCall.ChaincodeRequest
@@ -177,15 +168,7 @@ public class XmlCallHandler
 
     private String getMethodName(Element rootElement)
     {
-        String request = rootElement.getName();
-        if (useMethodSpecificMessages) {
-            if (!request.endsWith(RequestSuffix))
-                throw new RuntimeException("name should end with " + RequestSuffix);
-
-            return request.substring(0, request.length() - RequestSuffix.length());
-        }
-        else
-            return request;
+        return rootElement.getName();
     }
 
     public CompletableFuture<String> processXmlMessage(String message, @Nonnull  XmlCallBlockchainConnector blockchain) throws Exception {
@@ -206,22 +189,12 @@ public class XmlCallHandler
         final Descriptors.Descriptor inputType = rpcMethod.getInputType();
         final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
 
-        if (useMethodSpecificMessages) {
-            final String chaincodeRequestString = rootElement.element(chaincodeRequestType.getName()).asXML();
-            final String inputParamsString = rootElement.element(rpcMethod.getInputType().getName()).asXML();
+        XmlHelper.loadAttributes(chaincodeRequestBuilder, rootElement, XmlHelper.Dir.IN);
 
-            xmlFormat.merge(chaincodeRequestString, xmlExtensionRegistry, chaincodeRequestBuilder);
-            xmlFormat.merge(inputParamsString, xmlExtensionRegistry, messageBuilder);
-        }
-
-        else {
-            XmlHelper.loadAttributes(chaincodeRequestBuilder, rootElement, XmlHelper.Dir.IN);
-
-            XmlHelper.cleanAttributes(rootElement);
-            rootElement.setName(rpcMethod.getInputType().getName());
-            final String s = XmlHelper.asXML(rootElement);
-            xmlFormat.merge(s, xmlExtensionRegistry, messageBuilder);
-        }
+        XmlHelper.cleanAttributes(rootElement);
+        rootElement.setName(rpcMethod.getInputType().getName());
+        final String s = XmlHelper.asXML(rootElement);
+        xmlFormat.merge(s, xmlExtensionRegistry, messageBuilder);
 
         final XmlCall.ChaincodeRequest chaincodeId = chaincodeRequestBuilder.build();
         final Message inputMessage = messageBuilder.build();
@@ -277,6 +250,7 @@ public class XmlCallHandler
 
     public XmlCallHandler(String fileName) throws Exception {
         final ProtoLoader protoLoader = new ProtoLoader(fileName);
+        Set<Descriptors.ServiceDescriptor> serviceDescriptorSet = new HashSet<>();
 
         this.xmlExtensionRegistry = protoLoader.getExtensionRegistry();
         this.chaincodeRequestType = protoLoader.getType("xmlcall.ChaincodeRequest");
@@ -285,6 +259,7 @@ public class XmlCallHandler
 
         for (Descriptors.ServiceDescriptor serviceDescriptor : protoLoader.getServices()) {
             this.services.add(serviceDescriptor.getName());
+            serviceDescriptorSet.add(serviceDescriptor);
 
             for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
                 final RpcMethod rpcMethod = new RpcMethod(methodDescriptor);

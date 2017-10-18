@@ -16,7 +16,7 @@ public class XmlCallFabricConnector implements XmlCallBlockchainConnector
     final FabricConfig fabricConfig;
     final FabricConnector fabricConnector;
 
-    public XmlCallFabricConnector(@Value("${fabricConfigFile}") String configFile) throws Exception {
+    public XmlCallFabricConnector(@Value("${connectorArg}") String configFile) throws Exception {
         this.fabricConfig = FabricConfig.getConfigFromFile(configFile);
         this.fabricConnector = new FabricConnector(fabricConfig);
     }

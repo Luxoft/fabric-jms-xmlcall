@@ -1,0 +1,18 @@
+spring.profiles.active: reflect
+descriptorFileName: data/proto/services.desc
+xmlCallJmsDestination: blockchain-xmlcall
+
+---
+spring.profiles: reflect
+connectorClass: XmlCallReflectionConnector
+connectorArg: services
+
+---
+spring.profiles: fabric
+connectorClass: XmlCallFabricConnector
+connectorArg: config.yaml
+
+---
+spring.profiles: fabric-local
+connectorClass: XmlCallFabricConnector
+connectorArg: network-local/fabric-devnet.yaml

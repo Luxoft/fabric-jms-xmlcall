@@ -1,7 +1,7 @@
 {
   "properties": [
     {
-      "name": "fabricConfigFile",
+      "name": "connectorArg",
       "type": "java.lang.String",
       "description": "Path to fabric config files (according fabric-utils way)"
     },

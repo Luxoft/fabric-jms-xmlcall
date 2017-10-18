@@ -33,14 +33,14 @@ public class JmsXmlCallHandler
     public JmsXmlCallHandler(
             @Value("${descriptorFileName}") String descriptorFileName,
             @Value("${connectorClass}") String connectorClass,
-            @Value("${fabricConfigFile}") String fabricConfigFile
+            @Value("${connectorArg}") String connectorArg
     ) throws Exception {
 
         String currentDir = System.getProperty("user.dir");
         System.out.println("Current dir using System:" +currentDir);
 
         xmlCallHandler = new XmlCallHandler(descriptorFileName);
-        xmlCallBlockchainConnector = createConnector(connectorClass, fabricConfigFile);
+        xmlCallBlockchainConnector = createConnector(connectorClass, connectorArg);
     }
 
     static XmlCallBlockchainConnector createConnector(String connectorClass, String connectorArg) throws Exception {

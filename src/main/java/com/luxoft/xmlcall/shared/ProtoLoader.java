@@ -7,16 +7,14 @@ import com.luxoft.xmlcall.proto.XmlCall;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ProtoLoader
 {
     private final DescriptorProtos.FileDescriptorSet fileDescriptorSet;
     private final HashMap<String, Descriptors.FileDescriptor> fileDescriptors = new HashMap<>();
     private final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
-    private final List<Descriptors.ServiceDescriptor> serviceDescriptors = new ArrayList<>();
+    private final Set<Descriptors.ServiceDescriptor> serviceDescriptors = new HashSet<>();
 
     public ProtoLoader(String fileName) throws Exception
     {
@@ -53,7 +51,7 @@ public class ProtoLoader
         return extensionRegistry;
     }
 
-    public List<Descriptors.ServiceDescriptor> getServices()
+    public Set<Descriptors.ServiceDescriptor> getServices()
     {
         return serviceDescriptors;
     }
