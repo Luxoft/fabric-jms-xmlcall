@@ -6,8 +6,10 @@ import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
 import com.luxoft.uhg.fabric.services.AccumulatorOuterClass;
 import com.luxoft.xmlcall.jms.Application;
 import com.luxoft.xmlcall.proto.XmlCall;
-import com.luxoft.xmlcall.shared.Strings;
+import com.luxoft.xmlcall.shared.XmlHelper;
 import org.dom4j.*;
+import org.iso_relax.verifier.VerifierConfigurationException;
+import org.jdom2.JDOMException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,10 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.xml.sax.*;
 
 import javax.jms.*;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -56,8 +60,8 @@ public class ApplicationTest
     }
 
     private static final boolean useMethodSpecificMessages = false;
-    private static final String RequestSuffix = Strings.RequestSuffix;
-    private static final String ResponseSuffix = Strings.ResponseSuffix;
+    private static final String RequestSuffix = XmlHelper.RequestSuffix;
+    private static final String ResponseSuffix = XmlHelper.ResponseSuffix;
 
     private String makeCallXML(Descriptors.MethodDescriptor methodDescriptor,
                             XmlCall.ChaincodeRequest chaincodeRequest,
@@ -85,9 +89,11 @@ public class ApplicationTest
             final Document document = DocumentHelper.parseText(xmlFormat.printToString(message));
             final Element rootElement = document.getRootElement();
 
-            Strings.pasteAttributes(rootElement, chaincodeRequest, Strings.Dir.IN);
+            XmlHelper.pasteAttributes(rootElement, chaincodeRequest, XmlHelper.Dir.IN);
             rootElement.setName(methodDescriptor.getFullName());
-            return Strings.asXML(rootElement);
+            rootElement.addAttribute("xmlns",
+                    "http://www.luxoft.com/xsd/" + methodDescriptor.getFullName());
+            return XmlHelper.asXML(rootElement);
         }
     }
 
@@ -128,19 +134,19 @@ public class ApplicationTest
             final Element chaincodeResultElement = rootElement.element(chaincodeResultBuilder.getDescriptorForType().getName());
             final Element resultElement = rootElement.element(resultBuilder.getDescriptorForType().getName());
 
-            xmlFormat.merge(Strings.asXML(chaincodeResultElement), emptyRegistry, chaincodeResultBuilder);
+            xmlFormat.merge(XmlHelper.asXML(chaincodeResultElement), emptyRegistry, chaincodeResultBuilder);
 
             // XmlFormat cannot parse self-closed tags :(
-            final String resultXML = Strings.asXML(resultElement);
+            final String resultXML = XmlHelper.asXML(resultElement);
             // final String resultXML = resultElement.asXML();
             xmlFormat.merge(resultXML, emptyRegistry, resultBuilder);
         }
 
         else {
-            Strings.loadAttributes(chaincodeResultBuilder, rootElement, Strings.Dir.OUT);
-            Strings.cleanAttributes(rootElement);
+            XmlHelper.loadAttributes(chaincodeResultBuilder, rootElement, XmlHelper.Dir.OUT);
+            XmlHelper.cleanAttributes(rootElement);
             rootElement.setName(resultBuilder.getDescriptorForType().getName());
-            final String s = Strings.asXML(rootElement);
+            final String s = XmlHelper.asXML(rootElement);
             xmlFormat.merge(s, emptyRegistry, resultBuilder);
         }
 
@@ -206,6 +212,7 @@ public class ApplicationTest
                   com.google.protobuf.Message message,
                   Class<T> klass) throws Exception {
         final String req = makeCallXML(methodDescriptor, chaincodeRequest, message);
+        XmlHelper.xmlValidate(req, XmlHelper.fileXSDFactory("data/proto/xsd/"));
         final String reply = sendRequestXML(req);
         return parseResponseXML(reply, klass);
     }
@@ -243,5 +250,57 @@ public class ApplicationTest
                 ).build();
 
         sendRequest(addClaim, chaincodeRequest, addClaimRequest, Empty.class);
+    }
+
+    /***/
+//    static org.w3c.dom.Document parseXMLString(String xmlText) throws ParserConfigurationException, IOException, SAXException {
+//        return parseXMLBytes(xmlText.getBytes("utf-8"));
+//    }
+//
+//    static org.w3c.dom.Document parseXMLBytes(byte[] xmlBytes) throws ParserConfigurationException, IOException, SAXException {
+//        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+//        dbf.setNamespaceAware(true);
+//        DocumentBuilder docb = dbf.newDocumentBuilder();
+//
+//        return docb.parse(new InputSource(new ByteArrayInputStream(xmlBytes)));
+//    }
+//
+//    private void xmlValidate(String xmlText, String xsdPath) throws IOException, ParserConfigurationException, SAXException, DocumentException {
+//        final org.w3c.dom.Document xmlDocument = parseXMLString(xmlText);
+//        final org.w3c.dom.Element documentElement = xmlDocument.getDocumentElement();
+//        final String nodeName = documentElement.getNodeName();
+//        final org.w3c.dom.Document xsdDocument = parseXMLBytes(Files.readAllBytes(Paths.get(xsdPath, nodeName + ".xsd")));
+//
+//        if (documentElement.getAttribute("xmlns").isEmpty()) {
+//            final String targetNamespace = xsdDocument.getDocumentElement().getAttribute("targetNamespace");
+//
+//            if (!targetNamespace.isEmpty())
+//                xmlDocument.renameNode(documentElement, targetNamespace, nodeName);
+//
+//            System.out.printf("%s\n", xmlDocument.getNamespaceURI());
+//        }
+//
+//        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+//        Source schemaFile = new DOMSource(xsdDocument);
+//        Schema schema = schemaFactory.newSchema(schemaFile);
+//        Validator validator = schema.newValidator();
+//        validator.validate(new DOMSource(xmlDocument));
+//    }
+
+    @Test
+    public void xmlHandling() throws ParserConfigurationException, IOException, SAXException, JDOMException, DocumentException, VerifierConfigurationException {
+
+        final String xmlText = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<main.GetAccumulator " +
+                "  xmlns=\"http://www.luxoft.com/xsd/main.GetAccumulator\"" +
+                "  in.channel=\"umr-2017\"" +
+                "  in.chaincodeId=\"accumulator\"" +
+                "  >\n" +
+                "      <memberId>USER1</memberId>\n" +
+                "      <accumulatorId>In_Network_Individual_Deductible</accumulatorId>\n" +
+                "      <planYear>2017</planYear>\n" +
+                "</main.GetAccumulator>\n";
+
+        XmlHelper.xmlValidate(xmlText, XmlHelper.fileXSDFactory("data/proto/xsd/"));
     }
 }

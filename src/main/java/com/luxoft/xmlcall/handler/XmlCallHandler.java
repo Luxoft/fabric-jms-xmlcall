@@ -4,7 +4,7 @@ import com.googlecode.protobuf.format.ProtobufFormatter;
 import com.googlecode.protobuf.format.XmlFormat;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.ProtoLoader;
-import com.luxoft.xmlcall.shared.Strings;
+import com.luxoft.xmlcall.shared.XmlHelper;
 import org.dom4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,8 +83,8 @@ public class XmlCallHandler
         }
     }
 
-    private static final String RequestSuffix = Strings.RequestSuffix;
-    private static final String ResponseSuffix = Strings.ResponseSuffix;
+    private static final String RequestSuffix = XmlHelper.RequestSuffix;
+    private static final String ResponseSuffix = XmlHelper.ResponseSuffix;
     private static final boolean useMethodSpecificMessages = false;
 
     private HashSet<String> services = new HashSet<>();
@@ -140,7 +140,7 @@ public class XmlCallHandler
             final Element rootElement = document.getRootElement();
 
             rootElement.setName(rpcMethod.methodDescriptor.getFullName());
-            Strings.pasteAttributes(rootElement, chaincodeResult, Strings.Dir.OUT);
+            XmlHelper.pasteAttributes(rootElement, chaincodeResult, XmlHelper.Dir.OUT);
             return document.asXML();
         }
     }
@@ -215,11 +215,11 @@ public class XmlCallHandler
         }
 
         else {
-            Strings.loadAttributes(chaincodeRequestBuilder, rootElement, Strings.Dir.IN);
+            XmlHelper.loadAttributes(chaincodeRequestBuilder, rootElement, XmlHelper.Dir.IN);
 
-            Strings.cleanAttributes(rootElement);
+            XmlHelper.cleanAttributes(rootElement);
             rootElement.setName(rpcMethod.getInputType().getName());
-            final String s = Strings.asXML(rootElement);
+            final String s = XmlHelper.asXML(rootElement);
             xmlFormat.merge(s, xmlExtensionRegistry, messageBuilder);
         }
 

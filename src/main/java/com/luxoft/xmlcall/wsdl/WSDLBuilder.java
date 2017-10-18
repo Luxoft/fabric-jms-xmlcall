@@ -2,7 +2,7 @@ package com.luxoft.xmlcall.wsdl;
 
 import com.google.protobuf.Descriptors;
 import com.luxoft.xmlcall.proto.XmlCall;
-import com.luxoft.xmlcall.shared.Strings;
+import com.luxoft.xmlcall.shared.XmlHelper;
 import org.apache.commons.text.StrSubstitutor;
 
 import java.util.*;
@@ -30,8 +30,8 @@ public class WSDLBuilder
     public static final String soapHttpTransport = "http://schemas.xmlsoap.org/soap/http";
     public static final String soapJmsTransport = "http://www.w3.org/2010/soapjms/";
 
-    private static final String RequestSuffix = Strings.RequestSuffix;
-    private static final String ResponseSuffix = Strings.ResponseSuffix;
+    private static final String RequestSuffix = XmlHelper.RequestSuffix;
+    private static final String ResponseSuffix = XmlHelper.ResponseSuffix;
 
     private final String xs = "xs:";
     private final String wsdl = "wsdl:";
@@ -101,6 +101,8 @@ public class WSDLBuilder
                        Set<Descriptors.Descriptor> extraInput,
                        Set<Descriptors.Descriptor> extraOutput)
     {
+        if (!targetNamespace.isEmpty() && !targetNamespace.endsWith("/"))
+            targetNamespace = targetNamespace + "/";
         this.namespace = targetNamespace;
         this.serviceName = serviceName;
         this.serviceDescriptors = serviceDescriptors;
@@ -246,7 +248,7 @@ public class WSDLBuilder
                     for (Descriptors.FieldDescriptor fieldDescriptor : inputAttributes) {
                         builder.set("attrName", fieldDescriptor.getName());
                         builder.set("attrType", getXSDType(fieldDescriptor));
-                        builder.set("attrDir", Strings.getDirPrefix(Strings.Dir.IN));
+                        builder.set("attrDir", XmlHelper.getDirPrefix(XmlHelper.Dir.IN));
                         builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
                     }
                 }
@@ -255,7 +257,7 @@ public class WSDLBuilder
                     for (Descriptors.FieldDescriptor fieldDescriptor : outputAttributes) {
                         builder.set("attrName", fieldDescriptor.getName());
                         builder.set("attrType", getXSDType(fieldDescriptor));
-                        builder.set("attrDir", Strings.getDirPrefix(Strings.Dir.OUT));
+                        builder.set("attrDir", XmlHelper.getDirPrefix(XmlHelper.Dir.OUT));
                         builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
                     }
                 }
@@ -584,7 +586,7 @@ public class WSDLBuilder
         }
         builder.appendLiteral(buildXSDTypes(descriptors));
         builder.appendLiteral(buildXSDMessageElement(elementType, extraFields, elementName));
-
+        builder.append(footer);
         continuation.accept(elementName, builder.toString());
     }
 
