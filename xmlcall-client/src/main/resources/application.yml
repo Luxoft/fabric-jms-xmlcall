@@ -1,0 +1,4 @@
+spring.activemq.broker-url: tcp://localhost:61616
+namespacePrefix: http://luxoft.com/XmlCall/
+xsdPath: data/proto/xsd
+xmlCallJmsDestination: blockchain-xmlcall

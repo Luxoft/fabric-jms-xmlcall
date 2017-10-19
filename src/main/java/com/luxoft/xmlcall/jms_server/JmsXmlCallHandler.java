@@ -1,4 +1,4 @@
-package com.luxoft.xmlcall.jms;
+package com.luxoft.xmlcall.jms_server;
 
 import com.luxoft.xmlcall.fabric.XmlCallFabricConnector;
 import com.luxoft.xmlcall.handler.XmlCallBlockchainConnector;

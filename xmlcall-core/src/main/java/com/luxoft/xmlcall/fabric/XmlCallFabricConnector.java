@@ -3,7 +3,6 @@ package com.luxoft.xmlcall.fabric;
 import com.luxoft.fabric.FabricConfig;
 import com.luxoft.fabric.FabricConnector;
 import com.luxoft.xmlcall.handler.XmlCallBlockchainConnector;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -16,7 +15,7 @@ public class XmlCallFabricConnector implements XmlCallBlockchainConnector
     final FabricConfig fabricConfig;
     final FabricConnector fabricConnector;
 
-    public XmlCallFabricConnector(@Value("${connectorArg}") String configFile) throws Exception {
+    public XmlCallFabricConnector(String configFile) throws Exception {
         this.fabricConfig = FabricConfig.getConfigFromFile(configFile);
         this.fabricConnector = new FabricConnector(fabricConfig);
     }

@@ -1,13 +1,11 @@
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
-import com.google.protobuf.ExtensionRegistry;
-import com.googlecode.protobuf.format.XmlFormat;
 import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
 import com.luxoft.uhg.fabric.services.AccumulatorOuterClass;
-import com.luxoft.xmlcall.jms.Application;
+import com.luxoft.xmlcall.jms_server.Application;
+import com.luxoft.xmlcall.jms_server.JmsXmlCallClient;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.XmlHelper;
-import org.dom4j.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,24 +15,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.PostConstruct;
 import javax.jms.*;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-
-import static java.lang.String.format;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @SpringBootConfiguration
 public class ApplicationTest
 {
+
+    private JmsXmlCallClient xmlCallClient;
+
+    @Value("${namespacePrefix}")
+    private String namespacePrefix;
+
+    @Value("${xsdPath}")
+    private String xsdPath;
 
     @Autowired
     JmsTemplate jmsTemplate;
@@ -45,6 +43,12 @@ public class ApplicationTest
     @Value("${xmlCallJmsDestination}")
     private String ENDPOINT;
 
+    @PostConstruct
+    private void initialize()
+    {
+        xmlCallClient = new JmsXmlCallClient(connectionFactory, jmsTemplate, ENDPOINT, namespacePrefix, xsdPath);
+    }
+
     @Bean
     public DefaultMessageListenerContainer jmsContainer() {
         DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
@@ -54,126 +58,6 @@ public class ApplicationTest
 
         container.start();
         return container;
-    }
-
-    private String makeCallXML(Descriptors.MethodDescriptor methodDescriptor,
-                            XmlCall.ChaincodeRequest chaincodeRequest,
-                            com.google.protobuf.Message message) throws DocumentException {
-        final XmlFormat xmlFormat = new XmlFormat();
-
-        final Document document = DocumentHelper.parseText(xmlFormat.printToString(message));
-        final Element rootElement = document.getRootElement();
-
-        XmlHelper.pasteAttributes(rootElement, chaincodeRequest, XmlHelper.Dir.IN);
-        rootElement.setName(methodDescriptor.getFullName());
-        rootElement.addAttribute("xmlns",
-                "http://www.luxoft.com/xsd/" + methodDescriptor.getFullName());
-        return XmlHelper.asXML(rootElement);
-    }
-
-
-    static class Result<T extends com.google.protobuf.Message>
-    {
-        final XmlCall.ChaincodeResult chaincodeResult;
-        final T data;
-
-        Result(XmlCall.ChaincodeResult chaincodeResult, T data) {
-            this.chaincodeResult = chaincodeResult;
-            this.data = data;
-        }
-    }
-
-    private <T extends com.google.protobuf.Message>
-    Result<T> parseResponseXML(String xmlText, Class<T> klass) throws DocumentException, IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        final XmlFormat xmlFormat = new XmlFormat();
-        final ExtensionRegistry emptyRegistry = ExtensionRegistry.getEmptyRegistry();
-        final Document replyDoc = DocumentHelper.parseText(xmlText);
-        final Element rootElement = replyDoc.getRootElement();
-        final String rootElementName = rootElement.getName();
-        if (XmlCall.ChaincodeFault.getDescriptor().getName().equals(rootElementName)) {
-            final XmlCall.ChaincodeFault.Builder builder = XmlCall.ChaincodeFault.newBuilder();
-            xmlFormat.merge(xmlText, emptyRegistry, builder);
-            final XmlCall.ChaincodeFault chaincodeFault = builder.build();
-            throw new RuntimeException(chaincodeFault.getMessage());
-        }
-
-        // success
-        final XmlCall.ChaincodeResult.Builder chaincodeResultBuilder = XmlCall.ChaincodeResult.newBuilder();
-        final Method newBuilder = klass.getMethod("newBuilder");
-        final com.google.protobuf.Message.Builder resultBuilder = (com.google.protobuf.Message.Builder) newBuilder.invoke(null);
-
-        XmlHelper.loadAttributes(chaincodeResultBuilder, rootElement, XmlHelper.Dir.OUT);
-        XmlHelper.cleanAttributes(rootElement);
-        rootElement.setName(resultBuilder.getDescriptorForType().getName());
-        final String s = XmlHelper.asXML(rootElement);
-        xmlFormat.merge(s, emptyRegistry, resultBuilder);
-
-        @SuppressWarnings("unchecked") final T data = (T)resultBuilder.build();
-        return new Result<>(chaincodeResultBuilder.build(), data);
-    }
-
-    private String sendRequestXML(String xmlText) throws Exception {
-
-        switch (1) {
-            case 0: { // asynchronous reply
-                jmsTemplate.setDefaultDestinationName(ENDPOINT);
-
-                // prepare to receive reply
-                final Connection connection = connectionFactory.createConnection();
-                final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                final TemporaryQueue temporaryQueue = session.createTemporaryQueue();
-
-                final String correlationId = UUID.randomUUID().toString();
-                final String filter = format("JMSCorrelationID = '%s'", correlationId);
-
-                final MessageConsumer consumer = session.createConsumer(temporaryQueue, filter);
-                connection.start();
-                CompletableFuture<Object> reply = new CompletableFuture<>();
-
-                consumer.setMessageListener(message -> {
-                    try {
-                        reply.complete(jmsTemplate.getMessageConverter().fromMessage(message));
-                    } catch (JMSException e) {
-                        reply.completeExceptionally(e);
-                    }
-                });
-
-                jmsTemplate.convertAndSend(xmlText, message -> {
-                    message.setJMSCorrelationID(correlationId);
-                    message.setJMSReplyTo(temporaryQueue);
-                    return message;
-                });
-
-                final String s = (String) reply.get();
-                System.out.println("OK:" + s);
-            }
-            break;
-
-            case 1: { // synchronous reply
-                final MessageConverter messageConverter = jmsTemplate.getMessageConverter();
-                final TextMessage message = (TextMessage) jmsTemplate.sendAndReceive(ENDPOINT,
-                        session -> messageConverter.toMessage(xmlText, session));
-                return (String) jmsTemplate.getMessageConverter().fromMessage(message);
-            }
-        }
-
-        throw new RuntimeException("Wrond sender");
-    }
-
-    private <T extends com.google.protobuf.Message>
-    Result<T> sendRequest(Descriptors.MethodDescriptor methodDescriptor,
-                  XmlCall.ChaincodeRequest chaincodeRequest,
-                  com.google.protobuf.Message message,
-                  Class<T> klass) throws Exception {
-
-        final String xsdPath = "data/proto/xsd/";
-        final Function<String, String> xsdFactory = XmlHelper.fileXSDFactory(xsdPath);
-
-        final String req = makeCallXML(methodDescriptor, chaincodeRequest, message);
-        XmlHelper.xmlValidate(req, xsdFactory);
-        final String reply = sendRequestXML(req);
-        XmlHelper.xmlValidate(reply, xsdFactory);
-        return parseResponseXML(reply, klass);
     }
 
     @Test
@@ -191,7 +75,7 @@ public class ApplicationTest
                 .setAccumulatorId("In_Network_Individual_Deductible")
                 .build();
 
-        final ClaimAccumulator.Accumulator accumulator = sendRequest(getAccumulator, chaincodeRequest, accumulatorId, ClaimAccumulator.Accumulator.class).data;
+        final ClaimAccumulator.Accumulator accumulator = xmlCallClient.sendRequest(getAccumulator, chaincodeRequest, accumulatorId, ClaimAccumulator.Accumulator.class).get().data;
 
         final ClaimAccumulator.AddClaim addClaimRequest = ClaimAccumulator.AddClaim.newBuilder()
                 .setStateHash(accumulator.getStateHash())
@@ -208,7 +92,7 @@ public class ApplicationTest
                                 .build()
                 ).build();
 
-        sendRequest(addClaim, chaincodeRequest, addClaimRequest, Empty.class);
+        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, Empty.class).get();
     }
 
     /***/

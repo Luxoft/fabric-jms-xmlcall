@@ -1,6 +1,6 @@
 MESSAGES=messages/Accumulator.proto messages/InsuredRegistry.proto
 SERVICES=service/Accumulator.proto service/InsuredRegistry.proto
-TOPSRC=../../src/main/java
+TOPSRC=../../xmlcall-core/src/main/java
 TESTSRC=../../src/test/java
 
 all: messages services xmlcall
@@ -16,3 +16,8 @@ services:
 .PHONY: xmlcall
 xmlcall:
 	protoc  --java_out=$(TOPSRC) xmlcall.proto
+
+check v:
+	rm -rf com
+	/home/osesov/app/apache-cxf-3.2.0/bin/wsdlvalidator wsdl/services.wsdl
+	mkdir -p out && /home/osesov/app/apache-cxf-3.2.0/bin/wsdl2java -d out wsdl/services.wsdl

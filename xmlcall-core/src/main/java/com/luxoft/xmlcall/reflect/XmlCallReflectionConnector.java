@@ -1,3 +1,5 @@
+package com.luxoft.xmlcall.reflect;
+
 import com.luxoft.xmlcall.handler.XmlCallBlockchainConnector;
 
 import java.lang.reflect.Method;
