@@ -168,10 +168,9 @@ public final class ClaimAccumulator {
                 mutable_bitField0_ |= 0x00000004;
               }
               com.google.protobuf.MapEntry<java.lang.String, java.lang.Integer>
-              accumulatorLimits__ = input.readMessage(
+              accumulatorLimits = input.readMessage(
                   AccumulatorLimitsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              accumulatorLimits_.getMutableMap().put(
-                  accumulatorLimits__.getKey(), accumulatorLimits__.getValue());
+              accumulatorLimits_.getMutableMap().put(accumulatorLimits.getKey(), accumulatorLimits.getValue());
               break;
             }
             case 34: {
@@ -467,12 +466,15 @@ public final class ClaimAccumulator {
       if (year_ != 0) {
         output.writeInt32(2, year_);
       }
-      com.google.protobuf.GeneratedMessageV3
-        .serializeStringMapTo(
-          output,
-          internalGetAccumulatorLimits(),
-          AccumulatorLimitsDefaultEntryHolder.defaultEntry,
-          3);
+      for (java.util.Map.Entry<java.lang.String, java.lang.Integer> entry
+           : internalGetAccumulatorLimits().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.Integer>
+        accumulatorLimits = AccumulatorLimitsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(3, accumulatorLimits);
+      }
       for (int i = 0; i < benefitAdministrators_.size(); i++) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 4, benefitAdministrators_.getRaw(i));
       }
@@ -499,12 +501,12 @@ public final class ClaimAccumulator {
       for (java.util.Map.Entry<java.lang.String, java.lang.Integer> entry
            : internalGetAccumulatorLimits().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, java.lang.Integer>
-        accumulatorLimits__ = AccumulatorLimitsDefaultEntryHolder.defaultEntry.newBuilderForType()
+        accumulatorLimits = AccumulatorLimitsDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(3, accumulatorLimits__);
+            .computeMessageSize(3, accumulatorLimits);
       }
       {
         int dataSize = 0;
