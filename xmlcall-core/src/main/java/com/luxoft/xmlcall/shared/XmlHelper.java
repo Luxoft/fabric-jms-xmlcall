@@ -89,6 +89,9 @@ public class XmlHelper {
 
     public static Function<String, String> fileXSDFactory(String xsdPath)
     {
+        if (xsdPath == null)
+            return null;
+
         return typeName -> {
             final Path filePath = Paths.get(xsdPath, typeName + ".xsd");
 
@@ -143,6 +146,9 @@ public class XmlHelper {
     }
 
     public static void xmlValidate(Document document, Function<String, String> getSchema) throws IOException, SAXException, VerifierConfigurationException, DocumentException {
+        if (getSchema == null)
+            return;
+
         final Element rootElement = document.getRootElement();
         final String rootElementName = rootElement.getName();
 

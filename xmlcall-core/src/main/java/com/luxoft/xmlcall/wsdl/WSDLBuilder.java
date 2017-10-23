@@ -226,28 +226,28 @@ public class WSDLBuilder
         else {
             builder.append("<${xs}complexType name=\"${typeName}\">");
             if (hasFields) {
-                builder.append("<${xs}all>");
+                builder.append("<${xs}sequence>");
 
                 for (Descriptors.FieldDescriptor fieldDescriptor : fields) {
                     builder.set("fieldName", fieldDescriptor.getName());
                     builder.set("fieldType", getXSDType(fieldDescriptor));
 
                     if (fieldDescriptor.isRepeated()) {
-                        builder.set("entryName", getEntryName(fieldDescriptor));
-                        builder.append(
-                                "<xs:element name=\"${fieldName}\">" +
-                                        "<xs:complexType>" +
-                                        "<xs:sequence>" +
-                                        "<xs:element name=\"${entryName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>" +
-                                        "</xs:sequence>" +
-                                        "</xs:complexType>" +
-                                        "</xs:element>");
+//                        builder.set("entryName", getEntryName(fieldDescriptor));
+//                        builder.append(
+//                                "<xs:element name=\"${fieldName}\">" +
+//                                        "<xs:complexType>" +
+//                                        "<xs:sequence>" +
+//                                        "<xs:element name=\"${entryName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>" +
+//                                        "</xs:sequence>" +
+//                                        "</xs:complexType>" +
+//                                        "</xs:element>");
 
-                        // builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>");
+                        builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>");
                     } else
                         builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\"/>");
                 }
-                builder.append("</${xs}all>");
+                builder.append("</${xs}sequence>");
             }
 
             if (isInputMessage) {
@@ -284,7 +284,7 @@ public class WSDLBuilder
             builder.set("paramName", type.getName());
             builder.append("<${xs}element name=\"${elementName}\">\n");
             builder.append("<${xs}complexType>\n");
-            builder.append("<${xs}all>\n");
+            builder.append("<${xs}sequence>\n");
             builder.append("<${xs}element name=\"${paramName}\" type=\"${tns}${typeName}\"/>\n");
 
             for (Descriptors.Descriptor e : extraFields) {
@@ -292,7 +292,7 @@ public class WSDLBuilder
                 builder.set("paramType", e.getFullName());
                 builder.append("<${xs}element name=\"${paramName}\" type=\"${tns}${paramType}\"/>\n");
             }
-            builder.append("</${xs}all>\n");
+            builder.append("</${xs}sequence>\n");
             builder.append("</${xs}complexType>\n");
             builder.append("</${xs}element>\n");
         }
