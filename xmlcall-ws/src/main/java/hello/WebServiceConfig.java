@@ -1,6 +1,5 @@
 package hello;
 
-import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -11,7 +10,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
-import org.springframework.ws.server.EndpointAdapter;
 import org.springframework.ws.server.endpoint.adapter.PayloadEndpointAdapter;
 import org.springframework.ws.server.endpoint.mapping.UriEndpointMapping;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
@@ -44,10 +42,23 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		final int pos = xsdSchema.indexOf("://");
 		if (pos < 0)
 			resource = new FileSystemResource(xsdSchema);
-		else if ("resource".equals(xsdSchema.substring(0, pos)))
-			resource = new ClassPathResource(xsdSchema.substring(pos+1));
-		else
-			resource = new FileSystemResource(xsdSchema.substring(pos+1));
+		else {
+			String schema = xsdSchema.substring(0, pos);
+			String path = xsdSchema.substring(pos+1);
+			switch (schema) {
+				case "resource":
+				case "res":
+					resource = new ClassPathResource(path);
+					break;
+
+				case "file":
+					resource = new FileSystemResource(path);
+					break;
+
+				default:
+					throw new RuntimeException("Unknown URI schema in ${xsdSchema}" + xsdSchema);
+			}
+		}
 
 		return new SimpleXsdSchema(resource);
 	}
