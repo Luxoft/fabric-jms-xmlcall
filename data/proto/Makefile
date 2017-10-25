@@ -1,9 +1,9 @@
-MESSAGES=messages/Accumulator.proto messages/InsuredRegistry.proto
+MESSAGES=messages/Accumulator.proto messages/InsuredRegistry.proto messages/TestObjects.proto
 SERVICES=service/Accumulator.proto service/InsuredRegistry.proto
 TOPSRC=../../xmlcall-core/src/main/java
-TESTSRC=../../src/test/java
+TESTSRC=../../xmlcall-test/src/main/java
 
-all: messages services xmlcall
+release: services xmlcall
 
 .PHONY: messages
 messages:
@@ -21,3 +21,10 @@ check v:
 	rm -rf com
 	/home/osesov/app/apache-cxf-3.2.0/bin/wsdlvalidator wsdl/services.wsdl
 	mkdir -p out && /home/osesov/app/apache-cxf-3.2.0/bin/wsdl2java -d out wsdl/services.wsdl
+
+.PHONY: xsd2java
+xsd2java:
+	xjc -xmlschema -d $(TESTSRC) -p com.luxoft.uhg.fabric.xml xsd/services.xsd
+
+test: xsd2java messages
+all: messages services xmlcall xsd2java

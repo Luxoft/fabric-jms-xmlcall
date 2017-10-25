@@ -2,8 +2,8 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
 import com.luxoft.uhg.fabric.services.AccumulatorOuterClass;
-import com.luxoft.xmlcall.jms_server.Application;
-import com.luxoft.xmlcall.jms_server.JmsXmlCallClient;
+import com.luxoft.xmlcall.jms.Application;
+import com.luxoft.xmlcall.jms.JmsXmlCallClient;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.XmlHelper;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import javax.jms.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @SpringBootConfiguration
-public class ApplicationTest
+public class JMS_XmlCallTests
 {
 
     private JmsXmlCallClient xmlCallClient;
@@ -135,7 +135,7 @@ public class ApplicationTest
     {
 
         final String xmlText = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<main.GetAccumulator " +
+                "<Accumulator.GetAccumulator " +
                 "  xmlns=\"http://www.luxoft.com/xsd/main.GetAccumulator\"" +
                 "  in.channel=\"umr-2017\"" +
                 "  in.chaincodeId=\"accumulator\"" +
@@ -143,7 +143,7 @@ public class ApplicationTest
                 "      <memberId>USER1</memberId>\n" +
                 "      <accumulatorId>In_Network_Individual_Deductible</accumulatorId>\n" +
                 "      <planYear>2017</planYear>\n" +
-                "</main.GetAccumulator>\n";
+                "</Accumulator.GetAccumulator>\n";
 
         XmlHelper.xmlValidate(xmlText, XmlHelper.fileXSDFactory("data/proto/xsd/"));
     }

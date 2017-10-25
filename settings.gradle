@@ -1,4 +1,6 @@
 rootProject.name = 'JmsXmlCall'
-include 'xmlcall-client'
 include 'xmlcall-core'
+include 'xmlcall-test'
 include 'xmlcall-jms'
+include 'xmlcall-ws'
+include 'xmlcall-client'

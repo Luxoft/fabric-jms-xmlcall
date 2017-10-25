@@ -1,4 +1,4 @@
-package com.luxoft.xmlcall.jms_server;
+package com.luxoft.xmlcall.jms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

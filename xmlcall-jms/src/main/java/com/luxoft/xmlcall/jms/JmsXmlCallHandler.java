@@ -1,7 +1,7 @@
-package com.luxoft.xmlcall.jms_server;
+package com.luxoft.xmlcall.jms;
 
-import com.luxoft.xmlcall.fabric.XmlCallFabricConnector;
 import com.luxoft.xmlcall.handler.XmlCallBlockchainConnector;
+import com.luxoft.xmlcall.handler.XmlCallBlockchainConnectorFactory;
 import com.luxoft.xmlcall.handler.XmlCallException;
 import com.luxoft.xmlcall.handler.XmlCallHandler;
 import org.slf4j.Logger;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
-import java.lang.reflect.Constructor;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -39,36 +38,9 @@ public class JmsXmlCallHandler
         String currentDir = System.getProperty("user.dir");
         System.out.println("Current dir using System:" +currentDir);
 
-        xmlCallHandler = new XmlCallHandler(descriptorFileName);
-        xmlCallBlockchainConnector = createConnector(connectorClass, connectorArg);
-    }
-
-    static XmlCallBlockchainConnector createConnector(String connectorClass, String connectorArg) throws Exception {
-        if ("XmlCallFabricConnector".equals(connectorClass))
-            return XmlCallFabricConnector.newInstance(connectorArg);
-
-        final Class<?> aClass = Thread.currentThread().getContextClassLoader().loadClass(connectorClass);
-
-        Constructor<?> constructor;
-
-        try {
-            constructor = aClass.getConstructor();
-            return (XmlCallBlockchainConnector) constructor.newInstance();
-        }
-
-        catch (NoSuchMethodException e)
-        {
-        }
-
-        try {
-            constructor = aClass.getConstructor(String.class);
-            return (XmlCallBlockchainConnector) constructor.newInstance(connectorArg);
-        }
-        catch (NoSuchMethodException e)
-        {
-        }
-
-        throw new RuntimeException("Unable to find suitable constructor in " + connectorClass);
+        final XmlCallBlockchainConnectorFactory xmlCallBlockchainConnectorFactory = XmlCallBlockchainConnectorFactory.getInstance();
+        xmlCallHandler = new XmlCallHandler(descriptorFileName, "");
+        xmlCallBlockchainConnector = xmlCallBlockchainConnectorFactory.newConnection(connectorClass, connectorArg);
     }
 
     void exceptionHandler(TextMessage request, MessageHeaders headers, Throwable t) {

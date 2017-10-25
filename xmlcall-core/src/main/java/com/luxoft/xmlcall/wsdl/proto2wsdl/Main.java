@@ -20,7 +20,7 @@ public class Main
 {
     enum BuildType
     {
-        XmlSchema, WSDL
+        XmlSchema, XmlSchemaSet, WSDL
     }
 
     private static final String targetNamespacePrefix = "http://www.luxoft.com/";
@@ -49,7 +49,7 @@ public class Main
     }
 
 
-    static boolean isDirectory(String path) {
+    private static boolean isDirectory(String path) {
         if (path == null)
             return false;
 
@@ -85,7 +85,7 @@ public class Main
                 extraInput, extraOutput);
 
         switch (buildType) {
-            case XmlSchema:
+            case XmlSchemaSet:
                 wsdlBuilder.buildXmlSchema((typeName, s) -> {
                     try {
                         Files.write(Paths.get(outputFile, typeName + ".xsd"), s.getBytes(StandardCharsets.UTF_8));
@@ -95,9 +95,13 @@ public class Main
                 });
                 break;
 
+            case XmlSchema:
+                final String xmlSchema = wsdlBuilder.buildXmlSchema();
+                Files.write(Paths.get(outputFile), xmlSchema.getBytes(StandardCharsets.UTF_8));
+                break;
             case WSDL:
-                final String s = wsdlBuilder.buildWSDL(soapAddress, soapTransport);
-                Files.write(Paths.get(outputFile), s.getBytes(StandardCharsets.UTF_8));
+                final String wsdl = wsdlBuilder.buildWSDL(soapAddress, soapTransport);
+                Files.write(Paths.get(outputFile), wsdl.getBytes(StandardCharsets.UTF_8));
                 break;
         }
     }
@@ -136,6 +140,9 @@ public class Main
                 switch (arg) {
                     case "-schema":
                         buildType = BuildType.XmlSchema;
+                        break;
+                    case "-schema-set":
+                        buildType = BuildType.XmlSchemaSet;
                         break;
                     case "-wsdl":
                         buildType = BuildType.WSDL;
@@ -193,14 +200,20 @@ public class Main
 //        updateArg(inputFile, () -> "data/proto/services.desc");
         updateArg(outputFile, () -> {
             switch (BT) {
-                case XmlSchema:
+                case XmlSchemaSet:
                     return FilenameUtils.getPath(inputFile.get());
 
-                case WSDL:
+                case XmlSchema: {
+                    final String path = FilenameUtils.getPath(inputFile.get());
+                    final String baseName = FilenameUtils.getBaseName(inputFile.get());
+                    return Paths.get(path, baseName + ".xsd").toString();
+                }
+
+                case WSDL: {
                     final String path = FilenameUtils.getPath(inputFile.get());
                     final String baseName = FilenameUtils.getBaseName(inputFile.get());
                     return Paths.get(path, baseName + ".wsdl").toString();
-
+                }
                 default:
                     throw new InternalError("Unsupported case " + BT.name());
             }

@@ -97,8 +97,6 @@ public class WSDLBuilder
                        Set<Descriptors.Descriptor> extraInput,
                        Set<Descriptors.Descriptor> extraOutput)
     {
-        if (!targetNamespace.isEmpty() && !targetNamespace.endsWith("/"))
-            targetNamespace = targetNamespace + "/";
         this.namespace = targetNamespace;
         this.serviceName = serviceName;
         this.serviceDescriptors = serviceDescriptors;
@@ -526,6 +524,25 @@ public class WSDLBuilder
                 .toString();
     }
 
+    private String buildExpandedXmlSchema()
+    {
+        Builder builder = new Builder();
+
+        final String header = "<${xs}schema\n" +
+                " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
+                " xmlns:tns=\"${namespace}\"\n" +
+                " targetNamespace=\"${namespace}\"\n" +
+                " elementFormDefault=\"qualified\">\n";
+
+        final String footer = "</${xs}schema>\n";
+
+        return builder.append(header)
+                .appendLiteral(buildXSDTypes(this.regularTypes))
+                .appendLiteral(buildXSDMessageElements())
+                .append(footer)
+                .toString();
+    }
+
     private void buildXmSchemaItem(Descriptors.Descriptor elementType,
                                Set<Descriptors.Descriptor> extraFields,
                                String elementName,
@@ -540,7 +557,7 @@ public class WSDLBuilder
 
         final String footer = "</${xs}schema>\n";
         Builder builder = new Builder();
-        builder.set("namespace", namespace + elementType.getFullName());
+        builder.set("namespace", namespace + "/" + elementType.getFullName());
 
         builder.append(header);
 
@@ -570,6 +587,12 @@ public class WSDLBuilder
             buildXmSchemaItem(e, null, e.getFullName(), continuation);
         }
     }
+
+    public String buildXmlSchema()
+    {
+        return buildInlineXmlSchema();
+    }
+
 
     public String buildWSDL(String soapAddress, String soapTransportSchema)
     {

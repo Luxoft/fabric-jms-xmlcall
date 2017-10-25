@@ -13,7 +13,6 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.7.RELEASE")
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
 }
 
@@ -24,31 +23,30 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven {
-        url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/"
+    maven { url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/" }
+}
+
+subprojects{
+    repositories {
+        mavenCentral()
+        maven { url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/" }
     }
 }
 
 dependencies {
     compile project(':xmlcall-core')
     compile project(':xmlcall-jms')
+    compile project(':xmlcall-ws')
 
-    compile("org.springframework.boot:spring-boot-starter-activemq")
-    compile("org.apache.activemq:activemq-broker")
-    compile("com.fasterxml.jackson.core:jackson-databind")
-
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    testCompile project(':xmlcall-client')
+    testCompile project(':xmlcall-test')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
-
-shadowJar {
-    classifier = 'fat'
+springBoot {
+    mainClass = "com.luxoft.xmlcall.jms.Application"
 }
 
 bootRun {

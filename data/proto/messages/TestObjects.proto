@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package main;
+option java_package = "com.luxoft.uhg.fabric.proto";
+
+
+message MapValue
+{
+    string mapValueValue = 1;
+}
+
+message TestMessage
+{
+    map<int32, int32> intMap = 1;
+    map<string, MapValue>  msgMap = 2;
+    repeated string arr = 3;
+    bytes b = 4;
+}
