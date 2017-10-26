@@ -44,3 +44,7 @@ dependencies {
 sourceSets {
 //    test.java.srcDir "${buildDir}/generated-sources/jaxb"
 }
+
+test {
+    workingDir "${project.rootDir}"
+}

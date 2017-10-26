@@ -3,6 +3,8 @@ SERVICES=service/Accumulator.proto service/InsuredRegistry.proto
 TOPSRC=../../xmlcall-core/src/main/java
 TESTSRC=../../xmlcall-test/src/main/java
 
+all: release test
+
 release: services xmlcall
 
 .PHONY: messages
@@ -27,4 +29,3 @@ xsd2java:
 	xjc -xmlschema -d $(TESTSRC) -p com.luxoft.uhg.fabric.xml xsd/services.xsd
 
 test: xsd2java messages
-all: messages services xmlcall xsd2java

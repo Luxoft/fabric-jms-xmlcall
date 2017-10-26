@@ -15,4 +15,6 @@ message TestMessage
     map<string, MapValue>  msgMap = 2;
     repeated string arr = 3;
     bytes b = 4;
+    string s = 5;
+    int32 x = 6;
 }

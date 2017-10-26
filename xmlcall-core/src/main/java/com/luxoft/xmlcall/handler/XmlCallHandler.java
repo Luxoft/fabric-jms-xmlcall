@@ -1,7 +1,7 @@
 package com.luxoft.xmlcall.handler;
 import com.google.protobuf.*;
-import com.googlecode.protobuf.format.ProtobufFormatter;
-import com.googlecode.protobuf.format.XmlFormat;
+import com.googlecode.protobuf.format.XmlJavaxFormat;
+import com.googlecode.protobuf.format.bits.Base64Serializer;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.ProtoLoader;
 import com.luxoft.xmlcall.shared.XmlHelper;
@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -107,7 +109,14 @@ public class XmlCallHandler
         });
     }
 
-    private String makeSuccess(XmlFormat xmlFormat,
+    private static XmlJavaxFormat getFormatter()
+    {
+        XmlJavaxFormat xmlJavaxFormat = new XmlJavaxFormat(new Base64Serializer());
+        xmlJavaxFormat.setPrintEmptyScalars(true);
+        return xmlJavaxFormat;
+    }
+
+    private String makeSuccess(XmlJavaxFormat xmlFormat,
                                XmlCall.ChaincodeRequest chaincodeRequest,
                                RpcMethod rpcMethod,
                                XmlCallBlockchainConnector.Result result) throws DocumentException, InvalidProtocolBufferException {
@@ -128,16 +137,12 @@ public class XmlCallHandler
     }
 
     public static String makeError(String message) {
-        return makeErrorXML(message);
-    }
-
-    public static String makeErrorXML(String message) {
 
         final XmlCall.ChaincodeFault chaincodeFault = XmlCall.ChaincodeFault.newBuilder()
                 .setMessage(message)
                 .build();
 
-        final String xmlText = new XmlFormat().printToString(chaincodeFault);
+        final String xmlText = getFormatter().printToString(chaincodeFault);
         Document document;
         try {
             document = DocumentHelper.parseText(xmlText);
@@ -152,7 +157,7 @@ public class XmlCallHandler
     }
 
     private XmlCall.ChaincodeRequest
-    getRequest(XmlFormat xmlFormat, String xmlString) throws ProtobufFormatter.ParseException {
+    getRequest(XmlJavaxFormat xmlFormat, String xmlString) throws IOException, XMLStreamException {
         final XmlCall.ChaincodeRequest.Builder builder = XmlCall.ChaincodeRequest.newBuilder();
 
         xmlFormat.merge(xmlString, xmlExtensionRegistry, builder);
@@ -160,7 +165,7 @@ public class XmlCallHandler
     }
 
     private Message
-    getInputMessage(XmlFormat xmlFormat, RpcMethod rpcMethod, String xmlString) throws ProtobufFormatter.ParseException {
+    getInputMessage(XmlJavaxFormat xmlFormat, RpcMethod rpcMethod, String xmlString) throws IOException, XMLStreamException {
         final Descriptors.Descriptor inputType = rpcMethod.getInputType();
         final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
 
@@ -174,12 +179,12 @@ public class XmlCallHandler
     }
 
     public CompletableFuture<String> processXmlMessage(String message, @Nonnull  XmlCallBlockchainConnector blockchain) throws Exception {
-        final XmlFormat xmlFormat = new XmlFormat();
+        final XmlJavaxFormat xmlFormat = getFormatter();
 
         logger.trace("Handle XML {}", message);
         final Document requestDoc = DocumentHelper.parseText(message);
         cleanupNode(requestDoc);
-        logger.info("Request: {}", requestDoc.asXML());
+        logger.info("Request: {}", XmlHelper.escapeString(requestDoc.asXML()));
 
         // avoid using namespaces
         if (!requestDoc.getRootElement().getNamespaceURI().isEmpty())
@@ -218,25 +223,23 @@ public class XmlCallHandler
 
         return exec.thenApply(result -> {
             try {
-//                final String outputString = xmlFormat.printToString(outputMessage);
-
                 final String text = makeSuccess(xmlFormat, chaincodeId, rpcMethod, result);
-                logger.info("result: {}", text);
+                logger.info("result: {}", XmlHelper.escapeString(text));
                 return text;
             } catch (Exception e) {
-                throw new XmlCallException("Unable to parse result", makeErrorXML(e.getMessage()), e);
+                throw new XmlCallException("Unable to parse result", makeError(e.getMessage()), e);
             }
         });
     }
 
     private static Pattern whitespace = Pattern.compile("^[ \n\t\r]+$");
-    Element cleanupElement(Element element)
+    private Element cleanupElement(Element element)
     {
         cleanupNode(element);
         return element;
     }
 
-    void cleanupNode(Node node)
+    private void cleanupNode(Node node)
     {
         if (node instanceof Branch) {
             Branch branch = (Branch) node;
