@@ -7,6 +7,6 @@ option java_generic_services = true; // for testing purposes only
 
 service InsuredRegistry {
   rpc AddMember (main.Member) returns (google.protobuf.Empty) {option(xmlcall.exec_type) = INVOKE; }
-  rpc GetChannel (main.GetChannel) returns (google.protobuf.Empty) {option(xmlcall.exec_type) = QUERY; }
-  rpc GetAllMembers (google.protobuf.Empty) returns (google.protobuf.Empty) {option(xmlcall.exec_type) = QUERY; }
+  rpc GetChannel (main.GetChannel) returns (main.ChannelId) {option(xmlcall.exec_type) = QUERY; }
+  rpc GetAllMembers (google.protobuf.Empty) returns (main.MemberList) {option(xmlcall.exec_type) = QUERY; }
 }
