@@ -593,6 +593,28 @@ public class WSDLBuilder
         return buildInlineXmlSchema();
     }
 
+    public String buildJaxb(String xsdFileName)
+    {
+        Builder builder = new Builder();
+
+        builder.set("xsdFileName", xsdFileName);
+
+        builder.append("<bindings version=\"2.0\" xmlns=\"http://java.sun.com/xml/ns/jaxb\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");
+        builder.append("  <bindings schemaLocation=\"${xsdFileName}\">\n");
+        for (Descriptors.ServiceDescriptor serviceDescriptor : serviceDescriptors) {
+            for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
+                builder.set("methodName", methodDescriptor.getFullName());
+
+                builder.append("    <bindings node=\"//xs:element[@name='${methodName}']\">\n");
+                builder.append("      <class name=\"${methodName}\"/>\n");
+                builder.append("    </bindings>\n");
+            }
+        }
+        builder.append("  </bindings>\n");
+        builder.append("</bindings>\n");
+
+        return builder.toString();
+    }
 
     public String buildWSDL(String soapAddress, String soapTransportSchema)
     {

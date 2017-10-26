@@ -20,7 +20,7 @@ public class Main
 {
     enum BuildType
     {
-        XmlSchema, XmlSchemaSet, WSDL
+        XmlSchema, XmlSchemaSet, JAXB, WSDL
     }
 
     private static final String targetNamespacePrefix = "http://www.luxoft.com/";
@@ -69,7 +69,8 @@ public class Main
                                 String soapAddress,
                                 String soapTransport,
                                 Set<String> extraInput_,
-                                Set<String> extraOutput_)
+                                Set<String> extraOutput_,
+                                String xsdFileName)
             throws Exception {
 
         final ProtoLoader protoLoader = new ProtoLoader(inputFile);
@@ -99,6 +100,12 @@ public class Main
                 final String xmlSchema = wsdlBuilder.buildXmlSchema();
                 Files.write(Paths.get(outputFile), xmlSchema.getBytes(StandardCharsets.UTF_8));
                 break;
+
+            case JAXB:
+                final String jaxb = wsdlBuilder.buildJaxb(xsdFileName);
+                Files.write(Paths.get(outputFile), jaxb.getBytes(StandardCharsets.UTF_8));
+                break;
+
             case WSDL:
                 final String wsdl = wsdlBuilder.buildWSDL(soapAddress, soapTransport);
                 Files.write(Paths.get(outputFile), wsdl.getBytes(StandardCharsets.UTF_8));
@@ -121,6 +128,7 @@ public class Main
         final AtomicReference<String> faultType = new AtomicReference<>(null);
         final AtomicReference<String> soapAddress = new AtomicReference<>(null);
         final AtomicReference<String> soapTransport = new AtomicReference<>(null);
+        final AtomicReference<String> xsdFileName = new AtomicReference<>(null);
 
         final Set<String> extraInput = new HashSet<>();
         final Set<String> extraOutput = new HashSet<>();
@@ -138,6 +146,7 @@ public class Main
             }
             if (argsSection && arg.startsWith("-")) {
                 switch (arg) {
+                    case "-xsd":
                     case "-schema":
                         buildType = BuildType.XmlSchema;
                         break;
@@ -146,6 +155,13 @@ public class Main
                         break;
                     case "-wsdl":
                         buildType = BuildType.WSDL;
+                        break;
+                    case "-xjb":
+                    case "-jaxb":
+                        buildType = BuildType.JAXB;
+                        break;
+                    case "-xsd-file":
+                        nextArg = xsdFileName::set;
                         break;
                     case "-name":
                         nextArg = serviceName::set;
@@ -209,6 +225,12 @@ public class Main
                     return Paths.get(path, baseName + ".xsd").toString();
                 }
 
+                case JAXB: {
+                    final String path = FilenameUtils.getPath(inputFile.get());
+                    final String baseName = FilenameUtils.getBaseName(inputFile.get());
+                    return Paths.get(path, baseName + ".xjb").toString();
+                }
+
                 case WSDL: {
                     final String path = FilenameUtils.getPath(inputFile.get());
                     final String baseName = FilenameUtils.getBaseName(inputFile.get());
@@ -230,6 +252,13 @@ public class Main
         updateArg(serviceName, () -> FilenameUtils.getBaseName(inputFile.get()));
         updateArg(namespaceName, () -> targetNamespacePrefix + FilenameUtils.getName(outputFile.get()));
         updateArg(faultType, () -> "xmlcall.ChaincodeFault");
+
+        updateArg(xsdFileName, () -> {
+            final String path = FilenameUtils.getPath(inputFile.get());
+            final String baseName = FilenameUtils.getBaseName(inputFile.get());
+            return Paths.get(/*path, */baseName + ".xsd").toString();
+        });
+
         if (inputAttributes.isEmpty())
             inputAttributes.add("xmlcall.ChaincodeRequest");
 
@@ -257,6 +286,7 @@ public class Main
                 soapAddress.get(),
                 soapTransport.get(),
                 extraInput,
-                extraOutput);
+                extraOutput,
+                xsdFileName.get());
     }
 }
