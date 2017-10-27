@@ -88,6 +88,7 @@ public class XmlFormatTest {
 //                "<b>QmFzZTY0IGZvcm1hdA==</b>" +
 //                "<s>string 1 line</s>" +
 //                "<x>1</x>" +
+                "<e>OPTA</e>" +
                 "</TestMessage>\n";
 
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();

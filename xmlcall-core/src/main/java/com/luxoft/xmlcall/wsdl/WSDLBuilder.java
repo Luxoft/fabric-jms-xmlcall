@@ -8,6 +8,11 @@ import org.apache.commons.text.StrSubstitutor;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+/*todo:
+ * - extensions? in proto3 extendions are deprecated
+ * - service input/output streams.
+ */
+
 public class WSDLBuilder
 {
     private static final String xmlHeader =
@@ -46,6 +51,7 @@ public class WSDLBuilder
     private final Set<Descriptors.Descriptor> inputTypes = new HashSet<>();
     private final Set<Descriptors.Descriptor> outputTypes = new HashSet<>();
     private final Set<Descriptors.Descriptor> regularTypes = new HashSet<>();
+    private final Set<Descriptors.EnumDescriptor> enumTypes = new HashSet<>();
 
     private class Builder
     {
@@ -106,18 +112,18 @@ public class WSDLBuilder
         this.inputAttributes = inputAttributes;
         this.outputAttributes = outputAttributes;
 
-        markTypesRecursively(faultType, regularTypes);
+        markTypesRecursively(faultType, regularTypes, enumTypes);
         messageTypes.add(faultType);
         if (this.extraInput != null) {
             for (Descriptors.Descriptor descriptor : extraInput) {
-                markTypesRecursively(descriptor, regularTypes);
+                markTypesRecursively(descriptor, regularTypes, enumTypes);
             }
             // messageTypes.add(extraInput);
         }
 
         if (this.extraOutput != null) {
             for (Descriptors.Descriptor descriptor : extraOutput) {
-                markTypesRecursively(descriptor, regularTypes);
+                markTypesRecursively(descriptor, regularTypes, enumTypes);
             }
             // messageTypes.add(extraOutput);
         }
@@ -126,8 +132,8 @@ public class WSDLBuilder
             for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
                 final Descriptors.Descriptor outputType = methodDescriptor.getOutputType();
                 final Descriptors.Descriptor inputType = methodDescriptor.getInputType();
-                markTypesRecursively(inputType, regularTypes);
-                markTypesRecursively(outputType, regularTypes);
+                markTypesRecursively(inputType, regularTypes, enumTypes);
+                markTypesRecursively(outputType, regularTypes, enumTypes);
 
                 messageTypes.add(inputType);
                 messageTypes.add(outputType);
@@ -194,14 +200,53 @@ public class WSDLBuilder
         case MESSAGE:
             return tns + fieldDescriptor.getMessageType().getFullName();
 
-        case ENUM: // todo: map to enumeration
-            throw new RuntimeException("Unhandled type: " + type.name());
+        case ENUM:
+            return tns + fieldDescriptor.getEnumType().getFullName();
         }
 
         throw new InternalError("Unhandled type: " + type.name());
     }
 
-    private String buildXSDType(Descriptors.Descriptor type)
+    private String buildXSDEnumType(Descriptors.EnumDescriptor type)
+    {
+        Builder builder = new Builder()
+                .set("typeName", type.getFullName());
+
+        builder.append("<${xs}simpleType name=\"${typeName}\" final=\"restriction\">");
+        builder.append("<${xs}restriction base=\"${xs}string\">");
+        for (Descriptors.EnumValueDescriptor enumValueDescriptor : type.getValues()) {
+            builder.set("enumValue", enumValueDescriptor.getName());
+            builder.append("<${xs}enumeration value=\"${enumValue}\"/>");
+        }
+        builder.append("</${xs}restriction>");
+        builder.append("</${xs}simpleType>");
+        return builder.toString();
+    }
+
+    private String buildXSDFieldElement(Descriptors.FieldDescriptor fieldDescriptor)
+    {
+        Builder builder = new Builder();
+        builder.set("fieldName", fieldDescriptor.getName());
+        builder.set("fieldType", getXSDType(fieldDescriptor));
+
+        if (fieldDescriptor.isRepeated()) {
+//                        builder.set("entryName", getEntryName(fieldDescriptor));
+//                        builder.append(
+//                                "<xs:element name=\"${fieldName}\">" +
+//                                        "<xs:complexType>" +
+//                                        "<xs:sequence>" +
+//                                        "<xs:element name=\"${entryName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>" +
+//                                        "</xs:sequence>" +
+//                                        "</xs:complexType>" +
+//                                        "</xs:element>");
+
+            builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>");
+        } else
+            builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\"/>");
+        return builder.toString();
+    }
+
+    private String buildXSDMessageType(Descriptors.Descriptor type)
     {
         Builder builder = new Builder()
                 .set("typeName", type.getFullName());
@@ -224,27 +269,29 @@ public class WSDLBuilder
         else {
             builder.append("<${xs}complexType name=\"${typeName}\">");
             if (hasFields) {
+                Set<Descriptors.FieldDescriptor> oneofFields = new HashSet<>();
+                for (Descriptors.OneofDescriptor oneofDescriptor : type.getOneofs()) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : oneofDescriptor.getFields()) {
+                        oneofFields.add(fieldDescriptor);
+                    }
+                }
+
                 builder.append("<${xs}sequence>");
 
                 for (Descriptors.FieldDescriptor fieldDescriptor : fields) {
-                    builder.set("fieldName", fieldDescriptor.getName());
-                    builder.set("fieldType", getXSDType(fieldDescriptor));
-
-                    if (fieldDescriptor.isRepeated()) {
-//                        builder.set("entryName", getEntryName(fieldDescriptor));
-//                        builder.append(
-//                                "<xs:element name=\"${fieldName}\">" +
-//                                        "<xs:complexType>" +
-//                                        "<xs:sequence>" +
-//                                        "<xs:element name=\"${entryName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>" +
-//                                        "</xs:sequence>" +
-//                                        "</xs:complexType>" +
-//                                        "</xs:element>");
-
-                        builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>");
-                    } else
-                        builder.append("<${xs}element name=\"${fieldName}\" type=\"${fieldType}\"/>");
+                    if (oneofFields.contains(fieldDescriptor))
+                        continue;
+                    builder.appendLiteral(buildXSDFieldElement(fieldDescriptor));
                 }
+
+                for (Descriptors.OneofDescriptor oneofDescriptor : type.getOneofs()) {
+                    builder.append("<${xs}choice>");
+                    for (Descriptors.FieldDescriptor fieldDescriptor : oneofDescriptor.getFields()) {
+                        builder.appendLiteral(buildXSDFieldElement(fieldDescriptor));
+                    }
+                    builder.append("</${xs}choice>");
+                }
+
                 builder.append("</${xs}sequence>");
             }
 
@@ -267,6 +314,7 @@ public class WSDLBuilder
             }
             builder.append("</${xs}complexType>");
         }
+
         return builder.toString();
     }
 
@@ -311,12 +359,24 @@ public class WSDLBuilder
         return builder.toString();
     }
 
-    private String buildXSDTypes(Set<Descriptors.Descriptor> types)
+    private String buildXSDMessages(Set<Descriptors.Descriptor> types)
     {
         Builder builder = new Builder();
 
         for (Descriptors.Descriptor descriptor : types) {
-            builder.appendLiteral(buildXSDType(descriptor));
+            builder.appendLiteral(buildXSDMessageType(descriptor));
+            builder.appendLiteral("\n");
+        }
+
+        return builder.toString();
+    }
+
+    private String buildXSDEnums(Set<Descriptors.EnumDescriptor> types)
+    {
+        Builder builder = new Builder();
+
+        for (Descriptors.EnumDescriptor descriptor : types) {
+            builder.appendLiteral(buildXSDEnumType(descriptor));
             builder.appendLiteral("\n");
         }
 
@@ -363,10 +423,11 @@ public class WSDLBuilder
     }
 
 
-    private void markTypesRecursively(Descriptors.Descriptor descriptor,
-                                      Set<Descriptors.Descriptor> set)
+    private static void markTypesRecursively(Descriptors.Descriptor descriptor,
+                                      Set<Descriptors.Descriptor> messageSet,
+                                      Set<Descriptors.EnumDescriptor> enumTypeSet)
     {
-        if (!set.add(descriptor))
+        if (!messageSet.add(descriptor))
             return;
 
         for (Descriptors.FieldDescriptor fieldDescriptor : descriptor.getFields()) {
@@ -388,12 +449,19 @@ public class WSDLBuilder
                 case SINT64:
                     break;
                 case ENUM:
+                    final Descriptors.EnumDescriptor enumType = fieldDescriptor.getEnumType();
+                    enumTypeSet.add(enumType);
+                    break;
+
                 case GROUP:
                 case MESSAGE:
                     final Descriptors.Descriptor messageType = fieldDescriptor.getMessageType();
-                    markTypesRecursively(messageType, set);
+                    markTypesRecursively(messageType, messageSet, enumTypeSet);
                     break;
             }
+        }
+        for (Descriptors.Descriptor nf : descriptor.getNestedTypes()) {
+            markTypesRecursively(nf, messageSet, enumTypeSet);
         }
     }
 
@@ -412,6 +480,8 @@ public class WSDLBuilder
             switch (execType) {
 
                 case UNKNOWN:
+                    throw new RuntimeException("execType is not set. You should use INVOKE or QUERY");
+
                 case UNRECOGNIZED:
                     throw new RuntimeException("Unhandled execType: " + execType.ordinal());
 
@@ -518,26 +588,8 @@ public class WSDLBuilder
         final String footer = "</${xs}schema>\n";
 
         return builder.append(header)
-                .appendLiteral(buildXSDTypes(this.regularTypes))
-                .appendLiteral(buildXSDMessageElements())
-                .append(footer)
-                .toString();
-    }
-
-    private String buildExpandedXmlSchema()
-    {
-        Builder builder = new Builder();
-
-        final String header = "<${xs}schema\n" +
-                " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
-                " xmlns:tns=\"${namespace}\"\n" +
-                " targetNamespace=\"${namespace}\"\n" +
-                " elementFormDefault=\"qualified\">\n";
-
-        final String footer = "</${xs}schema>\n";
-
-        return builder.append(header)
-                .appendLiteral(buildXSDTypes(this.regularTypes))
+                .appendLiteral(buildXSDEnums(this.enumTypes))
+                .appendLiteral(buildXSDMessages(this.regularTypes))
                 .appendLiteral(buildXSDMessageElements())
                 .append(footer)
                 .toString();
@@ -549,6 +601,7 @@ public class WSDLBuilder
                                BiConsumer<String, String> continuation)
     {
         Set<Descriptors.Descriptor> descriptors = new HashSet<>();
+        Set<Descriptors.EnumDescriptor> enumDescriptors = new HashSet<>();
         final String header = "<${xs}schema\n" +
                 " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
                 " xmlns:tns=\"${namespace}\"\n" +
@@ -562,14 +615,15 @@ public class WSDLBuilder
         builder.append(header);
 
         descriptors.clear();
-        markTypesRecursively(elementType, descriptors);
+        markTypesRecursively(elementType, descriptors, enumDescriptors);
 
         if (extraFields != null) {
             for (Descriptors.Descriptor e : extraFields) {
-                markTypesRecursively(e, descriptors);
+                markTypesRecursively(e, descriptors, enumDescriptors);
             }
         }
-        builder.appendLiteral(buildXSDTypes(descriptors));
+        builder.appendLiteral(buildXSDEnums(enumDescriptors));
+        builder.appendLiteral(buildXSDMessages(descriptors));
         builder.appendLiteral(buildXSDMessageElement(elementType, extraFields, elementName));
         builder.append(footer);
         continuation.accept(elementName, builder.toString());

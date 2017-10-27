@@ -16,18 +16,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class Main
-{
-    enum BuildType
-    {
+public class Main {
+    enum BuildType {
         XmlSchema, XmlSchemaSet, JAXB, WSDL
     }
 
     private static final String targetNamespacePrefix = "http://www.luxoft.com/";
 
     private static Set<Descriptors.Descriptor>
-    buildTypeMap(ProtoLoader pb, Set<String> args)
-    {
+    buildTypeMap(ProtoLoader pb, Set<String> args) {
         Set<Descriptors.Descriptor> result = new HashSet<>();
 
         for (String e : args) {
@@ -37,8 +34,7 @@ public class Main
     }
 
     private static Set<Descriptors.FieldDescriptor>
-    buildFieldMap(ProtoLoader pb, Set<String> args)
-    {
+    buildFieldMap(ProtoLoader pb, Set<String> args) {
         Set<Descriptors.FieldDescriptor> result = new HashSet<>();
 
         for (String e : args) {
@@ -113,8 +109,7 @@ public class Main
         }
     }
 
-    private static void updateArg(AtomicReference<String> arg, Supplier<String> evalDefault)
-    {
+    private static void updateArg(AtomicReference<String> arg, Supplier<String> evalDefault) {
         if (arg.get() == null)
             arg.set(evalDefault.get());
     }
@@ -199,8 +194,7 @@ public class Main
                     default:
                         throw new RuntimeException("Unsupported argument " + arg);
                 }
-            }
-            else {
+            } else {
                 if (inputFile.get() == null)
                     inputFile.set(arg);
                 else
