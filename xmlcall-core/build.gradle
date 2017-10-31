@@ -16,9 +16,12 @@ repositories {
 dependencies {
     compile group: 'com.luxoft', name: 'fabric-utils', version: '1.2.8-beta3'
 
+    compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version: '1.5-SNAPSHOT-luxoft1'
+//    compile project(':protobuf-java-format')
+
     compile 'com.google.protobuf:protobuf-java:3.4.0'
     compile 'com.google.protobuf:protobuf-java-util:3.4.0'
-    compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version: '1.4'
+//    compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version: '1.4'
     compile group: 'org.dom4j', name: 'dom4j', version: '2.1.0'
     compile group: 'net.java.dev.msv', name: 'msv-core', version: '2013.6.1'
     compile 'org.apache.commons:commons-text:1.1'

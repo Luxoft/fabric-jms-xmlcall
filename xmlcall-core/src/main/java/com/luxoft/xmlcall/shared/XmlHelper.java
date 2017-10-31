@@ -12,6 +12,10 @@ import org.iso_relax.verifier.VerifierFactory;
 import org.iso_relax.verifier.VerifierHandler;
 import org.xml.sax.SAXException;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -89,6 +93,9 @@ public class XmlHelper {
 
     public static Function<String, String> fileXSDFactory(String xsdPath)
     {
+        if (xsdPath == null)
+            return null;
+
         return typeName -> {
             final Path filePath = Paths.get(xsdPath, typeName + ".xsd");
 
@@ -143,6 +150,9 @@ public class XmlHelper {
     }
 
     public static void xmlValidate(Document document, Function<String, String> getSchema) throws IOException, SAXException, VerifierConfigurationException, DocumentException {
+        if (getSchema == null)
+            return;
+
         final Element rootElement = document.getRootElement();
         final String rootElementName = rootElement.getName();
 
@@ -177,5 +187,50 @@ public class XmlHelper {
         VerifierHandler handler = verifier.getVerifierHandler();
         SAXWriter writer = new SAXWriter(handler);
         writer.write(document);
+    }
+
+    public static String prettyPrintXML(String source) throws XMLStreamException, TransformerException {
+        return prettyPrintXML( new StreamSource(new StringReader(source)));
+    }
+
+    public static String prettyPrintXML(Source source) throws XMLStreamException, TransformerException {
+
+        Transformer t = TransformerFactory.newInstance().newTransformer();
+        t.setOutputProperty(OutputKeys.INDENT, "yes");
+        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        final StringWriter stringWriter = new StringWriter();
+        t.transform(source, new StreamResult(stringWriter));
+        return stringWriter.toString();
+    }
+
+    public static String escapeString(String string)
+    {
+        final StringBuilder stringBuilder = new StringBuilder();
+
+        for (char c : string.toCharArray()) {
+            boolean printable;
+
+            printable = !Character.isISOControl(c)
+                    && Character.UnicodeBlock.of(c) != Character.UnicodeBlock.SPECIALS
+                    && c != '\\';
+
+            if (printable)
+                stringBuilder.append(c);
+            else {
+                switch (c) {
+                    case '\\': stringBuilder.append("\\\\"); break;
+                    case '\n': stringBuilder.append("\\n"); break;
+                    case '\r': stringBuilder.append("\\r"); break;
+                    default:
+                        final String q = Integer.toHexString(c);
+                        stringBuilder.append("\\u");
+                        stringBuilder.append("0000".substring(q.length()));
+                        stringBuilder.append(q);
+                        break;
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 }

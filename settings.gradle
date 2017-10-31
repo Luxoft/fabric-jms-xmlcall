@@ -1,4 +1,7 @@
 rootProject.name = 'JmsXmlCall'
-include 'xmlcall-client'
+// include 'protobuf-java-format'
 include 'xmlcall-core'
+include 'xmlcall-test'
 include 'xmlcall-jms'
+include 'xmlcall-ws'
+include 'xmlcall-client'

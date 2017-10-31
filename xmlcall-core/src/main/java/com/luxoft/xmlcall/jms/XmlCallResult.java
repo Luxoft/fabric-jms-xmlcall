@@ -1,4 +1,4 @@
-package com.luxoft.xmlcall.jms_server;
+package com.luxoft.xmlcall.jms;
 
 import com.luxoft.xmlcall.proto.XmlCall;
 

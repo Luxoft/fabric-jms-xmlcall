@@ -24,8 +24,17 @@ repositories {
 
 dependencies {
     compile project(':xmlcall-core')
+    testCompile project(':xmlcall-test')
 
     compile("org.springframework.boot:spring-boot-starter-activemq")
     compile("org.apache.activemq:activemq-broker")
+//    compile("com.fasterxml.jackson.core:jackson-databind")
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile("org.springframework.boot:spring-boot-starter-test")
 }
+
+test {
+    workingDir "${project.rootDir}"
+}
+

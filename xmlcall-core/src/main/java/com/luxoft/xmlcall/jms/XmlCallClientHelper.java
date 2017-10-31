@@ -1,4 +1,4 @@
-package com.luxoft.xmlcall.jms_server;
+package com.luxoft.xmlcall.jms;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.ExtensionRegistry;

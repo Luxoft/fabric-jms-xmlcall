@@ -1,7 +1,7 @@
 package com.luxoft.xmlcall.handler;
 import com.google.protobuf.*;
-import com.googlecode.protobuf.format.ProtobufFormatter;
-import com.googlecode.protobuf.format.XmlFormat;
+import com.googlecode.protobuf.format.XmlJavaxFormat;
+import com.googlecode.protobuf.format.bits.Base64Serializer;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.ProtoLoader;
 import com.luxoft.xmlcall.shared.XmlHelper;
@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -87,6 +89,7 @@ public class XmlCallHandler
     private final Descriptors.Descriptor chaincodeRequestType;
     private final Descriptors.Descriptor chaincodeResponceType;
     private final Descriptors.Descriptor faultType;
+    private final String nsURI;
 
     private final ExtensionRegistry xmlExtensionRegistry;
 
@@ -106,7 +109,14 @@ public class XmlCallHandler
         });
     }
 
-    private String makeSuccess(XmlFormat xmlFormat,
+    private static XmlJavaxFormat getFormatter()
+    {
+        XmlJavaxFormat xmlJavaxFormat = new XmlJavaxFormat(new Base64Serializer());
+        xmlJavaxFormat.setPrintEmptyScalars(true);
+        return xmlJavaxFormat;
+    }
+
+    private String makeSuccess(XmlJavaxFormat xmlFormat,
                                XmlCall.ChaincodeRequest chaincodeRequest,
                                RpcMethod rpcMethod,
                                XmlCallBlockchainConnector.Result result) throws DocumentException, InvalidProtocolBufferException {
@@ -122,20 +132,17 @@ public class XmlCallHandler
         rootElement.setName(rpcMethod.getOutputType().getFullName());
         // rootElement.setName(rpcMethod.methodDescriptor.getFullName());
         XmlHelper.pasteAttributes(rootElement, chaincodeResult, XmlHelper.Dir.OUT);
+        XmlHelper.changeNamespace(document, "", nsURI.isEmpty() ? "" : "tns", nsURI);
         return document.asXML();
     }
 
     public static String makeError(String message) {
-        return makeErrorXML(message);
-    }
-
-    public static String makeErrorXML(String message) {
 
         final XmlCall.ChaincodeFault chaincodeFault = XmlCall.ChaincodeFault.newBuilder()
                 .setMessage(message)
                 .build();
 
-        final String xmlText = new XmlFormat().printToString(chaincodeFault);
+        final String xmlText = getFormatter().printToString(chaincodeFault);
         Document document;
         try {
             document = DocumentHelper.parseText(xmlText);
@@ -150,7 +157,7 @@ public class XmlCallHandler
     }
 
     private XmlCall.ChaincodeRequest
-    getRequest(XmlFormat xmlFormat, String xmlString) throws ProtobufFormatter.ParseException {
+    getRequest(XmlJavaxFormat xmlFormat, String xmlString) throws IOException, XMLStreamException {
         final XmlCall.ChaincodeRequest.Builder builder = XmlCall.ChaincodeRequest.newBuilder();
 
         xmlFormat.merge(xmlString, xmlExtensionRegistry, builder);
@@ -158,7 +165,7 @@ public class XmlCallHandler
     }
 
     private Message
-    getInputMessage(XmlFormat xmlFormat, RpcMethod rpcMethod, String xmlString) throws ProtobufFormatter.ParseException {
+    getInputMessage(XmlJavaxFormat xmlFormat, RpcMethod rpcMethod, String xmlString) throws IOException, XMLStreamException {
         final Descriptors.Descriptor inputType = rpcMethod.getInputType();
         final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
 
@@ -172,12 +179,16 @@ public class XmlCallHandler
     }
 
     public CompletableFuture<String> processXmlMessage(String message, @Nonnull  XmlCallBlockchainConnector blockchain) throws Exception {
-        final XmlFormat xmlFormat = new XmlFormat();
+        final XmlJavaxFormat xmlFormat = getFormatter();
 
         logger.trace("Handle XML {}", message);
         final Document requestDoc = DocumentHelper.parseText(message);
         cleanupNode(requestDoc);
-        logger.info("Request: {}", requestDoc.asXML());
+        logger.info("Request: {}", XmlHelper.escapeString(requestDoc.asXML()));
+
+        // avoid using namespaces
+        if (!requestDoc.getRootElement().getNamespaceURI().isEmpty())
+            XmlHelper.changeNamespace(requestDoc, requestDoc.getRootElement().getNamespaceURI(), "", "");
 
         final Element rootElement = requestDoc.getRootElement();
         final String methodName = getMethodName(rootElement);
@@ -190,7 +201,6 @@ public class XmlCallHandler
         final DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(inputType);
 
         XmlHelper.loadAttributes(chaincodeRequestBuilder, rootElement, XmlHelper.Dir.IN);
-
         XmlHelper.cleanAttributes(rootElement);
         rootElement.setName(rpcMethod.getInputType().getName());
         final String s = XmlHelper.asXML(rootElement);
@@ -213,25 +223,23 @@ public class XmlCallHandler
 
         return exec.thenApply(result -> {
             try {
-//                final String outputString = xmlFormat.printToString(outputMessage);
-
                 final String text = makeSuccess(xmlFormat, chaincodeId, rpcMethod, result);
-                logger.info("result: {}", text);
+                logger.info("result: {}", XmlHelper.escapeString(text));
                 return text;
             } catch (Exception e) {
-                throw new XmlCallException("Unable to parse result", makeErrorXML(e.getMessage()), e);
+                throw new XmlCallException("Unable to parse result", makeError(e.getMessage()), e);
             }
         });
     }
 
     private static Pattern whitespace = Pattern.compile("^[ \n\t\r]+$");
-    Element cleanupElement(Element element)
+    private Element cleanupElement(Element element)
     {
         cleanupNode(element);
         return element;
     }
 
-    void cleanupNode(Node node)
+    private void cleanupNode(Node node)
     {
         if (node instanceof Branch) {
             Branch branch = (Branch) node;
@@ -248,7 +256,7 @@ public class XmlCallHandler
         }
     }
 
-    public XmlCallHandler(String fileName) throws Exception {
+    public XmlCallHandler(String fileName, String nsURI) throws Exception {
         final ProtoLoader protoLoader = new ProtoLoader(fileName);
         Set<Descriptors.ServiceDescriptor> serviceDescriptorSet = new HashSet<>();
 
@@ -256,6 +264,7 @@ public class XmlCallHandler
         this.chaincodeRequestType = protoLoader.getType("xmlcall.ChaincodeRequest");
         this.chaincodeResponceType = protoLoader.getType("xmlcall.ChaincodeResult");
         this.faultType = protoLoader.getType("xmlcall.ChaincodeFault");
+        this.nsURI = nsURI;
 
         for (Descriptors.ServiceDescriptor serviceDescriptor : protoLoader.getServices()) {
             this.services.add(serviceDescriptor.getName());
@@ -278,3 +287,10 @@ public class XmlCallHandler
         }
     }
 }
+
+
+/*
+Caused by: javax.xml.bind.UnmarshalException: unexpected element (uri:
+"http://www.luxoft.com/services.xsd", local:"main.Accumulator").
+ Expected elements are <{http://www.luxoft.com/services.xsd/}Accumulator.AddClaim>,<{http://www.luxoft.com/services.xsd/}Accumulator.GetAccumulator>,<{http://www.luxoft.com/services.xsd/}InsuredRegistry.AddMember>,<{http://www.luxoft.com/services.xsd/}google.protobuf.Empty>,<{http://www.luxoft.com/services.xsd/}main.Accumulator>,<{http://www.luxoft.com/services.xsd/}xmlcall.ChaincodeFault>
+ */
