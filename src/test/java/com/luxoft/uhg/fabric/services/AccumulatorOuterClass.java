@@ -39,12 +39,12 @@ public final class AccumulatorOuterClass {
           com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
 
       /**
-       * <code>rpc AddClaim(.main.AddClaim) returns (.google.protobuf.Empty);</code>
+       * <code>rpc AddClaim(.main.AddClaim) returns (.main.AddClaimResponse);</code>
        */
       public abstract void addClaim(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim request,
-          com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
+          com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse> done);
 
       /**
        * <code>rpc GetAccumulator(.main.GetAccumulator) returns (.main.Accumulator);</code>
@@ -103,7 +103,7 @@ public final class AccumulatorOuterClass {
         public  void addClaim(
             com.google.protobuf.RpcController controller,
             com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim request,
-            com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
+            com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse> done) {
           impl.addClaim(controller, request, done);
         }
 
@@ -222,7 +222,7 @@ public final class AccumulatorOuterClass {
             case 1:
               return com.google.protobuf.Empty.getDefaultInstance();
             case 2:
-              return com.google.protobuf.Empty.getDefaultInstance();
+              return com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse.getDefaultInstance();
             case 3:
               return com.luxoft.uhg.fabric.proto.ClaimAccumulator.Accumulator.getDefaultInstance();
             case 4:
@@ -256,12 +256,12 @@ public final class AccumulatorOuterClass {
         com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
 
     /**
-     * <code>rpc AddClaim(.main.AddClaim) returns (.google.protobuf.Empty);</code>
+     * <code>rpc AddClaim(.main.AddClaim) returns (.main.AddClaimResponse);</code>
      */
     public abstract void addClaim(
         com.google.protobuf.RpcController controller,
         com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim request,
-        com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
+        com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse> done);
 
     /**
      * <code>rpc GetAccumulator(.main.GetAccumulator) returns (.main.Accumulator);</code>
@@ -329,7 +329,7 @@ public final class AccumulatorOuterClass {
           return;
         case 2:
           this.addClaim(controller, (com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim)request,
-            com.google.protobuf.RpcUtil.<com.google.protobuf.Empty>specializeCallback(
+            com.google.protobuf.RpcUtil.<com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse>specializeCallback(
               done));
           return;
         case 3:
@@ -399,7 +399,7 @@ public final class AccumulatorOuterClass {
         case 1:
           return com.google.protobuf.Empty.getDefaultInstance();
         case 2:
-          return com.google.protobuf.Empty.getDefaultInstance();
+          return com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse.getDefaultInstance();
         case 3:
           return com.luxoft.uhg.fabric.proto.ClaimAccumulator.Accumulator.getDefaultInstance();
         case 4:
@@ -462,16 +462,16 @@ public final class AccumulatorOuterClass {
       public  void addClaim(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim request,
-          com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
+          com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse> done) {
         channel.callMethod(
           getDescriptor().getMethods().get(2),
           controller,
           request,
-          com.google.protobuf.Empty.getDefaultInstance(),
+          com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse.getDefaultInstance(),
           com.google.protobuf.RpcUtil.generalizeCallback(
             done,
-            com.google.protobuf.Empty.class,
-            com.google.protobuf.Empty.getDefaultInstance()));
+            com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse.class,
+            com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse.getDefaultInstance()));
       }
 
       public  void getAccumulator(
@@ -551,7 +551,7 @@ public final class AccumulatorOuterClass {
           com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddMember request)
           throws com.google.protobuf.ServiceException;
 
-      public com.google.protobuf.Empty addClaim(
+      public com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse addClaim(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim request)
           throws com.google.protobuf.ServiceException;
@@ -608,15 +608,15 @@ public final class AccumulatorOuterClass {
       }
 
 
-      public com.google.protobuf.Empty addClaim(
+      public com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse addClaim(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaim request)
           throws com.google.protobuf.ServiceException {
-        return (com.google.protobuf.Empty) channel.callBlockingMethod(
+        return (com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse) channel.callBlockingMethod(
           getDescriptor().getMethods().get(2),
           controller,
           request,
-          com.google.protobuf.Empty.getDefaultInstance());
+          com.luxoft.uhg.fabric.proto.ClaimAccumulator.AddClaimResponse.getDefaultInstance());
       }
 
 
@@ -687,7 +687,7 @@ public final class AccumulatorOuterClass {
       "ddPlan\022\n.main.Plan\032\026.google.protobuf.Emp" +
       "ty\"\004\220\202\031\002\022:\n\tAddMember\022\017.main.AddMember\032\026" +
       ".google.protobuf.Empty\"\004\220\202\031\002\0228\n\010AddClaim" +
-      "\022\016.main.AddClaim\032\026.google.protobuf.Empty" +
+      "\022\016.main.AddClaim\032\026.main.AddClaimResponse" +
       "\"\004\220\202\031\002\022?\n\016GetAccumulator\022\024.main.GetAccum" +
       "ulator\032\021.main.Accumulator\"\004\220\202\031\001\022*\n\007GetPl" +
       "an\022\r.main.GetPlan\032\n.main.Plan\"\004\220\202\031\001\0225\n\tG",
