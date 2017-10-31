@@ -36,7 +36,7 @@ subprojects{
 dependencies {
     compile project(':xmlcall-core')
     compile project(':xmlcall-jms')
-    compile project(':xmlcall-ws')
+//    compile project(':xmlcall-ws')
 
     testCompile project(':xmlcall-client')
     testCompile project(':xmlcall-test')
@@ -56,3 +56,10 @@ bootRun {
 task wrapper(type: Wrapper) {
     gradleVersion = '3.5'
 }
+
+task makeProto(type:Exec) {
+    workingDir 'data/proto'
+    commandLine 'make'
+}
+
+assemble.dependsOn makeProto

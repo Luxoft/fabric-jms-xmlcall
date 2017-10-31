@@ -28,4 +28,4 @@ check v:
 xsd2java:
 	xjc -xmlschema -d $(TESTSRC) -p com.luxoft.uhg.fabric.xml xsd/services.xsd
 
-test: xsd2java messages
+test: messages
