@@ -2,6 +2,7 @@ package com.luxoft.xmlcall.wsdl;
 
 import com.google.protobuf.Descriptors;
 import com.luxoft.xmlcall.proto.XmlCall;
+import com.luxoft.xmlcall.shared.ProtoLoader;
 import com.luxoft.xmlcall.shared.XmlHelper;
 import org.apache.commons.text.StrSubstitutor;
 
@@ -35,16 +36,19 @@ public class WSDLBuilder
     public static final String soapHttpTransport = "http://schemas.xmlsoap.org/soap/http";
     public static final String soapJmsTransport = "http://www.w3.org/2010/soapjms/";
 
+    enum ExtraAttribType
+    {
+        ATTRIBUTES, MESSAGE
+    }
     private final String xs = "xs:";
     private final String wsdl = "wsdl:";
     private final String tns = "tns:";
     private final String namespace;
     private final String serviceName;
+    private final ExtraAttribType extraAttribType = ExtraAttribType.ATTRIBUTES;
     private final Descriptors.Descriptor faultType;
-    private final Set<Descriptors.FieldDescriptor> inputAttributes;
-    private final Set<Descriptors.FieldDescriptor> outputAttributes;
-    private final Set<Descriptors.Descriptor> extraInput;
-    private final Set<Descriptors.Descriptor> extraOutput;
+    private final Descriptors.Descriptor inputAttributes;
+    private final Descriptors.Descriptor outputAttributes;
 
     private final Set<Descriptors.ServiceDescriptor> serviceDescriptors;
     private final Set<Descriptors.Descriptor> messageTypes = new HashSet<>();
@@ -94,38 +98,22 @@ public class WSDLBuilder
 
     }
 
-    public WSDLBuilder(Set<Descriptors.ServiceDescriptor> serviceDescriptors,
-                       String targetNamespace,
-                       String serviceName,
-                       Descriptors.Descriptor faultType,
-                       Set<Descriptors.FieldDescriptor> inputAttributes,
-                       Set<Descriptors.FieldDescriptor> outputAttributes,
-                       Set<Descriptors.Descriptor> extraInput,
-                       Set<Descriptors.Descriptor> extraOutput)
+    public WSDLBuilder(ProtoLoader protoLoader, String serviceName)
     {
-        this.namespace = targetNamespace;
         this.serviceName = serviceName;
-        this.serviceDescriptors = serviceDescriptors;
-        this.faultType = faultType;
-        this.extraInput = extraInput;
-        this.extraOutput = extraOutput;
-        this.inputAttributes = inputAttributes;
-        this.outputAttributes = outputAttributes;
+        this.serviceDescriptors = protoLoader.getServices();
+        this.faultType = protoLoader.getFaultType();
+        this.inputAttributes = protoLoader.getRequestAttributes();
+        this.outputAttributes = protoLoader.getResultAttributes();
+        this.namespace = protoLoader.getNamespaceURI();
 
         markTypesRecursively(faultType, regularTypes, enumTypes);
         messageTypes.add(faultType);
-        if (this.extraInput != null) {
-            for (Descriptors.Descriptor descriptor : extraInput) {
-                markTypesRecursively(descriptor, regularTypes, enumTypes);
-            }
-            // messageTypes.add(extraInput);
-        }
-
-        if (this.extraOutput != null) {
-            for (Descriptors.Descriptor descriptor : extraOutput) {
-                markTypesRecursively(descriptor, regularTypes, enumTypes);
-            }
-            // messageTypes.add(extraOutput);
+        if (extraAttribType == ExtraAttribType.MESSAGE) {
+            markTypesRecursively(inputAttributes, regularTypes, enumTypes);
+            // messageTypes.add(inputAttributes);
+            markTypesRecursively(outputAttributes, regularTypes, enumTypes);
+            // messageTypes.add(outputAttributes);
         }
 
         for (Descriptors.ServiceDescriptor serviceDescriptor : serviceDescriptors) {
@@ -257,11 +245,14 @@ public class WSDLBuilder
         final boolean isMessage = messageTypes.contains(type);
         final boolean isInputMessage = isMessage && inputTypes.contains(type);
         final boolean isOutputMessage = isMessage && outputTypes.contains(type);
+        final boolean useAttributes = extraAttribType == ExtraAttribType.ATTRIBUTES;
+        final boolean hasInputAttributes = useAttributes && !inputAttributes.getFields().isEmpty();
+        final boolean hasOutputAttributes = useAttributes && !outputAttributes.getFields().isEmpty();
 
         final boolean hasContent =
                 hasFields
-                || (isInputMessage && !inputAttributes.isEmpty())
-                || (isOutputMessage && !outputAttributes.isEmpty());
+                || (isInputMessage && hasInputAttributes)
+                || (isOutputMessage && hasOutputAttributes);
 
         if (!hasContent) {
             builder.append("<${xs}complexType name=\"${typeName}\"/>");
@@ -295,21 +286,23 @@ public class WSDLBuilder
                 builder.append("</${xs}sequence>");
             }
 
-            if (isInputMessage) {
-                for (Descriptors.FieldDescriptor fieldDescriptor : inputAttributes) {
-                    builder.set("attrName", fieldDescriptor.getName());
-                    builder.set("attrType", getXSDType(fieldDescriptor));
-                    builder.set("attrDir", XmlHelper.getDirPrefix(XmlHelper.Dir.IN));
-                    builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
+            if (extraAttribType == ExtraAttribType.ATTRIBUTES) {
+                if (isInputMessage) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : inputAttributes.getFields()) {
+                        builder.set("attrName", fieldDescriptor.getName());
+                        builder.set("attrType", getXSDType(fieldDescriptor));
+                        builder.set("attrDir", XmlHelper.getDirPrefix(XmlHelper.Dir.IN));
+                        builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
+                    }
                 }
-            }
 
-            if (isOutputMessage) {
-                for (Descriptors.FieldDescriptor fieldDescriptor : outputAttributes) {
-                    builder.set("attrName", fieldDescriptor.getName());
-                    builder.set("attrType", getXSDType(fieldDescriptor));
-                    builder.set("attrDir", XmlHelper.getDirPrefix(XmlHelper.Dir.OUT));
-                    builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
+                if (isOutputMessage) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : outputAttributes.getFields()) {
+                        builder.set("attrName", fieldDescriptor.getName());
+                        builder.set("attrType", getXSDType(fieldDescriptor));
+                        builder.set("attrDir", XmlHelper.getDirPrefix(XmlHelper.Dir.OUT));
+                        builder.append("<xs:attribute name=\"${attrDir}${attrName}\" type=\"${attrType}\"/>");
+                    }
                 }
             }
             builder.append("</${xs}complexType>");
@@ -318,13 +311,15 @@ public class WSDLBuilder
         return builder.toString();
     }
 
-    private String buildXSDMessageElement(Descriptors.Descriptor type, Set<Descriptors.Descriptor> extraFields, String elementName)
+    private String buildXSDMessageElement(Descriptors.Descriptor type,
+                                          Descriptors.Descriptor extraFields,
+                                          String elementName)
     {
         Builder builder = new Builder();
         builder.set("elementName", elementName);
         builder.set("typeName", type.getFullName());
 
-        if (extraFields == null || extraFields.isEmpty())
+        if (extraAttribType == ExtraAttribType.ATTRIBUTES || extraFields.getFields().isEmpty())
             builder.append("<${xs}element name=\"${elementName}\" type=\"${tns}${typeName}\"/>\n");
         else {
             builder.set("paramName", type.getName());
@@ -333,9 +328,9 @@ public class WSDLBuilder
             builder.append("<${xs}sequence>\n");
             builder.append("<${xs}element name=\"${paramName}\" type=\"${tns}${typeName}\"/>\n");
 
-            for (Descriptors.Descriptor e : extraFields) {
-                builder.set("paramName", e.getName());
-                builder.set("paramType", e.getFullName());
+            if (extraAttribType == ExtraAttribType.MESSAGE) {
+                builder.set("paramName", extraFields.getName());
+                builder.set("paramType", extraFields.getFullName());
                 builder.append("<${xs}element name=\"${paramName}\" type=\"${tns}${paramType}\"/>\n");
             }
             builder.append("</${xs}sequence>\n");
@@ -350,11 +345,11 @@ public class WSDLBuilder
         Builder builder = new Builder();
         for (Descriptors.ServiceDescriptor serviceDescriptor : serviceDescriptors) {
             for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods())
-                builder.appendLiteral(buildXSDMessageElement(methodDescriptor.getInputType(), extraInput, methodDescriptor.getFullName()));
+                builder.appendLiteral(buildXSDMessageElement(methodDescriptor.getInputType(), inputAttributes, methodDescriptor.getFullName()));
         }
 
         for (Descriptors.Descriptor e : outputTypes) {
-            builder.appendLiteral(buildXSDMessageElement(e, extraOutput, e.getFullName()));
+            builder.appendLiteral(buildXSDMessageElement(e, outputAttributes, e.getFullName()));
         }
         return builder.toString();
     }
@@ -596,7 +591,7 @@ public class WSDLBuilder
     }
 
     private void buildXmSchemaItem(Descriptors.Descriptor elementType,
-                               Set<Descriptors.Descriptor> extraFields,
+                               Descriptors.Descriptor extraFields,
                                String elementName,
                                BiConsumer<String, String> continuation)
     {
@@ -610,17 +605,15 @@ public class WSDLBuilder
 
         final String footer = "</${xs}schema>\n";
         Builder builder = new Builder();
-        builder.set("namespace", namespace + "/" + elementType.getFullName());
+        // builder.set("namespace", namespace + "/" + elementType.getFullName());
 
         builder.append(header);
 
         descriptors.clear();
         markTypesRecursively(elementType, descriptors, enumDescriptors);
 
-        if (extraFields != null) {
-            for (Descriptors.Descriptor e : extraFields) {
-                markTypesRecursively(e, descriptors, enumDescriptors);
-            }
+        if (extraAttribType == ExtraAttribType.MESSAGE) {
+            markTypesRecursively(extraFields, descriptors, enumDescriptors);
         }
         builder.appendLiteral(buildXSDEnums(enumDescriptors));
         builder.appendLiteral(buildXSDMessages(descriptors));
@@ -633,7 +626,7 @@ public class WSDLBuilder
     {
         for (Descriptors.ServiceDescriptor serviceDescriptor : serviceDescriptors) {
             for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
-                buildXmSchemaItem(methodDescriptor.getInputType(), extraInput, methodDescriptor.getFullName(), continuation);
+                buildXmSchemaItem(methodDescriptor.getInputType(), inputAttributes, methodDescriptor.getFullName(), continuation);
             }
         }
 

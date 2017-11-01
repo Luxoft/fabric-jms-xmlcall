@@ -89,7 +89,8 @@ public class XmlCallHandler
     private final Descriptors.Descriptor chaincodeRequestType;
     private final Descriptors.Descriptor chaincodeResponceType;
     private final Descriptors.Descriptor faultType;
-    private final String nsURI;
+    private final String serviceNamespaceTag;
+    private final String serviceNamespaceURI;
 
     private final ExtensionRegistry xmlExtensionRegistry;
 
@@ -132,7 +133,7 @@ public class XmlCallHandler
         rootElement.setName(rpcMethod.getOutputType().getFullName());
         // rootElement.setName(rpcMethod.methodDescriptor.getFullName());
         XmlHelper.pasteAttributes(rootElement, chaincodeResult, XmlHelper.Dir.OUT);
-        XmlHelper.changeNamespace(document, "", nsURI.isEmpty() ? "" : "tns", nsURI);
+        XmlHelper.changeNamespace(document, "", serviceNamespaceTag, serviceNamespaceURI);
         return document.asXML();
     }
 
@@ -187,6 +188,7 @@ public class XmlCallHandler
         logger.info("Request: {}", XmlHelper.escapeString(requestDoc.asXML()));
 
         // avoid using namespaces
+        // todo: match namespace with services'
         if (!requestDoc.getRootElement().getNamespaceURI().isEmpty())
             XmlHelper.changeNamespace(requestDoc, requestDoc.getRootElement().getNamespaceURI(), "", "");
 
@@ -256,15 +258,16 @@ public class XmlCallHandler
         }
     }
 
-    public XmlCallHandler(String fileName, String nsURI) throws Exception {
+    public XmlCallHandler(String fileName) throws Exception {
         final ProtoLoader protoLoader = new ProtoLoader(fileName);
         Set<Descriptors.ServiceDescriptor> serviceDescriptorSet = new HashSet<>();
 
         this.xmlExtensionRegistry = protoLoader.getExtensionRegistry();
-        this.chaincodeRequestType = protoLoader.getType("xmlcall.ChaincodeRequest");
-        this.chaincodeResponceType = protoLoader.getType("xmlcall.ChaincodeResult");
-        this.faultType = protoLoader.getType("xmlcall.ChaincodeFault");
-        this.nsURI = nsURI;
+        this.chaincodeRequestType = protoLoader.getRequestAttributes();
+        this.chaincodeResponceType = protoLoader.getResultAttributes();
+        this.faultType = protoLoader.getFaultType();
+        this.serviceNamespaceURI = protoLoader.getNamespaceURI();
+        this.serviceNamespaceTag = serviceNamespaceURI == null || serviceNamespaceURI.isEmpty() ? "" : "tns";
 
         for (Descriptors.ServiceDescriptor serviceDescriptor : protoLoader.getServices()) {
             this.services.add(serviceDescriptor.getName());
@@ -287,10 +290,3 @@ public class XmlCallHandler
         }
     }
 }
-
-
-/*
-Caused by: javax.xml.bind.UnmarshalException: unexpected element (uri:
-"http://www.luxoft.com/services.xsd", local:"main.Accumulator").
- Expected elements are <{http://www.luxoft.com/services.xsd/}Accumulator.AddClaim>,<{http://www.luxoft.com/services.xsd/}Accumulator.GetAccumulator>,<{http://www.luxoft.com/services.xsd/}InsuredRegistry.AddMember>,<{http://www.luxoft.com/services.xsd/}google.protobuf.Empty>,<{http://www.luxoft.com/services.xsd/}main.Accumulator>,<{http://www.luxoft.com/services.xsd/}xmlcall.ChaincodeFault>
- */

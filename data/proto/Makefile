@@ -1,5 +1,5 @@
 MESSAGES=messages/Accumulator.proto messages/InsuredRegistry.proto messages/TestObjects.proto
-SERVICES=service/Accumulator.proto service/InsuredRegistry.proto
+SERVICES=service/Accumulator.proto service/InsuredRegistry.proto service/ServiceInfo.proto
 TOPSRC=../../xmlcall-core/src/main/java
 TESTSRC=../../xmlcall-test/src/main/java
 

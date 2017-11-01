@@ -39,7 +39,7 @@ public class JmsXmlCallHandler
         System.out.println("Current dir using System:" +currentDir);
 
         final XmlCallBlockchainConnectorFactory xmlCallBlockchainConnectorFactory = XmlCallBlockchainConnectorFactory.getInstance();
-        xmlCallHandler = new XmlCallHandler(descriptorFileName, "");
+        xmlCallHandler = new XmlCallHandler(descriptorFileName);
         xmlCallBlockchainConnector = xmlCallBlockchainConnectorFactory.newConnection(connectorClass, connectorArg);
     }
 

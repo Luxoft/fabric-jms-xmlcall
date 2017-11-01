@@ -15,7 +15,7 @@ import javax.jms.ConnectionFactory;
 
 @SpringBootApplication
 @EnableJms
-public class Application
+public class JmsServerApplication
 {
     @Bean
     public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
@@ -38,7 +38,7 @@ public class Application
 
     public static void main(String[] args) {
         // Launch the application
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(JmsServerApplication.class, args);
 
 //        JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
 //        // Send a message with a POJO - the template reuse the message converter

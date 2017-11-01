@@ -2,10 +2,12 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
 import com.luxoft.uhg.fabric.services.AccumulatorOuterClass;
-import com.luxoft.xmlcall.jms.Application;
+import com.luxoft.xmlcall.jms.JmsServerApplication;
 import com.luxoft.xmlcall.jms.JmsXmlCallClient;
 import com.luxoft.xmlcall.proto.XmlCall;
+import com.luxoft.xmlcall.shared.ProtoLoader;
 import com.luxoft.xmlcall.shared.XmlHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +21,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
 import javax.jms.*;
+import java.util.function.Function;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = JmsServerApplication.class)
 @SpringBootConfiguration
 public class JMS_XmlCallTests
 {
 
     private JmsXmlCallClient xmlCallClient;
 
-    @Value("${namespacePrefix}")
-    private String namespacePrefix;
-
-    @Value("${xsdPath}")
-    private String xsdPath;
+    @Value("${descriptorFileName}")
+    private String descriptorFileName;
 
     @Autowired
     JmsTemplate jmsTemplate;
@@ -43,10 +43,12 @@ public class JMS_XmlCallTests
     @Value("${xmlCallJmsDestination}")
     private String ENDPOINT;
 
+    private String namespaceURI;
+    private Function<String, String> xsdFactory;
+
     @PostConstruct
-    private void initialize()
-    {
-        xmlCallClient = new JmsXmlCallClient(connectionFactory, jmsTemplate, ENDPOINT, namespacePrefix, xsdPath);
+    private void initialize() throws Exception {
+        xmlCallClient = new JmsXmlCallClient(connectionFactory, jmsTemplate, ENDPOINT, descriptorFileName);
     }
 
     @Bean
@@ -58,6 +60,13 @@ public class JMS_XmlCallTests
 
         container.start();
         return container;
+    }
+
+    @Before
+    public void setupXmlCall() throws Exception {
+        final ProtoLoader protoLoader = new ProtoLoader(descriptorFileName);
+        this.namespaceURI = protoLoader.getNamespaceURI();
+        this.xsdFactory = XmlHelper.inMemoryXSDFactory(protoLoader);
     }
 
     @Test
@@ -136,7 +145,7 @@ public class JMS_XmlCallTests
 
         final String xmlText = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<Accumulator.GetAccumulator " +
-                "  xmlns=\"http://www.luxoft.com/xsd/main.GetAccumulator\"" +
+                "  xmlns=\"" +namespaceURI+ "\"" +
                 "  in.channel=\"umr-2017\"" +
                 "  in.chaincodeId=\"accumulator\"" +
                 "  >\n" +
@@ -145,6 +154,6 @@ public class JMS_XmlCallTests
                 "      <planYear>2017</planYear>\n" +
                 "</Accumulator.GetAccumulator>\n";
 
-        XmlHelper.xmlValidate(xmlText, XmlHelper.fileXSDFactory("data/proto/xsd/"));
+        XmlHelper.xmlValidate(xmlText, xsdFactory);
     }
 }

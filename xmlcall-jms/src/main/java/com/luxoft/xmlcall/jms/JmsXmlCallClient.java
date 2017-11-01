@@ -21,13 +21,11 @@ public final class JmsXmlCallClient
     public JmsXmlCallClient(ConnectionFactory connectionFactory,
                             JmsTemplate jmsTemplate,
                             final String ENDPOINT,
-                            final String namespacePrefix,
-                            final String xsdPath)
-    {
+                            final String descriptorFileName) throws Exception {
         this.connectionFactory = connectionFactory;
         this.jmsTemplate = jmsTemplate;
         this.ENDPOINT = ENDPOINT;
-        this.xmlCallClientHelper = new XmlCallClientHelper(namespacePrefix, xsdPath);
+        this.xmlCallClientHelper = new XmlCallClientHelper(descriptorFileName);
     }
 
     public String sendXMLRequest(String xmlText) {

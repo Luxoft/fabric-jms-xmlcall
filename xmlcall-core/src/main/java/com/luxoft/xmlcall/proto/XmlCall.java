@@ -8,6 +8,10 @@ public final class XmlCall {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistryLite registry) {
     registry.add(com.luxoft.xmlcall.proto.XmlCall.execType);
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.namespace);
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.faultType);
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.requestAttributes);
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.resultAttributes);
   }
 
   public static void registerAllExtensions(
@@ -1777,7 +1781,7 @@ public final class XmlCall {
 
   }
 
-  public static final int EXEC_TYPE_FIELD_NUMBER = 51234;
+  public static final int EXEC_TYPE_FIELD_NUMBER = 50000;
   /**
    * <code>extend .google.protobuf.MethodOptions { ... }</code>
    */
@@ -1787,6 +1791,50 @@ public final class XmlCall {
       com.luxoft.xmlcall.proto.XmlCall.ExecType> execType = com.google.protobuf.GeneratedMessage
           .newFileScopedGeneratedExtension(
         com.luxoft.xmlcall.proto.XmlCall.ExecType.class,
+        null);
+  public static final int NAMESPACE_FIELD_NUMBER = 50000;
+  /**
+   * <code>extend .google.protobuf.FileOptions { ... }</code>
+   */
+  public static final
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.FileOptions,
+      java.lang.String> namespace = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.String.class,
+        null);
+  public static final int FAULTTYPE_FIELD_NUMBER = 50001;
+  /**
+   * <code>extend .google.protobuf.FileOptions { ... }</code>
+   */
+  public static final
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.FileOptions,
+      java.lang.String> faultType = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.String.class,
+        null);
+  public static final int REQUESTATTRIBUTES_FIELD_NUMBER = 50002;
+  /**
+   * <code>extend .google.protobuf.FileOptions { ... }</code>
+   */
+  public static final
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.FileOptions,
+      java.lang.String> requestAttributes = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.String.class,
+        null);
+  public static final int RESULTATTRIBUTES_FIELD_NUMBER = 50003;
+  /**
+   * <code>extend .google.protobuf.FileOptions { ... }</code>
+   */
+  public static final
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.FileOptions,
+      java.lang.String> resultAttributes = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.String.class,
         null);
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_xmlcall_ChaincodeFault_descriptor;
@@ -1819,9 +1867,17 @@ public final class XmlCall {
       "haincodeRequest\022\023\n\013chaincodeId\030\001 \001(\t\022\017\n\007" +
       "channel\030\002 \001(\t*9\n\010ExecType\022\013\n\007UNKNOWN\020\000\022\t" +
       "\n\005QUERY\020\001\022\n\n\006INVOKE\020\002\022\t\n\005EVENT\020\003:F\n\texec" +
-      "_type\022\036.google.protobuf.MethodOptions\030\242\220" +
-      "\003 \001(\0162\021.xmlcall.ExecTypeB#\n\030com.luxoft.x" +
-      "mlcall.protoB\007XmlCallb\006proto3"
+      "_type\022\036.google.protobuf.MethodOptions\030\320\206" +
+      "\003 \001(\0162\021.xmlcall.ExecType:1\n\tnamespace\022\034." +
+      "google.protobuf.FileOptions\030\320\206\003 \001(\t:1\n\tf",
+      "aultType\022\034.google.protobuf.FileOptions\030\321" +
+      "\206\003 \001(\t:9\n\021requestAttributes\022\034.google.pro" +
+      "tobuf.FileOptions\030\322\206\003 \001(\t:8\n\020resultAttri" +
+      "butes\022\034.google.protobuf.FileOptions\030\323\206\003 " +
+      "\001(\tBw\n\030com.luxoft.xmlcall.protoB\007XmlCall" +
+      "\212\265\030\027.xmlcall.ChaincodeFault\222\265\030\031.xmlcall." +
+      "ChaincodeRequest\232\265\030\030.xmlcall.ChaincodeRe" +
+      "sultb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1856,6 +1912,17 @@ public final class XmlCall {
         internal_static_xmlcall_ChaincodeRequest_descriptor,
         new java.lang.String[] { "ChaincodeId", "Channel", });
     execType.internalInit(descriptor.getExtensions().get(0));
+    namespace.internalInit(descriptor.getExtensions().get(1));
+    faultType.internalInit(descriptor.getExtensions().get(2));
+    requestAttributes.internalInit(descriptor.getExtensions().get(3));
+    resultAttributes.internalInit(descriptor.getExtensions().get(4));
+    com.google.protobuf.ExtensionRegistry registry =
+        com.google.protobuf.ExtensionRegistry.newInstance();
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.faultType);
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.requestAttributes);
+    registry.add(com.luxoft.xmlcall.proto.XmlCall.resultAttributes);
+    com.google.protobuf.Descriptors.FileDescriptor
+        .internalUpdateFileDescriptor(descriptor, registry);
     com.google.protobuf.DescriptorProtos.getDescriptor();
     com.google.protobuf.EmptyProto.getDescriptor();
   }

@@ -1,8 +1,6 @@
 spring.profiles.active: reflect
 descriptorFileName: data/proto/services.desc
 xmlCallJmsDestination: blockchain-xmlcall
-namespacePrefix: http://www.luxoft.com/services.xsd
-xsdPath: data/proto/xsd
 
 spring.activemq.broker-url: tcp://localhost:61616
 

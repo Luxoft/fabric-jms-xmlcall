@@ -2,6 +2,7 @@ package com.luxoft.xmlcall.shared;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
+import com.luxoft.xmlcall.wsdl.WSDLBuilder;
 import com.sun.msv.verifier.jarv.TheFactoryImpl;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
@@ -21,8 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.function.Function;
 
 public class XmlHelper {
@@ -90,7 +93,6 @@ public class XmlHelper {
         return new String(Files.readAllBytes(fileName), StandardCharsets.UTF_8);
     }
 
-
     public static Function<String, String> fileXSDFactory(String xsdPath)
     {
         if (xsdPath == null)
@@ -104,6 +106,25 @@ public class XmlHelper {
             } catch (Exception e) {
                 throw new RuntimeException("file not found " + filePath.toString(), e);
             }
+        };
+    }
+
+    public static Function<String, String> inMemoryXSDFactory(ProtoLoader protoLoader) throws Exception {
+        final Map<String,String> schemaMap = new HashMap<>();
+        if (protoLoader == null)
+            return null;
+
+        final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader, "");
+
+        wsdlBuilder.buildXmlSchema((typeName, xsdText) -> {
+            schemaMap.put(typeName, xsdText);
+        });
+
+        return typeName -> {
+            final String s = schemaMap.get(typeName);
+            if (s != null)
+                return s;
+            throw new RuntimeException("type not found " + typeName.toString());
         };
     }
 
@@ -233,4 +254,6 @@ public class XmlHelper {
         }
         return stringBuilder.toString();
     }
+
+
 }

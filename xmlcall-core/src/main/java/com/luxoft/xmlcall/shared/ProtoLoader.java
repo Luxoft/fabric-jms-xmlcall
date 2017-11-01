@@ -1,8 +1,6 @@
 package com.luxoft.xmlcall.shared;
 
-import com.google.protobuf.DescriptorProtos;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.ExtensionRegistry;
+import com.google.protobuf.*;
 import com.luxoft.xmlcall.proto.XmlCall;
 
 import java.nio.file.Files;
@@ -11,13 +9,55 @@ import java.util.*;
 
 public class ProtoLoader
 {
+    private static class FileOption<T>
+    {
+        final ExtensionLite<com.google.protobuf.DescriptorProtos.FileOptions, T> extensionLite;
+        Descriptors.FileDescriptor definedIn = null;
+        T value = null;
+
+        FileOption(ExtensionLite<com.google.protobuf.DescriptorProtos.FileOptions, T> extensionLite, T defValue)
+        {
+            this.extensionLite = extensionLite;
+            this.value = defValue;
+        }
+
+        void update(Descriptors.FileDescriptor fileDescriptor)
+        {
+            if (!fileDescriptor.getOptions().hasExtension(extensionLite))
+                return;
+
+            final T s = fileDescriptor.getOptions().getExtension(extensionLite);
+
+            value = s;
+            definedIn = fileDescriptor;
+        }
+
+        T getValue()
+        {
+            return value;
+        }
+
+        public Descriptors.FileDescriptor getSource() {
+            return definedIn;
+        }
+    }
+
+    private final FileOption<String> namespaceURI = new FileOption<>(XmlCall.namespace, "");
+    private final FileOption<String> faultTypeName = new FileOption<>(XmlCall.faultType, "");
+    private final FileOption<String> requestAttributes = new FileOption<>(XmlCall.requestAttributes, "");
+    private final FileOption<String> resultAttributes = new FileOption<>(XmlCall.resultAttributes, "");
     private final DescriptorProtos.FileDescriptorSet fileDescriptorSet;
     private final HashMap<String, Descriptors.FileDescriptor> fileDescriptors = new HashMap<>();
     private final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
     private final Set<Descriptors.ServiceDescriptor> serviceDescriptors = new HashSet<>();
+    private final Descriptors.Descriptor faultType;
+    private final Descriptors.Descriptor requestAttributesType;
+    private final Descriptors.Descriptor resultAttributesType;
 
     public ProtoLoader(String fileName) throws Exception
     {
+        String ns = "";
+        String nsFile = null;
         final byte[] bytes = Files.readAllBytes(Paths.get(fileName));
 
         XmlCall.registerAllExtensions(extensionRegistry);
@@ -31,7 +71,13 @@ public class ProtoLoader
             final Descriptors.FileDescriptor fileDescriptor
                     = Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, fileDescriptors);
 
+            namespaceURI.update(fileDescriptor);
+            faultTypeName.update(fileDescriptor);
+            resultAttributes.update(fileDescriptor);
+            requestAttributes.update(fileDescriptor);
+
             this.fileDescriptors.put(fileDescriptorProto.getName(), fileDescriptor);
+
             deps.add(fileDescriptor);
 
             for (Descriptors.ServiceDescriptor serviceDescriptor : fileDescriptor.getServices()) {
@@ -39,6 +85,9 @@ public class ProtoLoader
             }
         }
 
+        faultType = getAnchoredType(faultTypeName.getValue(), faultTypeName.getSource());
+        resultAttributesType = getAnchoredType(resultAttributes.getValue(), resultAttributes.getSource());
+        requestAttributesType = getAnchoredType(requestAttributes.getValue(), requestAttributes.getSource());
     }
 
     public HashMap<String, Descriptors.FileDescriptor> getFileDescriptors()
@@ -54,6 +103,25 @@ public class ProtoLoader
     public Set<Descriptors.ServiceDescriptor> getServices()
     {
         return serviceDescriptors;
+    }
+
+    public String getNamespaceURI() {
+        return namespaceURI.getValue();
+    }
+
+    private Descriptors.Descriptor getAnchoredType(String name, Descriptors.FileDescriptor fileDescriptor)
+    {
+        if (name == null || name.isEmpty())
+            return Empty.getDescriptor();
+
+        if (name.startsWith("."))
+            return getType(name);
+
+        final String filePackage = fileDescriptor.getPackage();
+        if (name.startsWith(filePackage + "."))
+            name = name.substring(filePackage.length() + 1);
+
+        return fileDescriptor.findMessageTypeByName(name);
     }
 
     public Descriptors.Descriptor getType(String name)
@@ -98,5 +166,17 @@ public class ProtoLoader
         }
 
         throw new RuntimeException("type " + name + " not found");
+    }
+
+    public Descriptors.Descriptor getFaultType() {
+        return faultType;
+    }
+
+    public Descriptors.Descriptor getRequestAttributes() {
+        return requestAttributesType;
+    }
+
+    public Descriptors.Descriptor getResultAttributes() {
+        return resultAttributesType;
     }
 }

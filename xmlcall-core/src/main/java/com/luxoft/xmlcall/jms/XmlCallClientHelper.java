@@ -2,15 +2,17 @@ package com.luxoft.xmlcall.jms;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.ExtensionRegistry;
-import com.googlecode.protobuf.format.ProtobufFormatter;
-import com.googlecode.protobuf.format.XmlFormat;
+import com.googlecode.protobuf.format.XmlJavaxFormat;
 import com.luxoft.xmlcall.proto.XmlCall;
+import com.luxoft.xmlcall.shared.ProtoLoader;
 import com.luxoft.xmlcall.shared.XmlHelper;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
@@ -18,38 +20,38 @@ import java.util.function.Function;
 
 public class XmlCallClientHelper
 {
-    final String namespacePrefix;
-    final String xsdPath;
+    final String namespaceURI;
+    final String namespaceTag;
+    final String descriptorFileName;
     final Function<String, String> xsdFactory;
 
-    public XmlCallClientHelper(String namespacePrefix, String xsdPath)
-    {
-        if (!namespacePrefix.isEmpty() && !namespacePrefix.endsWith("/"))
-            namespacePrefix = namespacePrefix + "/";
-        this.namespacePrefix = namespacePrefix;
-        this.xsdPath = xsdPath;
-        this.xsdFactory = XmlHelper.fileXSDFactory(xsdPath);
+    public XmlCallClientHelper(String descriptorFileName) throws Exception {
+        final ProtoLoader protoLoader = new ProtoLoader(descriptorFileName);
+        this.namespaceURI = protoLoader.getNamespaceURI();
+        this.namespaceTag = namespaceURI == null || namespaceURI.isEmpty() ? "" : "tns";
+        this.descriptorFileName = descriptorFileName;
+        this.xsdFactory = XmlHelper.inMemoryXSDFactory(protoLoader);
     }
 
     private String makeCallXML(Descriptors.MethodDescriptor methodDescriptor,
                                XmlCall.ChaincodeRequest chaincodeRequest,
                                com.google.protobuf.Message message) throws DocumentException {
-        final XmlFormat xmlFormat = new XmlFormat();
+        final XmlJavaxFormat xmlFormat = new XmlJavaxFormat();
 
         final Document document = DocumentHelper.parseText(xmlFormat.printToString(message));
         final Element rootElement = document.getRootElement();
 
         XmlHelper.pasteAttributes(rootElement, chaincodeRequest, XmlHelper.Dir.IN);
         rootElement.setName(methodDescriptor.getFullName());
-        rootElement.addAttribute("xmlns",
-                namespacePrefix + methodDescriptor.getFullName());
+        XmlHelper.changeNamespace(document, "", namespaceTag, namespaceURI);
+        // rootElement.addAttribute("xmlns", namespaceURI);
         return XmlHelper.asXML(rootElement);
     }
 
 
     private <T extends com.google.protobuf.Message>
-    XmlCallResult<T> parseResponseXML(String xmlText, Class<T> klass) throws DocumentException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, ProtobufFormatter.ParseException {
-        final XmlFormat xmlFormat = new XmlFormat();
+    XmlCallResult<T> parseResponseXML(String xmlText, Class<T> klass) throws DocumentException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, XMLStreamException {
+        final XmlJavaxFormat xmlFormat = new XmlJavaxFormat();
         final ExtensionRegistry emptyRegistry = ExtensionRegistry.getEmptyRegistry();
         final Document replyDoc = DocumentHelper.parseText(xmlText);
         final Element rootElement = replyDoc.getRootElement();
@@ -69,6 +71,8 @@ public class XmlCallClientHelper
         XmlHelper.loadAttributes(chaincodeResultBuilder, rootElement, XmlHelper.Dir.OUT);
         XmlHelper.cleanAttributes(rootElement);
         rootElement.setName(resultBuilder.getDescriptorForType().getName());
+
+        /* todo: change namespace? */
         final String s = XmlHelper.asXML(rootElement);
         xmlFormat.merge(s, emptyRegistry, resultBuilder);
 

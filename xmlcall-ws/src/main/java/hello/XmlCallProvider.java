@@ -30,7 +30,6 @@ public class XmlCallProvider implements PayloadEndpoint
     @Value("${descriptorFileName:}") String descriptorFileName;
     @Value("${connectorClass}") String connectorClass;
     @Value("${connectorArg}") String connectorArg;
-    @Value("${namespacePrefix}") String namespacePrefix;
 
 
     XmlCallHandler xmlCallHandler;
@@ -42,7 +41,7 @@ public class XmlCallProvider implements PayloadEndpoint
     }
     @PostConstruct
     void init() throws Exception {
-        this.xmlCallHandler = new XmlCallHandler(descriptorFileName, namespacePrefix);
+        this.xmlCallHandler = new XmlCallHandler(descriptorFileName);
         this.blockchainConnector = XmlCallBlockchainConnectorFactory.getInstance().newConnection(connectorClass, connectorArg);
 
         if (blockchainConnector == null)

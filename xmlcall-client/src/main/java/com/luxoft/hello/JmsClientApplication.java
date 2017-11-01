@@ -16,7 +16,7 @@ import org.springframework.jms.support.converter.SimpleMessageConverter;
 
 @SpringBootApplication
 @EnableJms
-public class Application {
+public class JmsClientApplication {
 
     @Bean
     public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
@@ -37,17 +37,16 @@ public class Application {
 //        return converter;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // Launch the application
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(JmsClientApplication.class, args);
 
         final String ENDPOINT = context.getEnvironment().getProperty("xmlCallJmsDestination");
-        final String namespacePrefix = context.getEnvironment().getProperty("namespacePrefix");
-        final String xsdPath = context.getEnvironment().getProperty("xsdPath");
+        final String descriptorFileName = context.getEnvironment().getProperty("descriptorFileName");
 
         JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
 
-        final JmsXmlCallClient jmsXmlCallClient = new JmsXmlCallClient(null, jmsTemplate, ENDPOINT, namespacePrefix, xsdPath);
+        final JmsXmlCallClient jmsXmlCallClient = new JmsXmlCallClient(null, jmsTemplate, ENDPOINT, descriptorFileName);
 
         final String xmlText =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
