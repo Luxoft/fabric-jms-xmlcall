@@ -22,12 +22,7 @@ apply plugin: 'org.springframework.boot'
 
 sourceCompatibility = 1.8
 
-repositories {
-    mavenCentral()
-    maven { url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/" }
-}
-
-subprojects{
+allprojects {
     repositories {
         mavenCentral()
         maven { url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/" }
