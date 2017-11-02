@@ -1,10 +1,13 @@
 import com.google.protobuf.ByteString;
 import com.google.protobuf.ExtensionRegistry;
+import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.XmlJavaxFormat;
 import com.googlecode.protobuf.format.bits.Base64Serializer;
-import com.luxoft.uhg.fabric.proto.InsuredRegistry;
 import com.luxoft.uhg.fabric.proto.TestObjects;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.*;
 import javax.xml.transform.dom.DOMResult;
@@ -13,11 +16,38 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.Assert.*;
+
 public class XmlFormatTest {
 
-    @Test
-    public void xmlRepresentaion()
+    XmlJavaxFormat xmlFormat;
+
+    @Before
+    public void setup()
     {
+        xmlFormat = new XmlJavaxFormat(new Base64Serializer());
+    }
+
+    private void xmlStringProcessor(String input, String expected) throws IOException, XMLStreamException, SAXException {
+        final TestObjects.TestMessage.Builder builder = TestObjects.TestMessage.newBuilder();
+        final TestObjects.TestMessage.Builder result = TestObjects.TestMessage.newBuilder();
+        builder.setS(input);
+
+        xmlMessageProcessor(builder.build(), expected);
+    }
+
+    private void xmlMessageProcessor(Message input, String expected) throws IOException, XMLStreamException, SAXException {
+        final Message.Builder resultBuilder = input.newBuilderForType();
+        final String s = xmlFormat.printToString(input);
+        if (expected != null)
+            XMLAssert.assertXMLEqual(expected, s);
+
+        xmlFormat.merge(s, ExtensionRegistry.getEmptyRegistry(), resultBuilder);
+        assertEquals(input, resultBuilder.build());
+    }
+
+    @Test
+    public void xmlRepresentaion() throws XMLStreamException, IOException, SAXException {
         final TestObjects.TestMessage.Builder builder = TestObjects.TestMessage.newBuilder();
 
         builder.putIntMap(0, 100);
@@ -34,48 +64,48 @@ public class XmlFormatTest {
         builder.addArr("str1").addArr("str2").addArr("str3");
 
         builder.setB(ByteString.copyFrom("\0BINARY\1STRING\2".getBytes(StandardCharsets.UTF_8)));
+        builder.setS("STRING\u0000STRING\1STRING\000\n\177");
+        builder.setX(101);
+        builder.setE(TestObjects.MYENUM.OPTB);
+        builder.setSubMessage(TestObjects.MapValue.newBuilder().setMapValueValue("SSSS").build());
+        builder.setNested(TestObjects.TestMessage.NestedMessage.newBuilder().setA(202).build());
+        builder.setNestedEnum(TestObjects.TestMessage.NestedEnum.OPT1);
 
-        final TestObjects.TestMessage message = builder.build();
-
-        final XmlJavaxFormat xmlFormat = new XmlJavaxFormat( new Base64Serializer());
-
-        String s = xmlFormat.printToString(message);
-
-        System.out.println(s);
+        final String expectedXml =
+                "<TestMessage>" +
+                        "<intMap><key>0</key><value>100</value></intMap>" +
+                        "<intMap><key>1</key><value>101</value></intMap>" +
+                        "<intMap><key>2</key><value>102</value></intMap>" +
+                        "<msgMap><key>aaa</key><value><mapValueValue>AAA</mapValueValue></value></msgMap>" +
+                        "<msgMap><key>bbb</key><value><mapValueValue>BBB</mapValueValue></value></msgMap>" +
+                        "<msgMap><key>ccc</key><value><mapValueValue>CCC</mapValueValue></value></msgMap>" +
+                        "<arr>str1</arr>" +
+                        "<arr>str2</arr>" +
+                        "<arr>str3</arr>" +
+                        "<b>AEJJTkFSWQFTVFJJTkcC</b>" +
+                        "<s>STRING\\u0000STRING\\u0001STRING\\u0000\n\\u007F</s>" +
+                        "<x>101</x>" +
+                        "<e>OPTB</e>" +
+                        "<sub_message><mapValueValue>SSSS</mapValueValue></sub_message>" +
+                        "<nested><a>202</a></nested>" +
+                        "<nestedEnum>OPT1</nestedEnum>" +
+                        "</TestMessage>";
+        xmlMessageProcessor(builder.build(), expectedXml);
     }
 
     @Test
-    public void test2()
-    {
-        final InsuredRegistry.MemberList.Builder memberListBuilder = InsuredRegistry.MemberList.newBuilder();
-
-        String[] names = {"ID0", "ID1"};
-        for (String name : names) {
-            final InsuredRegistry.Member.Builder builder = InsuredRegistry.Member.newBuilder();
-
-            builder.setId(name)
-                    .putChannelIds(0, name + ":STR0")
-                    .putChannelIds(1, name + ":STR1");
-            memberListBuilder.addMembers(builder);
-        }
-
-        String s = new XmlJavaxFormat().printToString(memberListBuilder.build());
-    }
-
-    @Test
-    public void emptyFields()
-    {
+    public void emptyFields() throws XMLStreamException, IOException, SAXException {
         final TestObjects.TestMessage.Builder builder = TestObjects.TestMessage.newBuilder();
 
-        // builder.addArr("wer").addArr("ewq");
-        builder.putIntMap(0,1);
-        builder.putIntMap(1,2);
-
-        final XmlJavaxFormat xmlFormat = new XmlJavaxFormat();
         xmlFormat.setPrintEmptyScalars(true);
-        xmlFormat.setPrintEmptyArray(true);
-        String s = xmlFormat.printToString(builder.build());
-        System.out.println(s);
+        final String expectedXml = "<TestMessage>" +
+                "<b></b>" +
+                "<s></s>" +
+                "<x>0</x>" +
+                "<e>OPT0</e>" +
+                "<nestedEnum>OPT0</nestedEnum>" +
+                "</TestMessage>";
+        xmlMessageProcessor(builder.build(), expectedXml);
     }
 
     @Test
@@ -93,7 +123,6 @@ public class XmlFormatTest {
 
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         final XMLEventReader xmlEventReader = inputFactory.createXMLEventReader(new StringReader(xmlText));
-        final XmlJavaxFormat xmlFormat = new XmlJavaxFormat(new Base64Serializer());
 
         xmlFormat.setPrintEmptyScalars(true);
         // xmlFormat.setPrintSelfClosedTags(true);
@@ -115,5 +144,11 @@ public class XmlFormatTest {
 //        xmlFormat.merge(xmlText, ExtensionRegistry.getEmptyRegistry(), builder);
 //        final TestObjects.TestMessage message = builder.build();
 //        System.out.println(message.toString());
+    }
+
+    @Test
+    public void xmlCharacters() throws XMLStreamException, IOException, SAXException {
+        xmlStringProcessor("<&", "<TestMessage><s>&lt;&amp;</s></TestMessage>");
+        xmlStringProcessor("\u0000\uFFFF", "<TestMessage><s>\\u0000\\uFFFF</s></TestMessage>");
     }
 }

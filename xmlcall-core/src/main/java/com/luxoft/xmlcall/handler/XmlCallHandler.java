@@ -259,7 +259,10 @@ public class XmlCallHandler
     }
 
     public XmlCallHandler(String fileName) throws Exception {
-        final ProtoLoader protoLoader = new ProtoLoader(fileName);
+        this(new ProtoLoader(fileName));
+    }
+
+    public XmlCallHandler(ProtoLoader protoLoader) throws Exception {
         Set<Descriptors.ServiceDescriptor> serviceDescriptorSet = new HashSet<>();
 
         this.xmlExtensionRegistry = protoLoader.getExtensionRegistry();

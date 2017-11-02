@@ -3,8 +3,6 @@ package com.luxoft.xmlcall.shared;
 import com.google.protobuf.*;
 import com.luxoft.xmlcall.proto.XmlCall;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class ProtoLoader
@@ -56,9 +54,7 @@ public class ProtoLoader
 
     public ProtoLoader(String fileName) throws Exception
     {
-        String ns = "";
-        String nsFile = null;
-        final byte[] bytes = Files.readAllBytes(Paths.get(fileName));
+        final byte[] bytes = XmlHelper.readFileAsBytes(fileName);
 
         XmlCall.registerAllExtensions(extensionRegistry);
 

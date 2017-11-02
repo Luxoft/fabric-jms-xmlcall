@@ -3,6 +3,7 @@ package hello;
 import com.luxoft.xmlcall.handler.XmlCallBlockchainConnector;
 import com.luxoft.xmlcall.handler.XmlCallBlockchainConnectorFactory;
 import com.luxoft.xmlcall.handler.XmlCallHandler;
+import com.luxoft.xmlcall.shared.ProtoLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -27,6 +28,9 @@ public class XmlCallProvider implements PayloadEndpoint
     @Autowired
     Environment environment;
 
+    @Autowired
+    ProtoLoader protoLoader;
+
     @Value("${descriptorFileName:}") String descriptorFileName;
     @Value("${connectorClass}") String connectorClass;
     @Value("${connectorArg}") String connectorArg;
@@ -39,9 +43,10 @@ public class XmlCallProvider implements PayloadEndpoint
     {
         System.out.print(getClass().getName()+ " : created");
     }
+
     @PostConstruct
     void init() throws Exception {
-        this.xmlCallHandler = new XmlCallHandler(descriptorFileName);
+        this.xmlCallHandler = new XmlCallHandler(protoLoader);
         this.blockchainConnector = XmlCallBlockchainConnectorFactory.getInstance().newConnection(connectorClass, connectorArg);
 
         if (blockchainConnector == null)

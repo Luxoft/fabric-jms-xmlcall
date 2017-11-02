@@ -1,13 +1,20 @@
 package hello;
 
+import com.luxoft.xmlcall.shared.ProtoLoader;
+import com.luxoft.xmlcall.wsdl.WSDLBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
 import org.springframework.ws.server.endpoint.adapter.PayloadEndpointAdapter;
@@ -24,48 +31,37 @@ import java.util.Map;
 public class WebServiceConfig extends WsConfigurerAdapter {
 
 	@Value("${xsdSchema:}") String xsdSchema;
+	@Value("${descriptorFileName:}") String descriptorFileName;
+	@Value("${serviceName:blockchain}") String serviceName;
+	@Autowired
+	ApplicationContext applicationContext;
 
 	@Bean
 	public ServletRegistrationBean messageDispatcherServlet(ApplicationContext applicationContext) {
 		MessageDispatcherServlet servlet = new MessageDispatcherServlet();
 		servlet.setApplicationContext(applicationContext);
 		servlet.setTransformWsdlLocations(true);
-		return new ServletRegistrationBean(servlet, "/blockchain/*");
+		return new ServletRegistrationBean(servlet, "/" +serviceName+ "/*");
 	}
 
 	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+	public ProtoLoader serviceProtoInfo() throws Exception {
+		return new ProtoLoader(descriptorFileName);
+	}
+
+	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public XsdSchema blockchainSchema() {
-		if (xsdSchema.isEmpty())
-			return null;
-		Resource resource;
-
-		final int pos = xsdSchema.indexOf("://");
-		if (pos < 0)
-			resource = new FileSystemResource(xsdSchema);
-		else {
-			String schema = xsdSchema.substring(0, pos);
-			String path = xsdSchema.substring(pos+1);
-			switch (schema) {
-				case "resource":
-				case "res":
-					resource = new ClassPathResource(path);
-					break;
-
-				case "file":
-					resource = new FileSystemResource(path);
-					break;
-
-				default:
-					throw new RuntimeException("Unknown URI schema in ${xsdSchema}" + xsdSchema);
-			}
-		}
-
+		final ProtoLoader protoLoader = applicationContext.getBean(ProtoLoader.class);
+		final WSDLBuilder wsdlBuilder = new WSDLBuilder(protoLoader, serviceName);
+		final String xmlSchema = wsdlBuilder.buildXmlSchema();
+		final Resource resource = new ByteArrayResource(xmlSchema.getBytes());
 		return new SimpleXsdSchema(resource);
 	}
 
 	@Bean
-	public XmlCallProvider xmlCallProvider()
-	{
+	public XmlCallProvider xmlCallProvider() {
 		return new XmlCallProvider();
 	}
 

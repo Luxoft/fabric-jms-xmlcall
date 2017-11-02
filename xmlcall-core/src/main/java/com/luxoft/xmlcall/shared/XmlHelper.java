@@ -18,6 +18,8 @@ import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -88,6 +90,49 @@ public class XmlHelper {
         }
     }
 
+    static ByteArrayOutputStream readFileAsByteArrayOutputStream(String fileName) throws IOException, URISyntaxException {
+        URI uri = new URI(fileName);
+        String scheme = uri.getScheme();
+        final InputStream stream;
+
+        if (scheme == null)
+            scheme = "file";
+
+        switch (scheme) {
+            case "resource":
+            case "res":
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                stream = classLoader.getResourceAsStream(uri.getPath());
+                break;
+
+            case "file":
+                stream = new FileInputStream(uri.getPath());
+                break;
+
+            default:
+                throw new RuntimeException("Unknown URI schema in " + fileName);
+        }
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] bytes = new byte[1024];
+        int c;
+
+        while ((c = stream.read(bytes)) > 0)
+            buffer.write(bytes, 0, c);
+
+        return buffer;
+
+    }
+
+    public static String readFileAsString(String fileName) throws IOException, URISyntaxException {
+        return readFileAsByteArrayOutputStream(fileName)
+                .toString(StandardCharsets.UTF_8.name());
+    }
+
+    public static byte[] readFileAsBytes(String fileName) throws IOException, URISyntaxException {
+        return readFileAsByteArrayOutputStream(fileName)
+                .toByteArray();
+    }
 
     static String readFileFully(Path fileName) throws IOException {
         return new String(Files.readAllBytes(fileName), StandardCharsets.UTF_8);
@@ -102,7 +147,7 @@ public class XmlHelper {
             final Path filePath = Paths.get(xsdPath, typeName + ".xsd");
 
             try {
-                return readFileFully(filePath);
+                return readFileAsString(filePath.toString());
             } catch (Exception e) {
                 throw new RuntimeException("file not found " + filePath.toString(), e);
             }

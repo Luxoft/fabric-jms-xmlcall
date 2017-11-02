@@ -46,7 +46,7 @@ dependencies {
 }
 
 springBoot {
-    mainClass = "com.luxoft.xmlcall.jms.Application"
+    mainClass = "com.luxoft.xmlcall.jms.JmsServerApplication"
 }
 
 bootRun {
