@@ -39,11 +39,6 @@ public class XmlCallProvider implements PayloadEndpoint
     XmlCallHandler xmlCallHandler;
     XmlCallBlockchainConnector blockchainConnector;
 
-    public XmlCallProvider()
-    {
-        System.out.print(getClass().getName()+ " : created");
-    }
-
     @PostConstruct
     void init() throws Exception {
         this.xmlCallHandler = new XmlCallHandler(protoLoader);

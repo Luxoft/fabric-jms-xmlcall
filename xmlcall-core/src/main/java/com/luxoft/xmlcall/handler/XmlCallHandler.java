@@ -1,5 +1,6 @@
 package com.luxoft.xmlcall.handler;
 import com.google.protobuf.*;
+import com.google.protobuf.util.JsonFormat;
 import com.googlecode.protobuf.format.XmlJavaxFormat;
 import com.googlecode.protobuf.format.bits.Base64Serializer;
 import com.luxoft.xmlcall.proto.XmlCall;
@@ -117,24 +118,45 @@ public class XmlCallHandler
         return xmlJavaxFormat;
     }
 
+    private static String messageToString(Message message)
+    {
+        try {
+            return XmlHelper.escapeString(JsonFormat.printer()
+                    .includingDefaultValueFields()
+                    .omittingInsignificantWhitespace()
+                    .print(message));
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+            return XmlHelper.escapeString(message.toString());
+        }
+    }
+
     private String makeSuccess(XmlJavaxFormat xmlFormat,
                                XmlCall.ChaincodeRequest chaincodeRequest,
                                RpcMethod rpcMethod,
                                XmlCallBlockchainConnector.Result result) throws DocumentException, InvalidProtocolBufferException {
 
+        logger.info("Got reply txid: {}, data: {}", result.txid, XmlHelper.bytesToHex(result.data));
         final DynamicMessage outputMessage = DynamicMessage.parseFrom(rpcMethod.getOutputType(), result.data);
+        logger.debug("Chaincode protobuf reply: {}", messageToString(outputMessage));
+
         final XmlCall.ChaincodeResult chaincodeResult = XmlCall.ChaincodeResult.newBuilder()
                 .setTxid(result.txid)
                 .build();
 
-        final Document document = DocumentHelper.parseText(xmlFormat.printToString(outputMessage));
+        String immXML = xmlFormat.printToString(outputMessage);
+        logger.debug("Intermediate XML is {}", XmlHelper.escapeString(immXML));
+
+        final Document document = DocumentHelper.parseText(immXML);
         final Element rootElement = document.getRootElement();
 
         rootElement.setName(rpcMethod.getOutputType().getFullName());
         // rootElement.setName(rpcMethod.methodDescriptor.getFullName());
         XmlHelper.pasteAttributes(rootElement, chaincodeResult, XmlHelper.Dir.OUT);
         XmlHelper.changeNamespace(document, "", serviceNamespaceTag, serviceNamespaceURI);
-        return document.asXML();
+        final String resultXML = document.asXML();
+        logger.info("Result XML: {}", XmlHelper.escapeString(resultXML));
+        return resultXML;
     }
 
     public static String makeError(String message) {
@@ -182,10 +204,10 @@ public class XmlCallHandler
     public CompletableFuture<String> processXmlMessage(String message, @Nonnull  XmlCallBlockchainConnector blockchain) throws Exception {
         final XmlJavaxFormat xmlFormat = getFormatter();
 
-        logger.trace("Handle XML {}", message);
+        logger.debug("Input XML: {}", XmlHelper.escapeString(message));
         final Document requestDoc = DocumentHelper.parseText(message);
         cleanupNode(requestDoc);
-        logger.info("Request: {}", XmlHelper.escapeString(requestDoc.asXML()));
+        logger.info("Cleanup request: {}", XmlHelper.escapeString(requestDoc.asXML()));
 
         // avoid using namespaces
         // todo: match namespace with services'
@@ -195,7 +217,7 @@ public class XmlCallHandler
         final Element rootElement = requestDoc.getRootElement();
         final String methodName = getMethodName(rootElement);
 
-        logger.trace("Lookup method {}", methodName);
+        logger.debug("Lookup method {}", methodName);
         RpcMethod rpcMethod = findServiceMethod(ServiceType.METHOD, methodName);
 
         final XmlCall.ChaincodeRequest.Builder chaincodeRequestBuilder = XmlCall.ChaincodeRequest.newBuilder();
@@ -206,12 +228,16 @@ public class XmlCallHandler
         XmlHelper.cleanAttributes(rootElement);
         rootElement.setName(rpcMethod.getInputType().getName());
         final String s = XmlHelper.asXML(rootElement);
+
+        logger.debug("XML to parse into protobuf: {}", XmlHelper.escapeString(s));
         xmlFormat.merge(s, xmlExtensionRegistry, messageBuilder);
 
         final XmlCall.ChaincodeRequest chaincodeId = chaincodeRequestBuilder.build();
         final Message inputMessage = messageBuilder.build();
+        logger.debug("Parsed input protobuf message {}", messageToString(inputMessage));
 
         final byte[] inputMessageBytes = inputMessage.toByteArray();
+        logger.debug("Protobuf wire message: {}", XmlHelper.bytesToHex(inputMessageBytes));
         final byte[][] args = {inputMessageBytes};
 
         final CompletableFuture<XmlCallBlockchainConnector.Result> exec
@@ -225,9 +251,7 @@ public class XmlCallHandler
 
         return exec.thenApply(result -> {
             try {
-                final String text = makeSuccess(xmlFormat, chaincodeId, rpcMethod, result);
-                logger.info("result: {}", XmlHelper.escapeString(text));
-                return text;
+                return makeSuccess(xmlFormat, chaincodeId, rpcMethod, result);
             } catch (Exception e) {
                 throw new XmlCallException("Unable to parse result", makeError(e.getMessage()), e);
             }
