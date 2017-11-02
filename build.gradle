@@ -17,6 +17,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 sourceCompatibility = 1.8
@@ -30,6 +31,10 @@ subprojects{
     repositories {
         mavenCentral()
         maven { url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/" }
+    }
+
+    clean {
+        delete "${projectDir}/out" // remote idea's directory
     }
 }
 
@@ -63,3 +68,4 @@ task makeProto(type:Exec) {
 }
 
 assemble.dependsOn makeProto
+
