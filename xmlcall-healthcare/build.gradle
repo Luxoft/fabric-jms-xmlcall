@@ -35,10 +35,10 @@ protobuf {
     generateProtoTasks {
         all().each { task ->
 //          task.include "${project(':xmlcall-core').projectDir}/src/main/proto"
-            task.generateDescriptorSet=true
-            task.descriptorSetOptions.path="${rootDir}/data/proto/services.desc"
-            task.descriptorSetOptions.includeImports=true
-            task.descriptorSetOptions.includeSourceInfo=true
+            task.generateDescriptorSet = true
+            task.descriptorSetOptions.path = "${rootDir}/data/proto/services.desc"
+            task.descriptorSetOptions.includeImports = true
+            task.descriptorSetOptions.includeSourceInfo = true
             task.builtins {
                 go { }
             }
