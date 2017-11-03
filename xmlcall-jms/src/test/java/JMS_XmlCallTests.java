@@ -101,7 +101,7 @@ public class JMS_XmlCallTests
                                 .build()
                 ).build();
 
-        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, Empty.class).get();
+        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, ClaimAccumulator.AddClaimResponse.class).get();
     }
 
     /***/

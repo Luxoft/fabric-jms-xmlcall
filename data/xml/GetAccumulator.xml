@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Accumulator channel="umr-2017" id="accumulator">
-    <GetAccumulator>
-        <memberId>USER1</memberId>
-        <accumulatorId>In_Network_Individual_Deductible</accumulatorId>
-        <planYear>2017</planYear>
-    </GetAccumulator>
-</Accumulator>

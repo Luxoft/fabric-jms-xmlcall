@@ -36,7 +36,9 @@ public class JmsXmlCallHandler
     ) throws Exception {
 
         String currentDir = System.getProperty("user.dir");
-        logger.info("Current dir: {}" +currentDir);
+        logger.info("Current dir: {}", currentDir);
+        logger.info("Use descriptor file: '{}'", descriptorFileName);
+        logger.info("Use connector: '{}', arg: '{}'", connectorClass, connectorArg);
 
         final XmlCallBlockchainConnectorFactory xmlCallBlockchainConnectorFactory = XmlCallBlockchainConnectorFactory.getInstance();
         xmlCallHandler = new XmlCallHandler(descriptorFileName);

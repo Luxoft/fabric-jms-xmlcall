@@ -1,6 +1,5 @@
 package services;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
 
@@ -34,13 +33,26 @@ public class Accumulator
         final byte[] msg = args[0];
         try {
             final ClaimAccumulator.AddClaim addClaim = ClaimAccumulator.AddClaim.parseFrom(msg);
+            final ClaimAccumulator.Claim claim = addClaim.getClaim();
+
+            final ClaimAccumulator.GetAccumulator getAccumulator = ClaimAccumulator.GetAccumulator.newBuilder()
+                    .setMemberId(claim.getMemberId())
+                    .setAccumulatorId(claim.getAccumulatorId())
+                    .setPlanYear(claim.getPlanYear())
+                    .build();
+
+            final ClaimAccumulator.AddClaimResponse addClaimResponse = ClaimAccumulator.AddClaimResponse.newBuilder()
+                    .setAccRef(getAccumulator)
+                    .setWasCollision(false)
+                    .setWasLimitReached(false)
+                    .build();
+
+            return addClaimResponse.toByteArray();
         }
 
         catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
-
-        return Empty.getDefaultInstance().toByteArray();
     }
 }

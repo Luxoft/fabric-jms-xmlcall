@@ -1,0 +1,58 @@
+group 'com.luxoft'
+version '1.0'
+
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'com.google.protobuf'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':xmlcall-core');
+}
+
+protobuf {
+    // Configure the protoc executable
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:3.4.0'
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+//          task.include "${project(':xmlcall-core').projectDir}/src/main/proto"
+            task.generateDescriptorSet=true
+            task.descriptorSetOptions.path="${rootDir}/data/proto/services.desc"
+            task.descriptorSetOptions.includeImports=true
+            task.descriptorSetOptions.includeSourceInfo=true
+            task.builtins {
+                go { }
+            }
+        }
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/grpc");
+    }
+}
+
+clean {
+    delete "${rootDir}/data/proto/services.desc"
+}
