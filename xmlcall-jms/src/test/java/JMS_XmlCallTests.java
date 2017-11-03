@@ -1,5 +1,4 @@
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.Empty;
 import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
 import com.luxoft.uhg.fabric.services.AccumulatorOuterClass;
 import com.luxoft.xmlcall.jms.JmsServerApplication;
@@ -7,8 +6,7 @@ import com.luxoft.xmlcall.jms.JmsXmlCallClient;
 import com.luxoft.xmlcall.proto.XmlCall;
 import com.luxoft.xmlcall.shared.ProtoLoader;
 import com.luxoft.xmlcall.shared.XmlHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.test.context.junit4.SpringRunner;
+import rules.ActiveMQBrokerRule;
 
 import javax.annotation.PostConstruct;
 import javax.jms.*;
@@ -43,8 +42,13 @@ public class JMS_XmlCallTests
     @Value("${xmlCallJmsDestination}")
     private String ENDPOINT;
 
+    private static String activeMQBrokerURI = "tcp://localhost:61616";
     private String namespaceURI;
     private Function<String, String> xsdFactory;
+
+    @ClassRule
+    public static ActiveMQBrokerRule brokerRule = new ActiveMQBrokerRule(activeMQBrokerURI);
+
 
     @PostConstruct
     private void initialize() throws Exception {
