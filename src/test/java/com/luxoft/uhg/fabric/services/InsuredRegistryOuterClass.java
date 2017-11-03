@@ -23,28 +23,28 @@ public final class InsuredRegistryOuterClass {
 
     public interface Interface {
       /**
-       * <code>rpc AddMember(.main.Member) returns (.google.protobuf.Empty);</code>
+       * <code>rpc AddMembers(.main.MemberList) returns (.google.protobuf.Empty);</code>
        */
-      public abstract void addMember(
+      public abstract void addMembers(
           com.google.protobuf.RpcController controller,
-          com.luxoft.uhg.fabric.proto.InsuredRegistry.Member request,
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList request,
           com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
 
       /**
-       * <code>rpc GetChannel(.main.GetChannel) returns (.google.protobuf.Empty);</code>
+       * <code>rpc GetChannel(.main.GetChannel) returns (.main.ChannelId);</code>
        */
       public abstract void getChannel(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel request,
-          com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
+          com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId> done);
 
       /**
-       * <code>rpc GetAllMembers(.google.protobuf.Empty) returns (.google.protobuf.Empty);</code>
+       * <code>rpc GetAllMembers(.google.protobuf.Empty) returns (.main.MemberList);</code>
        */
       public abstract void getAllMembers(
           com.google.protobuf.RpcController controller,
           com.google.protobuf.Empty request,
-          com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
+          com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList> done);
 
     }
 
@@ -52,18 +52,18 @@ public final class InsuredRegistryOuterClass {
         final Interface impl) {
       return new InsuredRegistry() {
         @java.lang.Override
-        public  void addMember(
+        public  void addMembers(
             com.google.protobuf.RpcController controller,
-            com.luxoft.uhg.fabric.proto.InsuredRegistry.Member request,
+            com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList request,
             com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
-          impl.addMember(controller, request, done);
+          impl.addMembers(controller, request, done);
         }
 
         @java.lang.Override
         public  void getChannel(
             com.google.protobuf.RpcController controller,
             com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel request,
-            com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
+            com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId> done) {
           impl.getChannel(controller, request, done);
         }
 
@@ -71,7 +71,7 @@ public final class InsuredRegistryOuterClass {
         public  void getAllMembers(
             com.google.protobuf.RpcController controller,
             com.google.protobuf.Empty request,
-            com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
+            com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList> done) {
           impl.getAllMembers(controller, request, done);
         }
 
@@ -98,7 +98,7 @@ public final class InsuredRegistryOuterClass {
           }
           switch(method.getIndex()) {
             case 0:
-              return impl.addMember(controller, (com.luxoft.uhg.fabric.proto.InsuredRegistry.Member)request);
+              return impl.addMembers(controller, (com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList)request);
             case 1:
               return impl.getChannel(controller, (com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel)request);
             case 2:
@@ -118,7 +118,7 @@ public final class InsuredRegistryOuterClass {
           }
           switch(method.getIndex()) {
             case 0:
-              return com.luxoft.uhg.fabric.proto.InsuredRegistry.Member.getDefaultInstance();
+              return com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance();
             case 1:
               return com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel.getDefaultInstance();
             case 2:
@@ -140,9 +140,9 @@ public final class InsuredRegistryOuterClass {
             case 0:
               return com.google.protobuf.Empty.getDefaultInstance();
             case 1:
-              return com.google.protobuf.Empty.getDefaultInstance();
+              return com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId.getDefaultInstance();
             case 2:
-              return com.google.protobuf.Empty.getDefaultInstance();
+              return com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance();
             default:
               throw new java.lang.AssertionError("Can't get here.");
           }
@@ -152,28 +152,28 @@ public final class InsuredRegistryOuterClass {
     }
 
     /**
-     * <code>rpc AddMember(.main.Member) returns (.google.protobuf.Empty);</code>
+     * <code>rpc AddMembers(.main.MemberList) returns (.google.protobuf.Empty);</code>
      */
-    public abstract void addMember(
+    public abstract void addMembers(
         com.google.protobuf.RpcController controller,
-        com.luxoft.uhg.fabric.proto.InsuredRegistry.Member request,
+        com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList request,
         com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
 
     /**
-     * <code>rpc GetChannel(.main.GetChannel) returns (.google.protobuf.Empty);</code>
+     * <code>rpc GetChannel(.main.GetChannel) returns (.main.ChannelId);</code>
      */
     public abstract void getChannel(
         com.google.protobuf.RpcController controller,
         com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel request,
-        com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
+        com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId> done);
 
     /**
-     * <code>rpc GetAllMembers(.google.protobuf.Empty) returns (.google.protobuf.Empty);</code>
+     * <code>rpc GetAllMembers(.google.protobuf.Empty) returns (.main.MemberList);</code>
      */
     public abstract void getAllMembers(
         com.google.protobuf.RpcController controller,
         com.google.protobuf.Empty request,
-        com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done);
+        com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList> done);
 
     public static final
         com.google.protobuf.Descriptors.ServiceDescriptor
@@ -198,18 +198,18 @@ public final class InsuredRegistryOuterClass {
       }
       switch(method.getIndex()) {
         case 0:
-          this.addMember(controller, (com.luxoft.uhg.fabric.proto.InsuredRegistry.Member)request,
+          this.addMembers(controller, (com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList)request,
             com.google.protobuf.RpcUtil.<com.google.protobuf.Empty>specializeCallback(
               done));
           return;
         case 1:
           this.getChannel(controller, (com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel)request,
-            com.google.protobuf.RpcUtil.<com.google.protobuf.Empty>specializeCallback(
+            com.google.protobuf.RpcUtil.<com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId>specializeCallback(
               done));
           return;
         case 2:
           this.getAllMembers(controller, (com.google.protobuf.Empty)request,
-            com.google.protobuf.RpcUtil.<com.google.protobuf.Empty>specializeCallback(
+            com.google.protobuf.RpcUtil.<com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList>specializeCallback(
               done));
           return;
         default:
@@ -227,7 +227,7 @@ public final class InsuredRegistryOuterClass {
       }
       switch(method.getIndex()) {
         case 0:
-          return com.luxoft.uhg.fabric.proto.InsuredRegistry.Member.getDefaultInstance();
+          return com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance();
         case 1:
           return com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel.getDefaultInstance();
         case 2:
@@ -249,9 +249,9 @@ public final class InsuredRegistryOuterClass {
         case 0:
           return com.google.protobuf.Empty.getDefaultInstance();
         case 1:
-          return com.google.protobuf.Empty.getDefaultInstance();
+          return com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId.getDefaultInstance();
         case 2:
-          return com.google.protobuf.Empty.getDefaultInstance();
+          return com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance();
         default:
           throw new java.lang.AssertionError("Can't get here.");
       }
@@ -273,9 +273,9 @@ public final class InsuredRegistryOuterClass {
         return channel;
       }
 
-      public  void addMember(
+      public  void addMembers(
           com.google.protobuf.RpcController controller,
-          com.luxoft.uhg.fabric.proto.InsuredRegistry.Member request,
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList request,
           com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
         channel.callMethod(
           getDescriptor().getMethods().get(0),
@@ -291,31 +291,31 @@ public final class InsuredRegistryOuterClass {
       public  void getChannel(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel request,
-          com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
+          com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId> done) {
         channel.callMethod(
           getDescriptor().getMethods().get(1),
           controller,
           request,
-          com.google.protobuf.Empty.getDefaultInstance(),
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId.getDefaultInstance(),
           com.google.protobuf.RpcUtil.generalizeCallback(
             done,
-            com.google.protobuf.Empty.class,
-            com.google.protobuf.Empty.getDefaultInstance()));
+            com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId.class,
+            com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId.getDefaultInstance()));
       }
 
       public  void getAllMembers(
           com.google.protobuf.RpcController controller,
           com.google.protobuf.Empty request,
-          com.google.protobuf.RpcCallback<com.google.protobuf.Empty> done) {
+          com.google.protobuf.RpcCallback<com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList> done) {
         channel.callMethod(
           getDescriptor().getMethods().get(2),
           controller,
           request,
-          com.google.protobuf.Empty.getDefaultInstance(),
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance(),
           com.google.protobuf.RpcUtil.generalizeCallback(
             done,
-            com.google.protobuf.Empty.class,
-            com.google.protobuf.Empty.getDefaultInstance()));
+            com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.class,
+            com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance()));
       }
     }
 
@@ -325,17 +325,17 @@ public final class InsuredRegistryOuterClass {
     }
 
     public interface BlockingInterface {
-      public com.google.protobuf.Empty addMember(
+      public com.google.protobuf.Empty addMembers(
           com.google.protobuf.RpcController controller,
-          com.luxoft.uhg.fabric.proto.InsuredRegistry.Member request)
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList request)
           throws com.google.protobuf.ServiceException;
 
-      public com.google.protobuf.Empty getChannel(
+      public com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId getChannel(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel request)
           throws com.google.protobuf.ServiceException;
 
-      public com.google.protobuf.Empty getAllMembers(
+      public com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList getAllMembers(
           com.google.protobuf.RpcController controller,
           com.google.protobuf.Empty request)
           throws com.google.protobuf.ServiceException;
@@ -348,9 +348,9 @@ public final class InsuredRegistryOuterClass {
 
       private final com.google.protobuf.BlockingRpcChannel channel;
 
-      public com.google.protobuf.Empty addMember(
+      public com.google.protobuf.Empty addMembers(
           com.google.protobuf.RpcController controller,
-          com.luxoft.uhg.fabric.proto.InsuredRegistry.Member request)
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList request)
           throws com.google.protobuf.ServiceException {
         return (com.google.protobuf.Empty) channel.callBlockingMethod(
           getDescriptor().getMethods().get(0),
@@ -360,27 +360,27 @@ public final class InsuredRegistryOuterClass {
       }
 
 
-      public com.google.protobuf.Empty getChannel(
+      public com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId getChannel(
           com.google.protobuf.RpcController controller,
           com.luxoft.uhg.fabric.proto.InsuredRegistry.GetChannel request)
           throws com.google.protobuf.ServiceException {
-        return (com.google.protobuf.Empty) channel.callBlockingMethod(
+        return (com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId) channel.callBlockingMethod(
           getDescriptor().getMethods().get(1),
           controller,
           request,
-          com.google.protobuf.Empty.getDefaultInstance());
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.ChannelId.getDefaultInstance());
       }
 
 
-      public com.google.protobuf.Empty getAllMembers(
+      public com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList getAllMembers(
           com.google.protobuf.RpcController controller,
           com.google.protobuf.Empty request)
           throws com.google.protobuf.ServiceException {
-        return (com.google.protobuf.Empty) channel.callBlockingMethod(
+        return (com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList) channel.callBlockingMethod(
           getDescriptor().getMethods().get(2),
           controller,
           request,
-          com.google.protobuf.Empty.getDefaultInstance());
+          com.luxoft.uhg.fabric.proto.InsuredRegistry.MemberList.getDefaultInstance());
       }
 
     }
@@ -399,14 +399,13 @@ public final class InsuredRegistryOuterClass {
     java.lang.String[] descriptorData = {
       "\n\035service/InsuredRegistry.proto\032\rxmlcall" +
       ".proto\032\033google/protobuf/empty.proto\032\036mes" +
-      "sages/InsuredRegistry.proto2\317\001\n\017InsuredR" +
-      "egistry\0227\n\tAddMember\022\014.main.Member\032\026.goo" +
-      "gle.protobuf.Empty\"\004\220\202\031\002\022<\n\nGetChannel\022\020" +
-      ".main.GetChannel\032\026.google.protobuf.Empty" +
-      "\"\004\220\202\031\001\022E\n\rGetAllMembers\022\026.google.protobu" +
-      "f.Empty\032\026.google.protobuf.Empty\"\004\220\202\031\001B#\n" +
-      "\036com.luxoft.uhg.fabric.services\210\001\001b\006prot" +
-      "o3"
+      "sages/InsuredRegistry.proto2\307\001\n\017InsuredR" +
+      "egistry\022<\n\nAddMembers\022\020.main.MemberList\032" +
+      "\026.google.protobuf.Empty\"\004\220\202\031\002\0225\n\nGetChan" +
+      "nel\022\020.main.GetChannel\032\017.main.ChannelId\"\004" +
+      "\220\202\031\001\022?\n\rGetAllMembers\022\026.google.protobuf." +
+      "Empty\032\020.main.MemberList\"\004\220\202\031\001B#\n\036com.lux" +
+      "oft.uhg.fabric.services\210\001\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
