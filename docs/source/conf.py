@@ -21,6 +21,8 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 
+# import sphinx_rtd_theme
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -31,7 +33,8 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.todo',
-    'sphinx.ext.ifconfig']
+    'sphinx.ext.ifconfig',
+    'rst2pdf.pdfbuilder']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -47,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Hyperledger Fabric XML/CALL adapter'
-copyright = u'2017, Oleg Sesov'
+copyright = u'2017, Luxoft'
 author = u'Oleg Sesov'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -84,6 +87,11 @@ todo_include_todos = True
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+# html_theme = 'sphinx_rtd_theme'
+
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+# html_add_permalinks = ""
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -96,11 +104,13 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+def setup(app):
+    app.add_stylesheet('css/custom.css')
 
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'HyperledgerFabricXMLCALLadapterdoc'
+htmlhelp_basename = 'fabric-xmlcall'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -127,7 +137,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'HyperledgerFabricXMLCALLadapter.tex', u'Hyperledger Fabric XML/CALL adapter Documentation',
+    (master_doc, 'fabric-xmlcall.tex', u'Hyperledger Fabric XML/CALL adapter Documentation',
      u'Oleg Sesov', 'manual'),
 ]
 
@@ -137,7 +147,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'hyperledgerfabricxmlcalladapter', u'Hyperledger Fabric XML/CALL adapter Documentation',
+    (master_doc, 'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter Documentation',
      [author], 1)
 ]
 
@@ -148,10 +158,36 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'HyperledgerFabricXMLCALLadapter', u'Hyperledger Fabric XML/CALL adapter Documentation',
-     author, 'HyperledgerFabricXMLCALLadapter', 'One line description of project.',
+    (master_doc, 'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter Documentation',
+     author, 'fabric-xmlcall', 'Call Hyperledger Fabric via XML.',
      'Miscellaneous'),
 ]
 
 
 
+# -- Options for Epub output ----------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
+
+
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
+
+pdf_documents = [('index', u'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter', u'Oleg Sesov') ]
