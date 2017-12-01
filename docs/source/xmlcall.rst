@@ -5,7 +5,7 @@ Hyperledger Fabric
 a distributed ledger platform. It has no notion of cryptocurrency,
 assets, or any other financial concept, found in platforms like
 BitCoin, Ethereum, Ripple, and others. Instead it concentrates on
-being a framework to build distributed applications, using distributed
+being a framework to build distributed applications using distributed
 storage.
 
 *Hyperledger Fabric* (Fabric for short) provides the same guaranties
@@ -28,73 +28,76 @@ roles:
 * **peer**: Peer is a node which hosts chaincode, and maintains
   state database.
 
-* **orderer**: Orderer is a node, which responsible on total
+* **orderer**: Orderer is a node, which responsible for total
   transactions ordering.
 
 Logical topology
 ----------------
 
 *Fabric* network is organized into non-overlapping *channels*. Each
-channel has its own ledger, state database, set of *peers*,
-*orderers*, *users*, *chaincode* instances, and *state database*.
+channel has its own ledger, set of *peers*, *orderers*, *users*,
+*chaincode* instances, and *state database*.
 
-Peers and orderers described above. Note that each peer and orderer
-node can participate in several channels. However the channels are
-isolated from each other. It is impossible for chaincode to access
-data from the other channel directly (by querying database or by
-examining disk content). The only way is to perform chaincode member
-query.
+Peers and orderers described above. Note that both peer and orderer
+nodes can participate in several channels at the same time. Other than
+that channels are isolated from each other. Ledger delivered to the
+peers and orderers which participate in the channel only. And it is
+impossible for chaincode to access data from the other channel
+directly (by querying database or by examining disk content) even if
+located on the same peer. The only way is to perform regular chaincode
+member query.
 
 **Users** is an entity, identified with the private key/certificate
 pair, which can send *transactions* to the channel. These transactions
 are stored on the ledger.
 
-**Chaincode** is an service, created by application
-developer. Chaincode is instantiated in a channel and consists of a
-set of members. Each member has a name, parameters, and can return a
+**Chaincode** is an service, created by application developer.
+Chaincode is instantiated in a channel and consists of a set of
+members. Each member has a name, set if parameters, and can return a
 value. *Hyperledger Fabric* supports several languages to create
 chaincode. Currently these are Go and JavaScript.
 
 **Transaction** is a tuple *(chaincode-id, member-name, invocation
 arguments, invocation result, database-delta)*. Transactions are
-created by application via SDK, and supplied to the blockchain, as
-described in *"Transaction Processing"*.
+created by application via Fabric SDK, and supplied to the blockchain,
+as described in "`Transaction Processing`_".
 
 **Ledger** is a persistent sequence of transactions. It's a file,
-stored on the peers and orderers, which contains the history of
-transactions.
+stored on the peers and orderers, which contains the ordered sequence
+of transactions.
 
 **State database** is a database which is accessible by chaincode.
-State database is changed by the stored transactions, using
+State database is changed by the ledger transactions, using
 'database-delta' field.
 
 Transaction processing
 ----------------------
 
-Transactions in *fabric* go through several stages:
+Transactions in *Fabric* go through several stages:
 
-#. Transaction proposal. Application creates a transaction proposal
-   which consists of the chaincode member name and supplied arguments
-   and send them to the peers. Each peers executes the requested
-   member, evaluate the result and database-delta, puts all of these
-   together into transaction object, signs that object and returns to
-   the requesting peer.  Note that at this stage neither ledger nor
-   state database is modified.
+#. Transaction proposal and endorsment. Application creates a
+   transaction proposal which consists of the chaincode member name
+   and supplied arguments, and sends the proposal to the peers for
+   endorsment. Each peer executes the requested member, evaluates the
+   result and database-delta, puts all of these together into
+   transaction object, signs that object, and returns the endorsed
+   transaction to the requesting application. Note that at this stage
+   neither ledger nor state database is modified.
 
-#. Application supplies all the signed proposals to the orderers. The
-   orderers validate the signatures, and come to agreement about the
-   transactions order.
+#. Application supplies all the endorsed proposals to the
+   orderers. The orderers validate the endorser signatures, and come
+   to agreement upon the order of transactions.
 
-   .. note:: This step might be done using some consensus
-      algorithms. Currently *fabric* supports *Kafka*-based ordering
-      and *solo* ordering. *Kafka* orderer, as the name implies, use
-      `Kafka <https://kafka.apache.org/>`_ cluster to ensure the total
+   .. note:: This step is done using some consensus algorithm.
+      Currently *fabric* supports *Kafka*-based ordering and *solo*
+      ordering. *Kafka* orderer, as the name implies, uses `Kafka
+      cluster <https://kafka.apache.org/>`_ to ensure the total
       transactions order. In this mode consensus is
       fault-tolerant. Another mode, which is used for development is
       *solo*. In that mode only a single orderer per channel exists
-      and creates a single point of failure.
+      and thus creates a single point of failure.
 
-#. Orderers deliver new transaction in the final order to the peers.
+#. Orderers deliver new transaction in the agreed order to the peers.
 
 #. Peers finally validate transaction *database-delta*, and if there
    is no conflict between state database as it used to be at the
@@ -116,31 +119,31 @@ XML Call service
 Motivation
 ----------
 
-*Hyperledger Fabric* provides two more or less mature SDK's currently:
+*Hyperledger Fabric* provides two more or less mature SDKs currently:
 
-* node.js SDK
+* Node.js SDK
 * Java SDK
 
-Both SDKs implements the full transaction processing, as described
-above, so they are pretty low-level, highly *Hyperledger Fabric*
-specific, and require good knowledge of *Fabric* transaction
-processing.
+Both SDKs implement the full transaction processing, as described in
+"`Transaction processing`_", so they are pretty low-level, highly
+*Hyperledger Fabric* specific, and require good knowledge of
+*Hyperledger Fabric* transaction processing.
 
 *Hyperledger Fabric* doesn't enforce any structure on the
 parameters. Each chaincode member accepts an array of byte strings,
 and is free to interpret these in any way an application developer
-feels appropriate..
+feels appropriate.
 
 Due to these reasons (as well as some others) an `xmlcall` facade was
-developed, hiding configuration and transaction processing flows from
+developed, hiding configuration and transaction processing flow from
 application developers.
 
-The main idea behind it is that * xmlcall* is a service, which can be
-used to invoke chaincode using more descriptive arguments, rather than
-raw byte string. Currently *xmlcall* supports XML-encoded requests on
+The main idea behind it is that *xmlcall* is a service, which can be
+used to invoke chaincode using descriptive arguments, rather than raw
+byte string. Currently *xmlcall* supports XML-encoded requests on
 input and generates XML-encoded results as well.
 
-Note that * xmlcall* provides platform-neutral interface, and might be
+Note that *xmlcall* provides platform-neutral interface, and might be
 ported to other blockchains in the future.
 
 Implementation information
@@ -184,13 +187,13 @@ chosen due to some reasons, among then:
 
 #. It has already been selected at communication layer for our other
    projects.
-#. It's future right language, which allows as to describe almost all
-   the aspects and details of invocation.
+#. It's a feature-rich language, which allows us to describe almost
+   all the aspects and details of invocation.
 #. It has broad community and extensive support from both community
    and Google.
 
-Outline
---------
+Outline (or TL;DR!)
+--------~~~~~~~~~~
 
 As a general outline, the xmlcall adapter is used like that:
 
@@ -220,12 +223,12 @@ Usage in Depth
 --------------
 
 In order to use *xmlcall* an blockchain service should be described as
-a gprc service.
+a protobuf service.
 
-.. note:: *xmlcall* itself has no relation to grps, it only uses the
-	  augmented grpc descriptors.
+.. note:: *xmlcall* itself has no relation to gRPC, it only uses the
+	  augmented gRPC descriptors.
 
-Imagine we have an ``Counter`` service, exposing following members
+Imagine we have an ``Counter`` chaincode, exposing following members
 with obvious semantics:
 
 * ``addAndGet(integer) -> integer``
@@ -298,7 +301,7 @@ counter.proto:
 
 So, our ``Counter`` service contains two members defined:
 ``addAndGet`` and ``getValue``. Note that ``getValue`` member follows
-grpc's convention: Each service member accepts exactly one argument
+gRPC's convention: each service member accepts exactly one argument
 and returns one argument.
 
 The ``xmlcall.exec_type`` option is mandatory and declared how
@@ -313,11 +316,11 @@ Next step is to generate protobuf descriptors out of these:
             counter.proto
 
 This command generates protobuf's descriptor file, which contains all
-the information from compiled files - all the types, service, etc.
+the information from compiled files - all the types, service, et
+cetera.
 
-.. note:: If you use Gradle or Maven both support options to generate
-   descriptor file. Refer respective plugin documentation for more
-   info.
+.. note:: Both Gradle or Maven support options to generate descriptor
+   file. Refer respective plugin documentation for more info.
 
 *xmlcall* would read this file and marshal requests using these types.
 
@@ -332,7 +335,7 @@ So now it would accept following XML request:
       <value>10</value>
    </Counter.addAndGet>
 
-and (assuming current counter state is 1) would reply with following
+And, assuming current counter state is 1, would reply with following
 XML document:
 
 .. code-block:: XML
@@ -346,13 +349,22 @@ XML document:
 Root-level tag arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-*XML/Call* expects root tag to contain some attribtes. On input these
- are:
+*XML/Call* expects root tag to contain some attribtes, which identify
+call info.
 
-* *in.chaincode*:
-* *in.channel*:
+* Input attributes are:
 
-  @@@
+  - *in.chaincode*: chaincode to call. Use exactly the name, the
+     chaincode was deployed with.
+
+  - *in.channel*: Channel to call the chaincode in. 
+
+* Output attributes are:
+
+  - *out.txid*: If a transactionrequest was supplied, this includes
+     the transaction id (the hex string). For query this field is
+     meaningless.
+
 
 XSD generation
 ~~~~~~~~~~~~~~
@@ -360,7 +372,7 @@ XSD generation
 Sometimes it might be useful to convert protobuf descriptor into `XML
 schema (XSD) <https://www.w3.org/2001/XMLSchema>`_.
 
-*xmlcall* provides a java class which can do it:
+*xmlcall* provides utility which can do it:
 ``com.luxoft.xmlcall.wsdl.proto2wsdl.Main``
 
 ``proto2wsdl`` might be used to generate single XSD file, which
@@ -376,7 +388,7 @@ contains all the necessary definitions:
 ``target-file`` specifies the output file name.
 
 If it is necessary to have separate files, ``proto2wsdl`` might be
-used to generate single xsd per member:
+used to generate single xsd per service member:
 
 .. code-block:: console
 
@@ -388,8 +400,8 @@ used to generate single xsd per member:
 Start XML/Call adapter and configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Xmlcall adapter created using Spring and configured using spring
-properties:
+As mentioned above, xmlcall adapter created using Spring and thus
+configured using spring properties:
 
 .. note:: More information on configuring Spring applications can be
    found in `official documentation
@@ -404,23 +416,27 @@ properties:
 
 * *connectorClass*: java class to connect to blockchain. Default value
   is "XmlCallFabricConnector", which implements connection to
-  *Hyperledger Fabric* using *fabric-utils* semantics.
+  *Hyperledger Fabric* using *fabric-utils* semantics (refer
+  `Fabric Utils`_ for details).
 
   Otherwise it should be a full class name.
 
 * *connectorArg*: connector-specific argument. for
-  *XmlCallFabricConnector* this is a path to *config.yaml*.
+  *XmlCallFabricConnector* this is a path to *config.yaml* (refer
+  `Fabric Utils`_ for details).
 
-* *spring.activemq.broker-url*: is a tcp://localhost:61616*
+* *spring.activemq.broker-url*: is a ActiveMQ address, set to
+  "tcp://localhost:61616" by default
 
   .. note:: *xmlcall* uses *Apache ActiveMQ* broker as JMS service,
      look for `documentation
      <http://activemq.apache.org/configuring-transports.html>`_ for
      configuration details.  `
 
+Full example looks like that:
 
 .. code-block:: yaml
-   :caption: application.yml example
+   :caption: application.yml
 
    descriptorFileName: data/proto/services.desc
    xmlCallJmsDestination: blockchain-xmlcall
@@ -440,8 +456,8 @@ Error Handling
 ~~~~~~~~~~~~~~
 
 If something went wrong with chaincode invocation, an error is
-described in *xmlcall* logs, and for the client application an XML
-document generated:
+described in *xmlcall* logs (including stack trace), and for the
+client application an XML document generated:
 
 .. code-block:: xml
    :caption: Fault reply
@@ -449,3 +465,12 @@ document generated:
    <ChaincodeFault>
       <message>...</message>
    </ChaincodeFault>
+
+References
+==========
+.. _Fabric Utils:
+
+Fabric Utils: Java library, developed by Luxoft's blockchain team to
+access *Hyperledger Fabric*. Details can be found in *"Fabric Utils"
+User Manual*.
+
