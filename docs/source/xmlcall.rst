@@ -1,9 +1,9 @@
 Hyperledger Fabric
 ==================
 
-`Hyperledger Fabric <https://www.hyperledger.org/projects/fabric>`_
-is a distributed ledger platform. It has no notion of cryptocurrency,
-assets, or any other finantional concepts, found in platforms like
+`Hyperledger Fabric <https://www.hyperledger.org/projects/fabric>`_ is
+a distributed ledger platform. It has no notion of cryptocurrency,
+assets, or any other financial concept, found in platforms like
 BitCoin, Ethereum, Ripple, and others. Instead it concentrates on
 being a framework to build distributed applications, using distributed
 storage.
@@ -29,20 +29,21 @@ roles:
   state database.
 
 * **orderer**: Orderer is a node, which responsible on total
-  transactoins ordering.
+  transactions ordering.
 
 Logical topology
 ----------------
 
 *Fabric* network is organized into non-overlapping *channels*. Each
-channel has it's own ledger, state database, set of *peers*,
+channel has its own ledger, state database, set of *peers*,
 *orderers*, *users*, *chaincode* instances, and *state database*.
 
-Peers and orderers descibed above. Note that each peer and orderer
+Peers and orderers described above. Note that each peer and orderer
 node can participate in several channels. However the channels are
 isolated from each other. It is impossible for chaincode to access
-data from the other channel directly (queriying database or examining
-disk content). The only way is to perform chaincode member query.
+data from the other channel directly (by querying database or by
+examining disk content). The only way is to perform chaincode member
+query.
 
 **Users** is an entity, identified with the private key/certificate
 pair, which can send *transactions* to the channel. These transactions
@@ -54,50 +55,51 @@ set of members. Each member has a name, parameters, and can return a
 value. *Hyperledger Fabric* supports several languages to create
 chaincode. Currently these are Go and JavaScript.
 
-**Transaction** is a tuble *(chaincode-id, member-name, invokation
+**Transaction** is a tuple *(chaincode-id, member-name, invocation
 arguments, invocation result, database-delta)*. Transactions are
-created by application sdk, and supplied to the blockchain, as
-descibed in *"Transaction Processing"*.
+created by application via SDK, and supplied to the blockchain, as
+described in *"Transaction Processing"*.
 
 **Ledger** is a persistent sequence of transactions. It's a file,
-stored on the peers and orderers.
+stored on the peers and orderers, which contains the history of
+transactions.
 
 **State database** is a database which is accessible by chaincode.
 State database is changed by the stored transactions, using
 'database-delta' field.
 
-Transacton processing
----------------------
+Transaction processing
+----------------------
 
 Transactions in *fabric* go through several stages:
 
 #. Transaction proposal. Application creates a transaction proposal
    which consists of the chaincode member name and supplied arguments
    and send them to the peers. Each peers executes the requested
-   member, evaluate the result and database-delta, puts all of
-   these together into transaction object, signs that object and
-   returns to the requesting peer.
-   Note that at this stage nither ledger nor state database is
-   modified.
+   member, evaluate the result and database-delta, puts all of these
+   together into transaction object, signs that object and returns to
+   the requesting peer.  Note that at this stage neither ledger nor
+   state database is modified.
 
 #. Application supplies all the signed proposals to the orderers. The
    orderers validate the signatures, and come to agreement about the
    transactions order.
 
    .. note:: This step might be done using some consensus
-      algorithms. Currently *fabric* supports *kafka*-based ordering
+      algorithms. Currently *fabric* supports *Kafka*-based ordering
       and *solo* ordering. *Kafka* orderer, as the name implies, use
-      kafka cluster to ensure the total transactions order. In this
-      mode consensus is fault-tolerand. Another mode, which is used
-      for development is *solo*. in that mode only a single orderer
-      per channel exists and creates a single point of failure.
+      `Kafka <https://kafka.apache.org/>`_ cluster to ensure the total
+      transactions order. In this mode consensus is
+      fault-tolerant. Another mode, which is used for development is
+      *solo*. In that mode only a single orderer per channel exists
+      and creates a single point of failure.
 
-#. Orerers deliver new transaction in the final order to the peers.
+#. Orderers deliver new transaction in the final order to the peers.
 
-#. Peers finaly validate transaction *database-delta*, and if there is
-   no conflict between state database as it used to be at the moment
-   of proposal validation (see the step 1), the delta is applied to
-   the database, thus bringing it to the new state.
+#. Peers finally validate transaction *database-delta*, and if there
+   is no conflict between state database as it used to be at the
+   moment of proposal validation (see the step 1), the delta is
+   applied to the database, thus bringing it to the new state.
 
    Then application is notified whether transaction has finally been
    accepted or not.
@@ -119,12 +121,12 @@ Motivation
 * node.js SDK
 * Java SDK
 
-Both SDKs implements the full transacton processing, as described
+Both SDKs implements the full transaction processing, as described
 above, so they are pretty low-level, highly *Hyperledger Fabric*
-specific, and require good knownledge of *Fabric* transaction
+specific, and require good knowledge of *Fabric* transaction
 processing.
 
-*Hyperledget Fabric* doesn't enforce any structure on the
+*Hyperledger Fabric* doesn't enforce any structure on the
 parameters. Each chaincode member accepts an array of byte strings,
 and is free to interpret these in any way an application developer
 feels appropriate..
@@ -133,13 +135,13 @@ Due to these reasons (as well as some others) an `xmlcall` facade was
 developed, hiding configuration and transaction processing flows from
 application developers.
 
-The main idea behind it is that *fabric-xmlcall* is an service, which
-can be used to invoke chaincode using more descriptive arguments,
-rather than raw byte string. Currently xmlcall supports XML-encoded
-requests on input and generates XML-encoded results as well.
+The main idea behind it is that * xmlcall* is a service, which can be
+used to invoke chaincode using more descriptive arguments, rather than
+raw byte string. Currently *xmlcall* supports XML-encoded requests on
+input and generates XML-encoded results as well.
 
-Note that *fabric-xmlcall* provides platform-neutral interface, and
-might be ported to other blockchains in the future.
+Note that * xmlcall* provides platform-neutral interface, and might be
+ported to other blockchains in the future.
 
 Implementation information
 --------------------------
@@ -148,7 +150,7 @@ Implementation information
 
 #. Self-descriptive invocation language.
 #. JMS transport
-#. protobuf desciptors.
+#. protobuf descriptors.
 
 Self-descriptive invocation language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,30 +161,30 @@ with lots of tools to create, parse, validate, transform, and so on
 for almost each programming language.
 
 .. note:: JSON is another alternative and support for it might be
-	  implemented one day.
+   implemented one day.
 
 JMS transport
 ~~~~~~~~~~~~~
 
 We use JMS at transport layer. *xmlcall* has been developed and tested
-with `Apache ActiveMQ <http://activemq.apache.org/>`_ and `Spring framework
-<https://spring.io/>`_.
+with `Apache ActiveMQ <http://activemq.apache.org/>`_ and `Spring
+framework <https://spring.io/>`_.
 
-JMS is choosen since it can handle hatively requests, replies,
-and events. However SOAP support might be added one day.
+JMS is chosen since it can handle requests, replies, and events
+natively. However SOAP support might be added one day.
 
-One needs to send plain JMS textmessage with XML document embedded
+One needs to send plain JMS text message with XML document embedded
 with no other escapes to process. Results are retuned in the same way.
 
-Protobuf desciptors
-~~~~~~~~~~~~~~~~~~~
+Protobuf descriptors
+~~~~~~~~~~~~~~~~~~~~
 
-*xmlcall* uses propobuf as it's ipc description language. Protobuf was
-choosen due to some reasons, amonng then:
+*xmlcall* uses propobuf as its IPC description language. Protobuf was
+chosen due to some reasons, among then:
 
 #. It has already been selected at communication layer for our other
    projects.
-#. It's future right language, shich allows as to descibe almost all
+#. It's future right language, which allows as to describe almost all
    the aspects and details of invocation.
 #. It has broad community and extensive support from both community
    and Google.
@@ -197,7 +199,7 @@ As a general outline, the xmlcall adapter is used like that:
    defined as ``rpc`` entries.
 
 #. *.proto* files are compiled to descriptors using ``protoc``
-   compiler to build desciptor files.
+   compiler to build descriptor files.
 
 #. Descriptor files can be used to generate XSD schema for the sake of
    application development.
@@ -221,7 +223,7 @@ In order to use *xmlcall* an blockchain service should be described as
 a gprc service.
 
 .. note:: *xmlcall* itself has no relation to grps, it only uses the
-	  augmented grpc desciptors.
+	  augmented grpc descriptors.
 
 Imagine we have an ``Counter`` service, exposing following members
 with obvious semantics:
@@ -229,11 +231,11 @@ with obvious semantics:
 * ``addAndGet(integer) -> integer``
 * ``getValue() -> integer``
 
-Start with descibing the necessary types in protobuf:
+Start with describing the necessary types in protobuf:
 
 .. code-block:: protobuf
+   :caption: counter.proto
 
-   // counter.proto
    syntax = "proto3";
    package counter;
 
@@ -242,16 +244,17 @@ Start with descibing the necessary types in protobuf:
    {
        int32 value = 1;
    }
-   
-Now, ``Value`` message coild be passed to the chaincode members. Let's
+
+Now, ``Value`` message could be passed to the chaincode members. Let's
 sketch it now (use Java as a prototype language - implementation is
 not important to us):
 
 .. code-block:: java
+   :caption: Counter service mock
 
    class Counter {
        int current = 0;
-       
+
        public Value addAndGet(Value value) {
            current = value.getValue();
        }
@@ -265,6 +268,7 @@ Having ``Value`` message defined, add a service information to the
 counter.proto:
 
 .. code-block:: protobuf
+   :caption: counter.proto modified version
 
    // counter.proto
    syntax = "proto3";
@@ -272,7 +276,7 @@ counter.proto:
 
    //include the necessary xmlcall definitions
    import "xmlcall.proto";
-   
+
    // include Empty message to follow protobuf's conventions
    import "google/protobuf/empty.proto";
 
@@ -298,34 +302,33 @@ grpc's convention: Each service member accepts exactly one argument
 and returns one argument.
 
 The ``xmlcall.exec_type`` option is mandatory and declared how
-corresponding method should be executed - as a teansaction invocation
+corresponding method should be executed - as a transaction invocation
 or as a query.
 
-Next step is to generate protobuf descripotors out of these:
+Next step is to generate protobuf descriptors out of these:
 
 .. code-block:: console
-		
+
    $ protoc --descriptor_set_out=counter.desc  --include_imports \
             counter.proto
 
-This command generates protobuf's desciptor dile, which contains all
+This command generates protobuf's descriptor file, which contains all
 the information from compiled files - all the types, service, etc.
 
-.. note::
-   If you use Gradle or Maven both support options to generate
+.. note:: If you use Gradle or Maven both support options to generate
    descriptor file. Refer respective plugin documentation for more
    info.
-   
-*xmlcall* would read this file and marshall requests using these
-types.
+
+*xmlcall* would read this file and marshal requests using these types.
 
 So now it would accept following XML request:
 
 .. code-block:: XML
+   :caption: addAndGet request content
 
    <Counter.addAndGet
 	in.channel="counter-channel"
-	in.chaincodeId="counter-chhaincode-id">
+	in.chaincodeId="counter-chaincode-id">
       <value>10</value>
    </Counter.addAndGet>
 
@@ -333,12 +336,23 @@ and (assuming current counter state is 1) would reply with following
 XML document:
 
 .. code-block:: XML
+   :caption: addAndGet request reply
 
    <main.Value
 	out.txid="<some transaction id string>">
       <value>11</value>
    </main.Value>
 
+Root-level tag arguments
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+*XML/Call* expects root tag to contain some attribtes. On input these
+ are:
+
+* *in.chaincode*:
+* *in.channel*:
+
+  @@@
 
 XSD generation
 ~~~~~~~~~~~~~~
@@ -346,11 +360,11 @@ XSD generation
 Sometimes it might be useful to convert protobuf descriptor into `XML
 schema (XSD) <https://www.w3.org/2001/XMLSchema>`_.
 
-xmlcall provides a java class which can do it:
+*xmlcall* provides a java class which can do it:
 ``com.luxoft.xmlcall.wsdl.proto2wsdl.Main``
 
-``proto2wsdl`` might be used to generate single XSD file, which contains
-all the necesary definitions:
+``proto2wsdl`` might be used to generate single XSD file, which
+contains all the necessary definitions:
 
 .. code-block:: console
 
@@ -361,7 +375,7 @@ all the necesary definitions:
 
 ``target-file`` specifies the output file name.
 
-If it is necessary to have seperate files, ``proto2wsdl`` might be
+If it is necessary to have separate files, ``proto2wsdl`` might be
 used to generate single xsd per member:
 
 .. code-block:: console
@@ -387,7 +401,7 @@ properties:
 
 * *xmlCallJmsDestination*: JMS topic name to listen on. Default value
   is 'blockchain-xmlcall'.
-  
+
 * *connectorClass*: java class to connect to blockchain. Default value
   is "XmlCallFabricConnector", which implements connection to
   *Hyperledger Fabric* using *fabric-utils* semantics.
@@ -401,8 +415,18 @@ properties:
 
   .. note:: *xmlcall* uses *Apache ActiveMQ* broker as JMS service,
      look for `documentation
-     <http://activemq.apache.org/configuring-transports.html>`_ for configuration
-     details.  `
+     <http://activemq.apache.org/configuring-transports.html>`_ for
+     configuration details.  `
+
+
+.. code-block:: yaml
+   :caption: application.yml example
+
+   descriptorFileName: data/proto/services.desc
+   xmlCallJmsDestination: blockchain-xmlcall
+   spring.activemq.broker-url: tcp://localhost:61616
+   connectorClass: XmlCallFabricConnector
+   connectorArg: config.yaml
 
 Logging
 ~~~~~~~
@@ -416,11 +440,12 @@ Error Handling
 ~~~~~~~~~~~~~~
 
 If something went wrong with chaincode invocation, an error is
-descibed in *xmlcall* logs, and for the client application an XML
+described in *xmlcall* logs, and for the client application an XML
 document generated:
 
 .. code-block:: xml
+   :caption: Fault reply
 
    <ChaincodeFault>
-     <message>...</message>
+      <message>...</message>
    </ChaincodeFault>
