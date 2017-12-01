@@ -49,8 +49,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Hyperledger Fabric XML/CALL adapter'
-copyright = u'2017, Luxoft'
+project = u'Hyperledger Fabric XML/Call adapter'
+copyright = u'2017, Luxoft LLC' 
 author = u'Oleg Sesov'
 
 # The version info for the project you're documenting, acts as replacement for

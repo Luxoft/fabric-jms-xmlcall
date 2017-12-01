@@ -187,19 +187,47 @@ choosen due to some reasons, amonng then:
 #. It has broad community and extensive support from both community
    and Google.
 
-Usage
------
+Outline
+--------
 
-In order to use *xmlcall* an blochchain service should be described as
+As a general outline, the xmlcall adapter is used like that:
+
+#. Interface to chaincode is defined using *protobuf* proto
+   files. Chaincode is defined as ``service``, and all the members are
+   defined as ``rpc`` entries.
+
+#. *.proto* files are compiled to descriptors using ``protoc``
+   compiler to build desciptor files.
+
+#. Descriptor files can be used to generate XSD schema for the sake of
+   application development.
+
+#. XmlCall adapter starts with these descriptor files and accepts JMS
+   requests as ``<ServiceName.MethodName>`` XML document.
+
+#. Invocation or query request submitted to blockchain.
+
+#. When result is ready, reply is send to application via
+   ``<TypeName>`` XML document.
+
+#. If call fails, result is delivered as ``<ChaincodeFault>`` XML
+   document.
+
+
+Usage in Depth
+--------------
+
+In order to use *xmlcall* an blockchain service should be described as
 a gprc service.
 
 .. note:: *xmlcall* itself has no relation to grps, it only uses the
 	  augmented grpc desciptors.
 
-Imagine we have an ``Counter`` service, with following members:
+Imagine we have an ``Counter`` service, exposing following members
+with obvious semantics:
 
-* ``addAndGet`` (integer): integer
-* ``getValue`` (): integer
+* ``addAndGet(integer) -> integer``
+* ``getValue() -> integer``
 
 Start with descibing the necessary types in protobuf:
 
@@ -321,24 +349,78 @@ schema (XSD) <https://www.w3.org/2001/XMLSchema>`_.
 xmlcall provides a java class which can do it:
 ``com.luxoft.xmlcall.wsdl.proto2wsdl.Main``
 
+``proto2wsdl`` might be used to generate single XSD file, which contains
+all the necesary definitions:
+
+.. code-block:: console
+
+ $ java -jar xmlcall.jar com.luxoft.xmlcall.wsdl.proto2wsdl.Main \
+        -schema \
+	-output <target-file> \
+	counter.desc
+
+``target-file`` specifies the output file name.
+
+If it is necessary to have seperate files, ``proto2wsdl`` might be
+used to generate single xsd per member:
+
 .. code-block:: console
 
  $ java -jar xmlcall.jar com.luxoft.xmlcall.wsdl.proto2wsdl.Main \
         -schema-set \
-	-output <target> \
+	-output <target-dir> \
 	counter.desc
 
-This command would generate a set of XSD files, one per each Chaincode
-member. Replace ``-schema-set`` with ``-schema`` if a single
-self-contained file is enough for you. ``-output`` argument specify
-where to put generated files. In case with ``-schema-set`` it should
-point to a folder, where all the files are written. In case with
-``-schema`` it names output file.
+Start XML/Call adapter and configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo::
-   * JMS
-   * protobuf desciption, services
-   * error handling
-   * invocation parameters
-   * xsd generation
-   * proto2wsdl
+Xmlcall adapter created using Spring and configured using spring
+properties:
+
+.. note:: More information on configuring Spring applications can be
+   found in `official documentation
+   <https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config-application-property-files>`_.
+
+
+* *descriptorFileName*: compiled descriptor file name. Must be
+  specified.
+
+* *xmlCallJmsDestination*: JMS topic name to listen on. Default value
+  is 'blockchain-xmlcall'.
+  
+* *connectorClass*: java class to connect to blockchain. Default value
+  is "XmlCallFabricConnector", which implements connection to
+  *Hyperledger Fabric* using *fabric-utils* semantics.
+
+  Otherwise it should be a full class name.
+
+* *connectorArg*: connector-specific argument. for
+  *XmlCallFabricConnector* this is a path to *config.yaml*.
+
+* *spring.activemq.broker-url*: is a tcp://localhost:61616*
+
+  .. note:: *xmlcall* uses *Apache ActiveMQ* broker as JMS service,
+     look for `documentation
+     <http://activemq.apache.org/configuring-transports.html>`_ for configuration
+     details.  `
+
+Logging
+~~~~~~~
+
+*xmlcall* compiled with `slf4j <https://www.slf4j.org/manual.html>`_
+logger, backed by `logback
+<https://logback.qos.ch/manual/index.html>`_. Refer respective
+documentation for configuration details.
+
+Error Handling
+~~~~~~~~~~~~~~
+
+If something went wrong with chaincode invocation, an error is
+descibed in *xmlcall* logs, and for the client application an XML
+document generated:
+
+.. code-block:: xml
+
+   <ChaincodeFault>
+     <message>...</message>
+   </ChaincodeFault>
