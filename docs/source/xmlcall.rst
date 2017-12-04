@@ -134,17 +134,9 @@ parameters. Each chaincode member accepts an array of byte strings,
 and is free to interpret these in any way an application developer
 feels appropriate.
 
-Due to these reasons (as well as some others) an `xmlcall` facade was
-developed, hiding configuration and transaction processing flow from
-application developers.
-
-The main idea behind it is that *xmlcall* is a service, which can be
-used to invoke chaincode using descriptive arguments, rather than raw
-byte string. Currently *xmlcall* supports XML-encoded requests on
-input and generates XML-encoded results as well.
-
-Note that *xmlcall* provides platform-neutral interface, and might be
-ported to other blockchains in the future.
+`xmlcall` provides simple to use interface, with well-defined
+interface which relies on widely used and accepted techniques like JMS
+and XML.
 
 Implementation information
 --------------------------
@@ -163,9 +155,6 @@ results. XML is a broadly used language in the Enterprise community
 with lots of tools to create, parse, validate, transform, and so on
 for almost each programming language.
 
-.. note:: JSON is another alternative and support for it might be
-   implemented one day.
-
 JMS transport
 ~~~~~~~~~~~~~
 
@@ -173,11 +162,9 @@ We use JMS at transport layer. *xmlcall* has been developed and tested
 with `Apache ActiveMQ <http://activemq.apache.org/>`_ and `Spring
 framework <https://spring.io/>`_.
 
-JMS is chosen since it can handle requests, replies, and events
-natively. However SOAP support might be added one day.
-
-One needs to send plain JMS text message with XML document embedded
-with no other escapes to process. Results are retuned in the same way.
+To use the `xmlcall` service it is necessary to send plain JMS text
+message with XML document embedded with no other escapes to
+process. Results are returned in the same way.
 
 Protobuf descriptors
 ~~~~~~~~~~~~~~~~~~~~
@@ -185,15 +172,13 @@ Protobuf descriptors
 *xmlcall* uses propobuf as its IPC description language. Protobuf was
 chosen due to some reasons, among then:
 
-#. It has already been selected at communication layer for our other
-   projects.
 #. It's a feature-rich language, which allows us to describe almost
    all the aspects and details of invocation.
 #. It has broad community and extensive support from both community
    and Google.
 
 Outline (or TL;DR!)
---------~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 As a general outline, the xmlcall adapter is used like that:
 
