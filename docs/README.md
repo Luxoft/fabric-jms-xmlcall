@@ -11,8 +11,11 @@ then call
 
 <target> is one of:
 
-* `html`
-* `pdf`
+* `html`: generate html
+* `pdf`: generate simple pdf
+* `latexpdf`: generate pdf via latex.
+    Post на хабре про это. https://habrahabr.ru/post/328182/
+    Не юзается, но может быть полезным.
 * `help`: show list of targets
 * `linkcheck`: validate links. Doesn't work in luxoft environment
 

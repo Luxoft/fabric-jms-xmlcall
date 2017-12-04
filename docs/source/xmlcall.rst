@@ -453,9 +453,17 @@ client application an XML document generated:
 
 References
 ==========
+
+.. target-notes::
+
+
 .. _Fabric Utils:
 
-Fabric Utils: Java library, developed by Luxoft's blockchain team to
-access *Hyperledger Fabric*. Details can be found in *"Fabric Utils"
-User Manual*.
+- Fabric Utils: Java library, developed by Luxoft's blockchain team to
+  access *Hyperledger Fabric*. Details can be found in *"Fabric Utils"
+  User Manual*.
 
+- Protobuf language reference: https://developers.google.com/protocol-buffers/docs/proto
+
+- Hyperledger Fabric:  https://www.hyperledger.org/projects/fabric
+  Blockchain implmentation drived by IBM under Linux Foundation.

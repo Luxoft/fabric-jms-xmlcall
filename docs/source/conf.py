@@ -118,7 +118,7 @@ htmlhelp_basename = 'fabric-xmlcall'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
-    # 'papersize': 'letterpaper',
+    'papersize': 'a4paper',
 
     # The font size ('10pt', '11pt' or '12pt').
     #
@@ -137,8 +137,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'fabric-xmlcall.tex', u'Hyperledger Fabric XML/CALL adapter Documentation',
-     u'Oleg Sesov', 'manual'),
+    (master_doc, 'fabric-xmlcall.tex', u'Hyperledger Fabric XML/CALL Adapter',
+     u'Blockchain Team/Luxoft LLC', 'manual'),
 ]
 
 
@@ -147,7 +147,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter Documentation',
+    (master_doc, 'fabric-xmlcall', u'Hyperledger Fabric XML/CALL Adapter',
      [author], 1)
 ]
 
@@ -158,7 +158,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter Documentation',
+    (master_doc, 'fabric-xmlcall', u'Hyperledger Fabric XML/CALL Adapter',
      author, 'fabric-xmlcall', 'Call Hyperledger Fabric via XML.',
      'Miscellaneous'),
 ]
@@ -190,4 +190,4 @@ epub_exclude_files = ['search.html']
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
 
-pdf_documents = [('index', u'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter', u'Oleg Sesov') ]
+pdf_documents = [('index', u'fabric-xmlcall', u'Hyperledger Fabric XML/CALL adapter', u'Blockchain Team/Luxoft') ]
