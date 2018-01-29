@@ -6,6 +6,7 @@ import "google/protobuf/empty.proto";
 import "messages/healthcare.proto";
 
 option java_generic_services = true; // for testing purposes only
+option java_outer_classname = "HealthcareService";
 
 service Healthcare {
     rpc AddClaim (main.AddClaim) returns (main.Accumulator) {option(xmlcall.exec_type) = INVOKE; }

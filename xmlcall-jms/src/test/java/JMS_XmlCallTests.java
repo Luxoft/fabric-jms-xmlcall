@@ -1,7 +1,7 @@
 import com.google.protobuf.Descriptors;
 import com.luxoft.healthcare.TestConstants;
-import com.luxoft.healthcare.messages.Healthcare;
-import com.luxoft.healthcare.services.HealthcareOuterClass;
+import com.luxoft.healthcare.messages.HealthcareMessages;
+import com.luxoft.healthcare.services.HealthcareService;
 import com.luxoft.xmlcall.jms.JmsServerApplication;
 import com.luxoft.xmlcall.jms.JmsXmlCallClient;
 import com.luxoft.xmlcall.proto.XmlCall;
@@ -80,24 +80,24 @@ public class JMS_XmlCallTests
     @Test
     public void testSend() throws Exception {
 
-        final Descriptors.MethodDescriptor getAccumulator = HealthcareOuterClass.Healthcare.getDescriptor().findMethodByName("GetAccumulator");
-        final Descriptors.MethodDescriptor addClaim = HealthcareOuterClass.Healthcare.getDescriptor().findMethodByName("AddClaim");
+        final Descriptors.MethodDescriptor getAccumulator = HealthcareService.Healthcare.getDescriptor().findMethodByName("GetAccumulator");
+        final Descriptors.MethodDescriptor addClaim = HealthcareService.Healthcare.getDescriptor().findMethodByName("AddClaim");
         final XmlCall.ChaincodeRequest chaincodeRequest = XmlCall.ChaincodeRequest.newBuilder()
                 .setChannel(channelId)
                 .setChaincodeId(chaincodeId)
                 .build();
-        final Healthcare.GetAccumulator accumulatorId = Healthcare.GetAccumulator.newBuilder()
+        final HealthcareMessages.GetAccumulator accumulatorId = HealthcareMessages.GetAccumulator.newBuilder()
                 .setMemberId("USER1")
                 .setPlanYear(2017)
                 .setAccumulatorId("In_Network_Individual_Deductible")
                 .build();
 
-        final Healthcare.Accumulator accumulator = xmlCallClient.sendRequest(getAccumulator, chaincodeRequest, accumulatorId, Healthcare.Accumulator.class).get().data;
+        final HealthcareMessages.Accumulator accumulator = xmlCallClient.sendRequest(getAccumulator, chaincodeRequest, accumulatorId, HealthcareMessages.Accumulator.class).get().data;
 
-        final Healthcare.AddClaim addClaimRequest = Healthcare.AddClaim.newBuilder()
+        final HealthcareMessages.AddClaim addClaimRequest = HealthcareMessages.AddClaim.newBuilder()
                 .setStateHash(accumulator.getStateHash())
                 .setClaim(
-                        Healthcare.Claim.newBuilder()
+                        HealthcareMessages.Claim.newBuilder()
                                 .setAccumulatorId(accumulatorId.getAccumulatorId())
                                 .setMemberId(accumulatorId.getMemberId())
                                 .setPlanYear(accumulator.getPlanYear())
@@ -109,7 +109,7 @@ public class JMS_XmlCallTests
                                 .build()
                 ).build();
 
-        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, Healthcare.GetAccumulator.class).get();
+        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, HealthcareMessages.GetAccumulator.class).get();
     }
 
     /***/

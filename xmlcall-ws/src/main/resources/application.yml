@@ -7,7 +7,7 @@ spring.activemq.broker-url: tcp://localhost:61616
 ---
 spring.profiles: reflect
 connectorClass: com.luxoft.xmlcall.reflect.XmlCallReflectionConnector
-connectorArg: services
+connectorArg: com.luxoft.healthcare.stub
 
 ---
 spring.profiles: fabric

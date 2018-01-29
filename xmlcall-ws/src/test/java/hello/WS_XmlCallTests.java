@@ -58,7 +58,7 @@ public class WS_XmlCallTests {
         WebServiceTemplate ws = new WebServiceTemplate(marshaller, unmarshaller);
         final ObjectFactory objectFactory = new ObjectFactory();
 
-        MainGetAccumulator mainGetAccumulator = new MainGetAccumulator();
+        MainGetAccumulator mainGetAccumulator = objectFactory.createMainGetAccumulator();
 
         mainGetAccumulator.setMemberId("USER1");
         mainGetAccumulator.setPlanYear(2017);

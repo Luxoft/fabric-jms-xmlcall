@@ -1,7 +1,18 @@
 set -ex
-# gradle networkDown
-# gradle networkUp
+
+if [ "$1" == "-net" ]; then
+    net=true
+    shift
+else
+    net=false
+fi
+
+if $net; then
+    gradle networkDown
+    gradle networkUp
+fi
+
 gradle networkConfigure
-gradle networkDeploy
+# gradle networkDeploy
 
 # SPRING_PROFILES_ACTIVE=develop gradle bootRun

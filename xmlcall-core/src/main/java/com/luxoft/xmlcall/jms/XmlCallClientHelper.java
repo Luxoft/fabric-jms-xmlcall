@@ -91,7 +91,7 @@ public class XmlCallClientHelper
         return CompletableFuture.supplyAsync(() -> {
             try {
                 final String req = makeCallXML(methodDescriptor, chaincodeRequest, message);
-                XmlHelper.xmlValidate(req, xsdFactory);
+                // XmlHelper.xmlValidate(req, xsdFactory);
                 return req;
             } catch (Throwable e) {
                 throw new RuntimeException("XML build failed", e);

@@ -5,9 +5,9 @@ import (
 	pb "github.com/hyperledger/fabric/protos/peer"
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"crypto/sha256"
-	"encoding/hex"
-	"./proto/messages"
+	//"crypto/sha256"
+	//"encoding/hex"
+	"chaincode/proto/messages"
 )
 
 var logger = shim.NewLogger("Healthcare")
@@ -90,7 +90,7 @@ func (t *Healthcare) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 func (t *Healthcare) loadAccumulator(stub shim.ChaincodeStubInterface, memberId string, accumulatorId string, planYear int32) (*hc.Accumulator, error) {
 
 	entity := new(hc.Accumulator)
-	key := fmt.Sprintf("%s:%s:%s", memberId, accumulatorId, planYear)
+	key := fmt.Sprintf("%v:%v:%v", memberId, accumulatorId, planYear)
 
 	// getting real file descriptor by key
 	state, err := stub.GetState(key)
@@ -99,19 +99,23 @@ func (t *Healthcare) loadAccumulator(stub shim.ChaincodeStubInterface, memberId 
 	}
 
 	if state == nil {
-		return entity, fmt.Errorf("Entity not found for key: " + key)
-	}
+		entity = new(hc.Accumulator)
+		entity.MemberId = memberId
+		entity.AccumulatorId = accumulatorId
+		entity.PlanYear = planYear
+		entity.ValueCents = 0
+	} else {
 
-	if err := proto.Unmarshal(state, entity); err != nil {
-		return entity, fmt.Errorf("Error parsing state: " + err.Error())
+		if err := proto.Unmarshal(state, entity); err != nil {
+			return entity, fmt.Errorf("Error parsing state: " + err.Error())
+		}
 	}
-
 	return entity, nil
 }
 
 func (t *Healthcare) saveAccumulator(stub shim.ChaincodeStubInterface, acc *hc.Accumulator) (error) {
 
-	key := fmt.Sprintf("%s:%s:%s", acc.MemberId, acc.AccumulatorId, acc.PlanYear)
+	key := fmt.Sprintf("%v:%v:%v", acc.MemberId, acc.AccumulatorId, acc.PlanYear)
 
 	state, err := proto.Marshal(acc)
 	if err != nil {
@@ -135,23 +139,15 @@ func (t *Healthcare) addClaim(stubInterface shim.ChaincodeStubInterface, claim *
 		return nil, err
 	}
 
-	if s == nil {
-		s = new(hc.Accumulator)
-		s.MemberId = c.MemberId
-		s.AccumulatorId = c.AccumulatorId
-		s.PlanYear = c.PlanYear
-		s.ValueCents = 0
-	}
-
-	// find out state hash
-	bytes, err := proto.Marshal(s)
-	h := sha256.New()
-	h.Write(bytes)
-	currentState := hex.EncodeToString(h.Sum(nil))
-
-	if currentState != claim.StateHash {
-		return nil, fmt.Errorf("wrong state hash, expected %s, got %s", currentState, claim.StateHash)
-	}
+	//// find out state hash
+	//bytes, err := proto.Marshal(s)
+	//h := sha256.New()
+	//h.Write(bytes)
+	//currentState := hex.EncodeToString(h.Sum(nil))
+	//
+	//if currentState != claim.StateHash {
+	//	return nil, fmt.Errorf("wrong state hash, expected %s, got %s", currentState, claim.StateHash)
+	//}
 
 	// hash is okay
 	s.ValueCents += c.AmountCents

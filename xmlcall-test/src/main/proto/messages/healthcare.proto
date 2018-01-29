@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option java_package = "com.luxoft.healthcare.messages";
 option go_package = "hc";
-option java_outer_classname = "Healthcare";
+option java_outer_classname = "HealthcareMessages";
 
 package main;
 
