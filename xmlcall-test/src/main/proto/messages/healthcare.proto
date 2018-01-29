@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option java_package = "com.luxoft.healthcare.messages";
+option go_package = "hc";
+option java_outer_classname = "Healthcare";
+
+package main;
+
+message Claim {
+    string accumulatorId = 1;
+    string sourceSystem = 2;
+    string sourceClaimId = 3;
+    int64  dateOfService = 4;
+    int32  amountCents = 5;
+    string memberId = 6;
+    string planSponsor = 7;
+    int32  planYear = 8;
+}
+
+message Accumulator
+{
+    string memberId = 1;
+    string accumulatorId = 2;
+    int32  valueCents = 3;
+    int32  planYear = 4;
+    string stateHash = 5;
+}
+
+message AddClaim
+{
+    Claim claim = 1;
+    string StateHash = 2;
+}
+
+message GetAccumulator
+{
+    string memberId = 1;
+    string accumulatorId = 2;
+    int32 planYear = 3;
+}

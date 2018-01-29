@@ -1,6 +1,7 @@
 group 'com.luxoft'
 version '1.0'
 
+
 buildscript {
   repositories {
     mavenCentral()
@@ -22,7 +23,6 @@ repositories {
 
 dependencies {
     compile project(':xmlcall-core')
-    compile project(':xmlcall-healthcare') // todo: remove this dependency. use TestObjects only
     compile 'com.google.protobuf:protobuf-java:3.4.0'
     compile 'com.google.protobuf:protobuf-java-util:3.4.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -36,10 +36,25 @@ test {
 }
 
 protobuf {
+
     // Configure the protoc executable
     protoc {
         // Download from repositories
         artifact = 'com.google.protobuf:protoc:3.4.0'
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+//          task.include "${project(':xmlcall-core').projectDir}/src/main/proto"
+            task.generateDescriptorSet = true
+            task.descriptorSetOptions.path = "${rootDir}/data/proto/services.desc"
+            task.descriptorSetOptions.includeImports = true
+            task.descriptorSetOptions.includeSourceInfo = true
+            task.builtins {
+                // path is relative to: $buildDir/generated/source/proto/$sourceSet/$builtinPluginName
+                go { outputSubDir = "../../../../../src/main/go/healthcare/src/chaincode/proto" }
+            }
+        }
     }
 }
 
@@ -51,3 +66,10 @@ idea {
         sourceDirs += file("${protobuf.generatedFilesBaseDir}/test/grpc");
     }
 }
+
+clean {
+    delete "${rootDir}/data/proto/services.desc"
+}
+
+apply from: 'fabric-devnet.gradle'
+

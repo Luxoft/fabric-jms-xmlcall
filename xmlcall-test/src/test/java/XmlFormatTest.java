@@ -3,7 +3,7 @@ import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.XmlJavaxFormat;
 import com.googlecode.protobuf.format.bits.Base64Serializer;
-import com.luxoft.uhg.fabric.proto.TestObjects;
+import com.luxoft.testxmlcall.proto.TestObjects;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Before;
 import org.junit.Test;

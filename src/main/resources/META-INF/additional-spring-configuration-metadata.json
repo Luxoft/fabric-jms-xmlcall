@@ -8,7 +8,7 @@
     {
       "name": "organization",
       "type": "java.lang.String",
-      "description": "UMR or OPTUMRX for the PoC."
+      "description": "Short organization name."
     }
   ]
 }

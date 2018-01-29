@@ -1,9 +1,8 @@
 package hello;
 
-import com.luxoft.uhg.fabric.xml.MainAccumulator;
-import com.luxoft.uhg.fabric.xml.MainGetAccumulator;
-import com.luxoft.uhg.fabric.xml.ObjectFactory;
-import com.luxoft.uhg.fabric.xml.XmlcallChaincodeFault;
+import com.luxoft.blockchain.*;
+import com.luxoft.healthcare.TestConstants;
+import com.luxoft.xmlcall.proto.XmlCall;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +21,9 @@ import javax.xml.bind.JAXBElement;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class WS_XmlCallTests {
 
+    private static final String channelId = TestConstants.channelId;
+    private static final String chaincodeId = TestConstants.chaincodeId;
+
     Jaxb2Marshaller marshaller;
     Jaxb2Marshaller unmarshaller;
     private static final String IN_NETWORK_INDIVIDUAL_DEDUCTIBLE = "In_Network_Individual_Deductible";
@@ -32,7 +34,7 @@ public class WS_XmlCallTests {
     Jaxb2Marshaller createJaxb2Marshaller() throws Exception {
         final Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
 
-        marshaller.setPackagesToScan(ClassUtils.getPackageName(XmlcallChaincodeFault.class));
+        marshaller.setPackagesToScan(ClassUtils.getPackageName(XmlCall.ChaincodeFault.class));
         marshaller.afterPropertiesSet();
 
         return marshaller;
@@ -62,15 +64,15 @@ public class WS_XmlCallTests {
         mainGetAccumulator.setPlanYear(2017);
         mainGetAccumulator.setAccumulatorId(IN_NETWORK_INDIVIDUAL_DEDUCTIBLE);
 
-        mainGetAccumulator.setInChannel("umr-2017");
-        mainGetAccumulator.setInChaincodeId("accumulator");
+        mainGetAccumulator.setInChannel(channelId);
+        mainGetAccumulator.setInChaincodeId(chaincodeId);
 
         unmarshaller.setMappedClass(MainAccumulator.class);
 
         StringResult result  = new StringResult();
-        marshaller.marshal(objectFactory.createAccumulatorGetAccumulator(mainGetAccumulator), result);
+        marshaller.marshal(objectFactory.createHealthcareGetAccumulator(mainGetAccumulator), result);
 
-        final JAXBElement<MainGetAccumulator> request = objectFactory.createAccumulatorGetAccumulator(mainGetAccumulator);
+        final JAXBElement<MainGetAccumulator> request = objectFactory.createHealthcareGetAccumulator(mainGetAccumulator);
 
 //        ws.marshalSendAndReceive(getURI(), request, message -> {
 //            final Result payloadResult = message.getPayloadResult();

@@ -1,0 +1,7 @@
+set -ex
+# gradle networkDown
+# gradle networkUp
+gradle networkConfigure
+gradle networkDeploy
+
+# SPRING_PROFILES_ACTIVE=develop gradle bootRun

@@ -1,6 +1,7 @@
 import com.google.protobuf.Descriptors;
-import com.luxoft.uhg.fabric.proto.ClaimAccumulator;
-import com.luxoft.uhg.fabric.services.AccumulatorOuterClass;
+import com.luxoft.healthcare.TestConstants;
+import com.luxoft.healthcare.messages.Healthcare;
+import com.luxoft.healthcare.services.HealthcareOuterClass;
 import com.luxoft.xmlcall.jms.JmsServerApplication;
 import com.luxoft.xmlcall.jms.JmsXmlCallClient;
 import com.luxoft.xmlcall.proto.XmlCall;
@@ -46,6 +47,9 @@ public class JMS_XmlCallTests
     private String namespaceURI;
     private Function<String, String> xsdFactory;
 
+    private static final String channelId = TestConstants.channelId;
+    private static final String chaincodeId = TestConstants.chaincodeId;
+
     @ClassRule
     public static ActiveMQBrokerRule brokerRule = new ActiveMQBrokerRule(activeMQBrokerURI);
 
@@ -76,28 +80,28 @@ public class JMS_XmlCallTests
     @Test
     public void testSend() throws Exception {
 
-        final Descriptors.MethodDescriptor getAccumulator = AccumulatorOuterClass.Accumulator.getDescriptor().findMethodByName("GetAccumulator");
-        final Descriptors.MethodDescriptor addClaim = AccumulatorOuterClass.Accumulator.getDescriptor().findMethodByName("AddClaim");
+        final Descriptors.MethodDescriptor getAccumulator = HealthcareOuterClass.Healthcare.getDescriptor().findMethodByName("GetAccumulator");
+        final Descriptors.MethodDescriptor addClaim = HealthcareOuterClass.Healthcare.getDescriptor().findMethodByName("AddClaim");
         final XmlCall.ChaincodeRequest chaincodeRequest = XmlCall.ChaincodeRequest.newBuilder()
-                .setChannel("umr-2017")
-                .setChaincodeId("accumulator")
+                .setChannel(channelId)
+                .setChaincodeId(chaincodeId)
                 .build();
-        final ClaimAccumulator.GetAccumulator accumulatorId = ClaimAccumulator.GetAccumulator.newBuilder()
+        final Healthcare.GetAccumulator accumulatorId = Healthcare.GetAccumulator.newBuilder()
                 .setMemberId("USER1")
                 .setPlanYear(2017)
                 .setAccumulatorId("In_Network_Individual_Deductible")
                 .build();
 
-        final ClaimAccumulator.Accumulator accumulator = xmlCallClient.sendRequest(getAccumulator, chaincodeRequest, accumulatorId, ClaimAccumulator.Accumulator.class).get().data;
+        final Healthcare.Accumulator accumulator = xmlCallClient.sendRequest(getAccumulator, chaincodeRequest, accumulatorId, Healthcare.Accumulator.class).get().data;
 
-        final ClaimAccumulator.AddClaim addClaimRequest = ClaimAccumulator.AddClaim.newBuilder()
+        final Healthcare.AddClaim addClaimRequest = Healthcare.AddClaim.newBuilder()
                 .setStateHash(accumulator.getStateHash())
                 .setClaim(
-                        ClaimAccumulator.Claim.newBuilder()
+                        Healthcare.Claim.newBuilder()
                                 .setAccumulatorId(accumulatorId.getAccumulatorId())
                                 .setMemberId(accumulatorId.getMemberId())
                                 .setPlanYear(accumulator.getPlanYear())
-                                .setSourceSystem("UMR")
+                                .setSourceSystem("SRCSYS")
                                 .setSourceClaimId("SRC007")
                                 .setDateOfService(123123)
                                 .setAmountCents(101)
@@ -105,7 +109,7 @@ public class JMS_XmlCallTests
                                 .build()
                 ).build();
 
-        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, ClaimAccumulator.AddClaimResponse.class).get();
+        xmlCallClient.sendRequest(addClaim, chaincodeRequest, addClaimRequest, Healthcare.GetAccumulator.class).get();
     }
 
     /***/
@@ -148,15 +152,15 @@ public class JMS_XmlCallTests
     {
 
         final String xmlText = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<Accumulator.GetAccumulator " +
+                "<Healthcare.GetAccumulator " +
                 "  xmlns=\"" +namespaceURI+ "\"" +
-                "  in.channel=\"umr-2017\"" +
-                "  in.chaincodeId=\"accumulator\"" +
+                "  in.channel=\"" +channelId+ "\"" +
+                "  in.chaincodeId=\"" +chaincodeId+ "\"" +
                 "  >\n" +
                 "      <memberId>USER1</memberId>\n" +
                 "      <accumulatorId>In_Network_Individual_Deductible</accumulatorId>\n" +
                 "      <planYear>2017</planYear>\n" +
-                "</Accumulator.GetAccumulator>\n";
+                "</Healthcare.GetAccumulator>\n";
 
         XmlHelper.xmlValidate(xmlText, xsdFactory);
     }

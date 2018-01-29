@@ -1,6 +1,7 @@
 package com.luxoft.hello;
 import javax.jms.ConnectionFactory;
 
+import com.luxoft.healthcare.TestConstants;
 import com.luxoft.xmlcall.jms.JmsXmlCallClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +18,9 @@ import org.springframework.jms.support.converter.SimpleMessageConverter;
 @SpringBootApplication
 @EnableJms
 public class JmsClientApplication {
+
+    private static final String chaincodeId = TestConstants.chaincodeId;
+    private static final String channelId = TestConstants.channelId;
 
     @Bean
     public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
@@ -50,13 +54,13 @@ public class JmsClientApplication {
 
         final String xmlText =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<Accumulator.GetAccumulator" +
-                        "  in.chaincodeId=\"accumulator\"" +
-                        "  in.channel=\"umr-2017\">" +
+                        "<Healthcare.GetAccumulator" +
+                        "  in.chaincodeId=\""+chaincodeId+ "\"" +
+                        "  in.channel=\"" +channelId+ "\">" +
                         "  <memberId>USER1</memberId>" +
                         "  <accumulatorId>In_Network_Individual_Deductible</accumulatorId>" +
                         "  <planYear>2017</planYear>" +
-                        "</Accumulator.GetAccumulator>";
+                        "</Healthcare.GetAccumulator>";
 
         final String result = jmsXmlCallClient.sendXMLRequest(xmlText);
         System.out.println(result);

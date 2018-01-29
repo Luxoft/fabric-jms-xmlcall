@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "com.luxoft.healthcare.services";
+option go_package = "hc";
+import "xmlcall.proto";
+import "google/protobuf/empty.proto";
+import "messages/healthcare.proto";
+
+option java_generic_services = true; // for testing purposes only
+
+service Healthcare {
+    rpc AddClaim (main.AddClaim) returns (main.Accumulator) {option(xmlcall.exec_type) = INVOKE; }
+    rpc GetAccumulator(main.GetAccumulator) returns (main.Accumulator) {option(xmlcall.exec_type) = QUERY; }
+}

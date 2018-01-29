@@ -1,0 +1,49 @@
+def group_name = 'fabric-devnet'
+def fabricDir = "$projectDir/fabric"
+def configPath = "$fabricDir/fabric.yaml"
+
+task networkUp(type: Exec) {
+    group = group_name
+
+    workingDir "$fabricDir"
+    commandLine 'docker-compose', 'up', '-d'
+
+    doLast { println("FABRIC-UP: Task completed") }
+}
+
+task networkDown(type: Exec) {
+    group = group_name
+    workingDir "$fabricDir"
+    commandLine 'docker-compose', 'down'
+
+    doLast { println("FABRIC-DOWN: Task completed") }
+}
+
+task networkRestart(type: Exec) {
+    group = group_name
+    workingDir "$fabricDir"
+    commandLine 'docker-compose', 'restart'
+
+    doLast { println("FABRIC-RESTART: Task completed") }
+}
+
+task networkConfigure(type: JavaExec) {
+    group = group_name
+
+    workingDir "$projectDir"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.luxoft.fabric.utils.Configurator'
+    args '--type', 'config', '--config', "$configPath"
+
+    doLast { println("FABRIC-CONFIG: Task completed") }
+}
+
+task networkDeploy(type: JavaExec) {
+    group = group_name
+
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.luxoft.fabric.utils.Configurator'
+    args '--type', 'deploy', '--config', "$configPath"
+
+    doLast { println("CHAINCODE-DEPLOY: all chaincodes from fabric.yaml") }
+}

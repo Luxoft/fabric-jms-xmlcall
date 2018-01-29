@@ -20,8 +20,7 @@ repositories {
 task genJaxb {
     ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
     ext.classesDir = "${buildDir}/classes/jaxb"
-//    ext.schema = "../data/proto/xsd/countries.xsd"
-    ext.schema = "../data/proto/xsd/services.xsd"
+    ext.schema = "../data/proto/services.xsd"
 
     outputs.dir classesDir
     outputs.upToDateWhen { false }

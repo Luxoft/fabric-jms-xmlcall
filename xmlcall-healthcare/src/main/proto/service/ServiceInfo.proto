@@ -1,4 +1,0 @@
-syntax = "proto3";
-import "xmlcall.proto";
-option java_package = "com.luxoft.uhg.fabric.services";
-option(xmlcall.namespace) = "http://www.luxoft.com/blockchain";
