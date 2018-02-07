@@ -1,20 +1,25 @@
 package main
 
 import (
-	"github.com/hyperledger/fabric/core/chaincode/shim"
-	pb "github.com/hyperledger/fabric/protos/peer"
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	//"crypto/sha256"
 	//"encoding/hex"
+
 	"healthcare/proto/messages"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
 var logger = shim.NewLogger("Healthcare")
 
+// Healthcare chaincode object
 type Healthcare struct {
+	// no members here
 }
 
+// Init method initializes chaincode handler
 func (t *Healthcare) Init(stub shim.ChaincodeStubInterface) pb.Response {
 
 	logger.Info("Init")
@@ -22,9 +27,8 @@ func (t *Healthcare) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
-
+// Invoke handles chaincode invocations
 func (t *Healthcare) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-
 
 	function, args := stub.GetFunctionAndParameters()
 
@@ -85,12 +89,10 @@ func (t *Healthcare) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	return loggedShimError("Invalid invoke function name. Expecting \"invoke\" \"getBalance\"")
 }
 
-
-
-func (t *Healthcare) loadAccumulator(stub shim.ChaincodeStubInterface, memberId string, accumulatorId string, planYear int32) (*hc.Accumulator, error) {
+func (t *Healthcare) loadAccumulator(stub shim.ChaincodeStubInterface, memberID string, accumulatorID string, planYear int32) (*hc.Accumulator, error) {
 
 	entity := new(hc.Accumulator)
-	key := fmt.Sprintf("%v:%v:%v", memberId, accumulatorId, planYear)
+	key := fmt.Sprintf("%v:%v:%v", memberID, accumulatorID, planYear)
 
 	// getting real file descriptor by key
 	state, err := stub.GetState(key)
@@ -100,8 +102,8 @@ func (t *Healthcare) loadAccumulator(stub shim.ChaincodeStubInterface, memberId 
 
 	if state == nil {
 		entity = new(hc.Accumulator)
-		entity.MemberId = memberId
-		entity.AccumulatorId = accumulatorId
+		entity.MemberId = memberID
+		entity.AccumulatorId = accumulatorID
 		entity.PlanYear = planYear
 		entity.ValueCents = 0
 	} else {
@@ -113,21 +115,20 @@ func (t *Healthcare) loadAccumulator(stub shim.ChaincodeStubInterface, memberId 
 	return entity, nil
 }
 
-func (t *Healthcare) saveAccumulator(stub shim.ChaincodeStubInterface, acc *hc.Accumulator) (error) {
+func (t *Healthcare) saveAccumulator(stub shim.ChaincodeStubInterface, acc *hc.Accumulator) error {
 
 	key := fmt.Sprintf("%v:%v:%v", acc.MemberId, acc.AccumulatorId, acc.PlanYear)
 
 	state, err := proto.Marshal(acc)
 	if err != nil {
-		return fmt.Errorf("failed to create json for entity <%s> with error: %s" , key, err)
+		return fmt.Errorf("failed to create json for entity <%s> with error: %s", key, err)
 	}
 
 	if err := stub.PutState(key, state); err != nil {
-		return fmt.Errorf("failed to store entity <%s> with error: %s" , key, err)
+		return fmt.Errorf("failed to store entity <%s> with error: %s", key, err)
 	}
 	return nil
 }
-
 
 func (t *Healthcare) addClaim(stubInterface shim.ChaincodeStubInterface, claim *hc.AddClaim) (*hc.Accumulator, error) {
 
@@ -153,7 +154,6 @@ func (t *Healthcare) addClaim(stubInterface shim.ChaincodeStubInterface, claim *
 	s.ValueCents += c.AmountCents
 	return s, t.saveAccumulator(stubInterface, s)
 }
-
 
 func (t *Healthcare) getAccumulator(stub shim.ChaincodeStubInterface, ref *hc.GetAccumulator) (*hc.Accumulator, error) {
 
