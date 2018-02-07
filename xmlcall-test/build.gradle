@@ -52,7 +52,7 @@ protobuf {
             task.descriptorSetOptions.includeSourceInfo = true
             task.builtins {
                 // path is relative to: $buildDir/generated/source/proto/$sourceSet/$builtinPluginName
-                go { outputSubDir = "../../../../../src/main/go/healthcare/src/chaincode/proto" }
+                go { outputSubDir = "../../../../../src/main/go/src/healthcare/proto" }
             }
         }
     }

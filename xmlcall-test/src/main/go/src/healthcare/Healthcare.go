@@ -7,7 +7,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	//"crypto/sha256"
 	//"encoding/hex"
-	"chaincode/proto/messages"
+	"healthcare/proto/messages"
 )
 
 var logger = shim.NewLogger("Healthcare")

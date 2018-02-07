@@ -38,8 +38,8 @@ orderers:
 chaincodes:
     - healthcare-cc:
         id: healthcare-cc
-        sourceLocation: chaincode
-        sourceLocationPrefix: xmlcall-test/src/main/go/healthcare
+        sourceLocation: healthcare
+        sourceLocationPrefix: xmlcall-test/src/main/go
         version: v12
         type: GO_LANG
 
