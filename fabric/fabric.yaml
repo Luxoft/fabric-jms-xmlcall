@@ -1,0 +1,66 @@
+#
+# Copyright Luxoft. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+admins:
+    - example.com:
+        name: admin
+        cert: fabric/crypto-config/peerOrganizations/example.com/users/Admin@example.com/msp/admincerts/Admin@example.com-cert.pem
+        privateKey: fabric/crypto-config/peerOrganizations/example.com/users/Admin@example.com/msp/keystore/*_sk
+        mspID: Org1MSP
+
+eventhubs:
+    - peer0.example.com:
+        url: grpc://localhost:7053
+        pemFile: fabric/crypto-config/peerOrganizations/example.com/peers/peer0.example.com/tls/ca.crt
+        sslProvider: openSSL
+        negotiationType: TLS
+        hostnameOverride: peer0.example.com
+
+peers:
+    - peer0.example.com:
+        url: grpc://localhost:7051
+        pemFile: fabric/crypto-config/peerOrganizations/example.com/peers/peer0.example.com/tls/ca.crt
+        sslProvider: openSSL
+        negotiationType: TLS
+        hostnameOverride: peer0.example.com
+
+orderers:
+    - orderer.example.com:
+        url: grpc://localhost:7050
+        pemFile: fabric/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt
+        sslProvider: openSSL
+        negotiationType: TLS
+        hostnameOverride: orderer.example.com
+        waitTime: 10000
+
+chaincodes:
+    - healthcare-cc:
+        id: healthcare-cc
+        sourceLocation: healthcare
+        sourceLocationPrefix: xmlcall-test/src/main/go
+        version: v12
+        type: GO_LANG
+
+channels:
+      - healthcare-channel:
+          admin: example.com
+          orderers:
+              - orderer.example.com
+          peers:
+              - peer0.example.com
+          eventhubs:
+              - peer0.example.com
+          txFile: fabric/chain-config/healthcare-channel.tx
+          chaincodes:
+              - healthcare-cc
+
+cas:
+    - ca.example.com:
+        url: https://ca.example.com:7054
+        pemFile: fabric/crypto-config/peerOrganizations/example.com/ca/ca.example.com-cert.pem
+        allowAllHostNames: true
+        adminLogin: admin
+        adminSecret: adminpw
+        mspID: Org1MSP

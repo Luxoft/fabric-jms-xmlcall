@@ -1,0 +1,75 @@
+group 'com.luxoft'
+version '1.0'
+
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'com.google.protobuf'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':xmlcall-core')
+    compile 'com.google.protobuf:protobuf-java:3.4.0'
+    compile 'com.google.protobuf:protobuf-java-util:3.4.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+    testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.8.0'
+}
+
+test {
+    workingDir "${project.rootDir}"
+}
+
+protobuf {
+
+    // Configure the protoc executable
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:3.4.0'
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+//          task.include "${project(':xmlcall-core').projectDir}/src/main/proto"
+            task.generateDescriptorSet = true
+            task.descriptorSetOptions.path = "${rootDir}/data/proto/services.desc"
+            task.descriptorSetOptions.includeImports = true
+            task.descriptorSetOptions.includeSourceInfo = true
+            task.builtins {
+                // path is relative to: $buildDir/generated/source/proto/$sourceSet/$builtinPluginName
+                go { outputSubDir = "../../../../../src/main/go/src/healthcare/proto" }
+            }
+        }
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/grpc");
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/test/java");
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/test/grpc");
+    }
+}
+
+clean {
+    delete "${rootDir}/data/proto/services.desc"
+}
+
+apply from: 'fabric-devnet.gradle'
+

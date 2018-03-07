@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "connectorArg",
+      "type": "java.lang.String",
+      "description": "Path to fabric config files (according fabric-utils way)"
+    },
+    {
+      "name": "organization",
+      "type": "java.lang.String",
+      "description": "Short organization name."
+    }
+  ]
+}

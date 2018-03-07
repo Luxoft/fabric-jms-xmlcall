@@ -1,0 +1,50 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.8.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+repositories {
+    mavenCentral()
+    repositories {
+        mavenCentral()
+        maven {
+            url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/"
+        }
+    }
+
+}
+
+jar {
+    baseName = 'xmlcall-web-service'
+    version =  '0.1.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile project(':xmlcall-core')
+    testCompile project(':xmlcall-test')
+    compile("org.springframework.boot:spring-boot-starter-web-services")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+//    compile("wsdl4j:wsdl4j:1.6.1")
+//    jaxb("org.glassfish.jaxb:jaxb-xjc:2.2.11")
+//    compile(files(genJaxb.classesDir).builtBy(genJaxb))
+}
+
+sourceSets {
+    main.java.srcDir "${buildDir}/generated-sources/jaxb"
+}
+
+test {
+    workingDir "${project.rootDir}"
+}

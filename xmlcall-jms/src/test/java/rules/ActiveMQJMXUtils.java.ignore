@@ -1,0 +1,37 @@
+package rules;
+
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.jmx.QueueViewMBean;
+import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.web.BrokerFacadeSupport;
+import org.apache.activemq.web.LocalBrokerFacade;
+
+public class ActiveMQJMXUtils
+{
+
+    private final BrokerFacadeSupport facade;
+
+    public ActiveMQJMXUtils(BrokerService brokerService) {
+        this.facade = new LocalBrokerFacade(brokerService);
+    }
+
+    public void cleanUp(String queueName) {
+        try {
+            facade.purgeQueue(new ActiveMQQueue(queueName));
+            long size = getQueueSize(queueName);
+            if (size > 0)
+                throw new IllegalStateException("It was not possible to clean up the queue '" +  queueName + "'.");
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public long getQueueSize(String queueName) {
+        try {
+            QueueViewMBean queue = facade.getQueue(queueName);
+            return (queue != null ? queue.getQueueSize() : 0);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+}

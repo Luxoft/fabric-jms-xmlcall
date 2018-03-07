@@ -1,0 +1,48 @@
+syntax="proto3";
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/empty.proto";
+
+option java_package = "com.luxoft.xmlcall.proto";
+option java_outer_classname = "XmlCall";
+
+package xmlcall;
+
+enum ExecType
+{
+    UNKNOWN = 0;
+    QUERY = 1;
+    INVOKE = 2;
+    EVENT = 3;
+}
+
+extend google.protobuf.MethodOptions {
+    ExecType exec_type = 50000;
+}
+
+extend google.protobuf.FileOptions {
+    string namespace = 50000;
+    string faultType = 50001;
+    string requestAttributes = 50002;
+    string resultAttributes = 50003;
+}
+
+
+message ChaincodeFault
+{
+    string message = 1;
+}
+
+message ChaincodeResult
+{
+    string txid = 1;
+}
+
+message ChaincodeRequest
+{
+    string chaincodeId = 1;
+    string channel = 2;
+}
+
+option(xmlcall.faultType) = ".xmlcall.ChaincodeFault";
+option(xmlcall.requestAttributes) = ".xmlcall.ChaincodeRequest";
+option(xmlcall.resultAttributes) = ".xmlcall.ChaincodeResult";

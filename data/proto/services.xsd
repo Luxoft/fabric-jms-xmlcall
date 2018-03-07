@@ -1,0 +1,25 @@
+<xs:schema
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:tns="http://www.luxoft.com/blockchain"
+ targetNamespace="http://www.luxoft.com/blockchain"
+ elementFormDefault="qualified">
+<xs:simpleType name="main.MYENUM" final="restriction"><xs:restriction base="xs:string"><xs:enumeration value="OPT0"/><xs:enumeration value="OPTA"/><xs:enumeration value="OPTB"/></xs:restriction></xs:simpleType>
+<xs:simpleType name="main.TestMessage.NestedEnum" final="restriction"><xs:restriction base="xs:string"><xs:enumeration value="OPT0"/><xs:enumeration value="OPT1"/></xs:restriction></xs:simpleType>
+<xs:complexType name="main.MapValue"><xs:sequence><xs:element name="mapValueValue" type="xs:string"/></xs:sequence></xs:complexType>
+<xs:complexType name="main.GetAccumulator"><xs:sequence><xs:element name="memberId" type="xs:string"/><xs:element name="accumulatorId" type="xs:string"/><xs:element name="planYear" type="xs:int"/></xs:sequence><xs:attribute name="in.chaincodeId" type="xs:string"/><xs:attribute name="in.channel" type="xs:string"/><xs:attribute name="out.txid" type="xs:string"/></xs:complexType>
+<xs:complexType name="main.TestMessage.IntMapEntry"><xs:sequence><xs:element name="key" type="xs:int"/><xs:element name="value" type="xs:int"/></xs:sequence></xs:complexType>
+<xs:complexType name="main.AddClaim"><xs:sequence><xs:element name="claim" type="tns:main.Claim"/><xs:element name="StateHash" type="xs:string"/></xs:sequence><xs:attribute name="in.chaincodeId" type="xs:string"/><xs:attribute name="in.channel" type="xs:string"/></xs:complexType>
+<xs:complexType name="xmlcall.ChaincodeFault"><xs:sequence><xs:element name="message" type="xs:string"/></xs:sequence><xs:attribute name="out.txid" type="xs:string"/></xs:complexType>
+<xs:complexType name="main.Claim"><xs:sequence><xs:element name="accumulatorId" type="xs:string"/><xs:element name="sourceSystem" type="xs:string"/><xs:element name="sourceClaimId" type="xs:string"/><xs:element name="dateOfService" type="xs:long"/><xs:element name="amountCents" type="xs:int"/><xs:element name="memberId" type="xs:string"/><xs:element name="planSponsor" type="xs:string"/><xs:element name="planYear" type="xs:int"/></xs:sequence></xs:complexType>
+<xs:complexType name="main.TestMessage.NestedMessage"><xs:sequence><xs:element name="a" type="xs:int"/></xs:sequence></xs:complexType>
+<xs:complexType name="main.TestMessage"><xs:sequence><xs:element name="intMap" type="tns:main.TestMessage.IntMapEntry" minOccurs="0" maxOccurs="unbounded"/><xs:element name="msgMap" type="tns:main.TestMessage.MsgMapEntry" minOccurs="0" maxOccurs="unbounded"/><xs:element name="arr" type="xs:string" minOccurs="0" maxOccurs="unbounded"/><xs:element name="b" type="xs:base64Binary"/><xs:element name="s" type="xs:string"/><xs:element name="x" type="xs:int"/><xs:element name="e" type="tns:main.MYENUM"/><xs:element name="nested" type="tns:main.TestMessage.NestedMessage"/><xs:element name="nestedEnum" type="tns:main.TestMessage.NestedEnum"/><xs:choice><xs:element name="name" type="xs:string"/><xs:element name="sub_message" type="tns:main.MapValue"/></xs:choice></xs:sequence><xs:attribute name="in.chaincodeId" type="xs:string"/><xs:attribute name="in.channel" type="xs:string"/><xs:attribute name="out.txid" type="xs:string"/></xs:complexType>
+<xs:complexType name="main.TestMessage.MsgMapEntry"><xs:sequence><xs:element name="key" type="xs:string"/><xs:element name="value" type="tns:main.MapValue"/></xs:sequence></xs:complexType>
+<xs:complexType name="main.Accumulator"><xs:sequence><xs:element name="memberId" type="xs:string"/><xs:element name="accumulatorId" type="xs:string"/><xs:element name="valueCents" type="xs:int"/><xs:element name="planYear" type="xs:int"/><xs:element name="stateHash" type="xs:string"/></xs:sequence><xs:attribute name="out.txid" type="xs:string"/></xs:complexType>
+<xs:element name="Healthcare.AddClaim" type="tns:main.AddClaim"/>
+<xs:element name="Healthcare.GetAccumulator" type="tns:main.GetAccumulator"/>
+<xs:element name="main.TestService.main" type="tns:main.TestMessage"/>
+<xs:element name="main.GetAccumulator" type="tns:main.GetAccumulator"/>
+<xs:element name="xmlcall.ChaincodeFault" type="tns:xmlcall.ChaincodeFault"/>
+<xs:element name="main.TestMessage" type="tns:main.TestMessage"/>
+<xs:element name="main.Accumulator" type="tns:main.Accumulator"/>
+</xs:schema>

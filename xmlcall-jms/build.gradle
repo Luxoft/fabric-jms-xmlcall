@@ -1,0 +1,48 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.8.RELEASE")
+    }
+}
+
+group 'com.luxoft'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/"
+    }
+}
+
+dependencies {
+    compile project(':xmlcall-core')
+    testCompile project(':xmlcall-test')
+
+    compile("org.springframework.boot:spring-boot-starter-activemq")
+    testCompile("org.apache.activemq:activemq-broker")
+    //testCompile("org.apache.activemq:activemq-web")
+
+//    testCompile("org.apache.activemq:activemq-spring")
+//    testCompile("org.apache.activemq:activemq-kahadb-store")
+//    testCompile("org.apache.activemq:activemq-mqtt")
+//    testCompile("org.apache.activemq:activemq-amqp")
+//    testCompile("org.apache.activemq:activemq-stomp")
+
+//    compile("com.fasterxml.jackson.core:jackson-databind")
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+test {
+    workingDir "${project.rootDir}"
+}
+

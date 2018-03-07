@@ -1,0 +1,39 @@
+group 'com.luxoft'
+version '1.0'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.8.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    baseName = 'xmlcall-client-jms'
+    version =  '1.0'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/"
+    }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-activemq")
+//    compile("org.apache.activemq:activemq-broker")
+
+    compile project(':xmlcall-core')
+    compile project(':xmlcall-jms')
+    compile project(':xmlcall-test')
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

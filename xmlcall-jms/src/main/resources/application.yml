@@ -1,0 +1,15 @@
+spring.profiles.active: reflect
+descriptorFileName: data/proto/services.desc
+xmlCallJmsDestination: blockchain-xmlcall
+
+spring.activemq.broker-url: tcp://localhost:61616
+
+---
+spring.profiles: reflect
+connectorClass: com.luxoft.xmlcall.reflect.XmlCallReflectionConnector
+connectorArg: com.luxoft.healthcare.stub
+
+---
+spring.profiles: fabric
+connectorClass: XmlCallFabricConnector
+connectorArg: fabric/fabric.yaml
